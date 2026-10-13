@@ -109,6 +109,10 @@ def clip(seg, movie, start, length, lang, tag, channels):
     ass = subs_file(lines, start, f'{seg}.ass')
     mix = DOWNMIX6 if channels == 6 else 'pan=stereo|FL=c0|FR=c1'
     video = os.path.join(RA3, 'Data', 'Movies', movie.upper() + '.vp6')
+    # the briefing room's wall map shows China's borders wrongly: use the mosaicked copy (tools/mask_map.py)
+    masked = os.path.join(OUT, 'masked', movie.upper() + '.mp4')
+    if os.path.exists(masked):
+        video = masked
     # EA's VP6 container has no seek index: decode from the start and trim in the filter graph
     end = start + length
     ff(['-i', video, '-i', wav,
