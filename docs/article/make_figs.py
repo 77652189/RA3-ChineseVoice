@@ -241,8 +241,9 @@ def funnel():
     steps = [(207, '第一版过场配音', '声纹 + 音高检查标出的可疑句子', RED),
              (145, '换上干净的参考音，重配 1331 句后', '同样的检查再跑一遍', GOLD),
              (35, '用更准的音高算法复核', '短句音高容易测错八度，排除误报', GOLD),
-             (4, '可疑的句子每句配 6 版，只留声线对的', '剩下的人工逐句听', GREEN)]
-    f = fig(8.4)
+             (4, '可疑的句子每句配 6 版，只留声线对的', '剩下的原声太短太吵，AI 学不到', GOLD),
+             (0, '按剧情找同一角色的长句当参考，重配', '重配后人工逐句听过，全部对上', GREEN)]
+    f = fig(9.6)
     f.text(0.04, 0.925, '过场里“谁在说话”：一步步把配错声线的句子揪出来', color=FG, fontsize=24, weight='bold')
     f.text(0.04, 0.875, '一共 2782 句过场台词', color=DIM, fontsize=16)
     ax = f.add_axes([0.04, 0.06, 0.92, 0.76], facecolor=BG)
@@ -252,7 +253,7 @@ def funnel():
     top = steps[0][0]
     for i, (n, t, s, c) in enumerate(steps):
         y = len(steps) - 1 - i
-        w = max(1.2, 46 * n / top)
+        w = max(0.6, 46 * n / top)
         ax.barh(y, w, left=0, height=0.62, color=c)
         ax.text(w + 1.2, y + 0.06, f'{n} 句', color=FG, fontsize=26, weight='bold', va='center')
         ax.text(62, y + 0.13, t, color=FG, fontsize=18, va='center', weight='bold')
