@@ -122,6 +122,23 @@ def clip(seg, movie, start, length, lang, tag, channels):
     return f'{seg}.mp4'
 
 
+# the player's own recording of a campaign mission with the mod installed (not in the repo); skipped if missing
+GAMEPLAY = os.environ.get('CNVOICE_GAMEPLAY', os.path.expanduser(os.path.join('~', 'Videos', '2026-10-13 10-43-21.mp4')))
+
+
+def gameplay(seg, start, length, tag):
+    """A piece of real play: in-game video call, unit replies and EVA, as recorded (scaled up to the demo size)."""
+    ff(['-ss', str(start), '-t', str(length), '-i', GAMEPLAY,
+        '-filter_complex',
+        # the corner label would sit on the game's HUD: top centre on a dark box instead
+        f"[0:v]scale={W}:{H}:flags=lanczos,setsar=1,"
+        + draw(tag, 40, '(w-text_w)/2', 36, extra=':box=1:boxcolor=black@0.6:boxborderw=16') + ","
+        f"fade=t=in:st=0:d=0.4,fade=t=out:st={length - 0.4}:d=0.4[v];"
+        f"[0:a]{LOUD},afade=t=in:st=0:d=0.3,afade=t=out:st={length - 0.4}:d=0.4[a]",
+        '-map', '[v]', '-map', '[a]', '-t', f'{length}'] + ENC + [f'{seg}.mp4'])
+    return f'{seg}.mp4'
+
+
 def card(seg, length, layers, audio=None, image=None):
     """A designed full-screen card: dark background, drawn text layers, optional image and audio."""
     inputs = ['-f', 'lavfi', '-t', f'{length}', '-i', f'color=c={BG}:s={W}x{H}:r={FPS}']
@@ -217,6 +234,8 @@ def main():
     segs.append(clip('s06_emperor', 'jfs01', 57.5, 20.5, 'zh', '剧情过场 · 帝国开篇', 6))
     segs.append(clip('s07_call', 'a01th01', 0, 4.8, 'zh', '任务中的视频通话', 2))
     segs.append(clip('s08_oleg', 'solgr1', 0, 5.4, 'zh', '遭遇战 AI 指挥官', 2))
+    if os.path.exists(GAMEPLAY):
+        segs.append(gameplay('s08b_play', 246, 24, '实机画面 · 盟军战役 · 东京港'))
     segs.append(card('s09_units', 3, [draw('单位语音', 90, '(w-text_w)/2', 470)]))
     segs.append(unit_card('s10_kirov', '基洛夫飞艇', 'Kirov Airship', '苏联', [('soviet', 'SUKirov_VoiCreatea', 'Kirov reporting.'), ('soviet', 'SUKirov_VoiAttackb', False)]))
     segs.append(unit_card('s11_conscript', '动员兵', 'Conscript', '苏联', [('soviet', 'SUConsc_VoiAttackc', False), ('soviet', 'SUConsc_VoiAttacke', False)]))
