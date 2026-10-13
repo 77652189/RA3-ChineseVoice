@@ -51,6 +51,13 @@ namespace CNVoiceInstaller
         public List<Comp> Comps = new List<Comp>();
         public Dictionary<string, object> Games;
         public Action<string> Log = delegate { };
+        public List<string> Notes = new List<string>();   // 安装时跳过的东西，装完后提示玩家
+
+        // 帧率解锁（SAGE-Unlocked，GPL-3.0）：三个文件放进 Data\，和本 MOD 的包无关
+        public const string FpsMark = "CNVoice_fps.json";   // 记下本 MOD 装进去的文件和哈希：卸载时只删自己装的
+        static readonly string[] FpsDlls = { "d3d9.dll", "CnCFpsUnlocker.dll" };
+        const string FpsIni = "SAGEUnlocked.ini";
+        public const int DefaultFps = 120;                    // 插件不会超过显示器刷新率，掉帧时游戏速度也不变
 
         public Mod(string root)
         {
@@ -150,7 +157,64 @@ namespace CNVoiceInstaller
 
         public List<string> Installed(Game g)
         {
-            return Comps.Where(c => File.Exists(Path.Combine(g.Dir, "Data", BigOf(c.Id)))).Select(c => c.Id).ToList();
+            return Comps.Where(c => c.Kind == "fps" ? File.Exists(Path.Combine(g.Dir, "Data", FpsMark))
+                                                    : File.Exists(Path.Combine(g.Dir, "Data", BigOf(c.Id)))).Select(c => c.Id).ToList();
+        }
+
+        bool IsFps(string id) { return Comps.Any(c => c.Id == id && c.Kind == "fps"); }
+
+        /// 现在 ini 里设的帧率（玩家可能自己改过；重装时保留）。旧版插件的 ini 叫 RA3HighFps.ini
+        public static int? FpsSetting(Game g)
+        {
+            foreach (var n in new[] { FpsIni, "RA3HighFps.ini" })
+            {
+                var p = Path.Combine(g.Dir, "Data", n);
+                if (!File.Exists(p)) continue;
+                var m = Regex.Match(File.ReadAllText(p, Latin1), @"(?m)^[ \t]*fps[ \t]*=[ \t]*(\d+)");
+                if (m.Success) return int.Parse(m.Groups[1].Value);
+            }
+            return null;
+        }
+
+        void SetFps(Game g, int fps)
+        {
+            var data = Path.Combine(g.Dir, "Data");
+            if (File.Exists(Path.Combine(data, "d3d9.dll")) && !File.Exists(Path.Combine(data, "CnCFpsUnlocker.dll")))
+            {
+                // 别的 d3d9.dll（ReShade、DXVK……）：两者不能同时用，不覆盖玩家的东西
+                Notes.Add("帧率解锁没有安装：Data 里已经有别的 d3d9.dll（可能是 ReShade、DXVK 等画面工具），为避免冲突跳过了。");
+                Log("  跳过帧率解锁：已有别的 d3d9.dll");
+                return;
+            }
+            var src = Path.Combine(Root, "fps");
+            var mark = new Dictionary<string, object>();
+            foreach (var n in FpsDlls)
+            {
+                File.Copy(Path.Combine(src, n), Path.Combine(data, n), true);
+                mark[n] = Sha1(Path.Combine(data, n));
+            }
+            var ini = Regex.Replace(File.ReadAllText(Path.Combine(src, FpsIni), Latin1), @"(?m)^fps=\d+", "fps=" + fps);
+            Write(Path.Combine(data, FpsIni), ini);
+            mark[FpsIni] = Sha1(Path.Combine(data, FpsIni));
+            File.WriteAllText(Path.Combine(data, FpsMark), new JavaScriptSerializer().Serialize(mark), new UTF8Encoding(false));
+            Log("  帧率解锁已安装（" + fps + " 帧）");
+        }
+
+        /// 只删本 MOD 装进去、之后没被换过的插件文件；玩家自己升级过插件就原样留着
+        void RemoveFps(Game g)
+        {
+            var data = Path.Combine(g.Dir, "Data");
+            var mk = Path.Combine(data, FpsMark);
+            if (!File.Exists(mk)) return;
+            var mark = (Dictionary<string, object>)new JavaScriptSerializer().DeserializeObject(File.ReadAllText(mk, Encoding.UTF8));
+            bool ours = FpsDlls.All(n => { var q = Path.Combine(data, n); return !File.Exists(q) || (mark.ContainsKey(n) && Sha1(q) == (string)mark[n]); });
+            if (ours)
+                foreach (var n in FpsDlls.Concat(new[] { FpsIni }))
+                {
+                    var q = Path.Combine(data, n);
+                    if (File.Exists(q)) File.Delete(q);
+                }
+            File.Delete(mk);
         }
 
         public bool HasMarkers(Game g)
@@ -181,6 +245,7 @@ namespace CNVoiceInstaller
                 }
             }
             var data = Path.Combine(g.Dir, "Data");
+            RemoveFps(g);
             var marker = Path.Combine(data, Marker);
             if (File.Exists(marker)) File.Delete(marker);
             var bigs = Directory.GetFiles(data, "CNVoice*.big").Select(Path.GetFileName).Concat(LegacyBigs).Distinct();
@@ -279,16 +344,45 @@ namespace CNVoiceInstaller
         }
 
         /// 让这个游戏里装着的组件正好等于 want（空 = 完全卸载，恢复原版）
+        /// 这个游戏目录里正在运行的程序（RA3.exe、Data\RA3_1.13.game……）：运行时文件被占用，装到一半会出错
+        public static List<string> Running(Game g)
+        {
+            var dir = Path.GetFullPath(g.Dir).TrimEnd('\\') + "\\";
+            var found = new List<string>();
+            foreach (var p in System.Diagnostics.Process.GetProcesses())
+            {
+                try
+                {
+                    var n = p.ProcessName.ToLowerInvariant();
+                    if (!(n.StartsWith("ra3") || n.Contains(".game"))) continue;
+                    string path = null;
+                    try { path = p.MainModule.FileName; } catch { }
+                    if (path == null || path.StartsWith(dir, StringComparison.OrdinalIgnoreCase)) found.Add(p.ProcessName);
+                }
+                catch { }
+            }
+            return found.Distinct().ToList();
+        }
+
+        void EnsureNotRunning(Game g)
+        {
+            var r = Running(g);
+            if (r.Count > 0) throw new Exception("游戏正在运行（" + string.Join("、", r) + "），请先完全退出游戏，再安装或卸载。什么都没有改动。");
+        }
+
         public void Apply(Game g, List<Comp> want)
         {
+            EnsureNotRunning(g);
+            var fps = FpsSetting(g) ?? DefaultFps;
             Remove(g);
             if (want.Count == 0) return;
             try
             {
-                var voice = want.Where(c => c.Kind != "text").ToList();
+                var voice = want.Where(c => c.Kind != "text" && c.Kind != "fps").ToList();
                 var text = want.Where(c => c.Kind == "text").ToList();
                 if (voice.Count > 0) SetVoice(g, voice);
                 if (text.Count > 0) SetText(g, text);
+                if (want.Any(c => c.Kind == "fps")) SetFps(g, fps);
                 WriteMarker(g, Version, Build, Build, want.Select(c => c.Id));
                 try { ReapplyCached(g); } catch (Exception ex) { Log("  （已下载的更新没能重新应用：" + ex.Message + "）"); }
             }
@@ -411,7 +505,8 @@ namespace CNVoiceInstaller
                                     + "，这个安装包是 v" + Version + "（" + Build + "）。点“安装 / 更新”即可换成这个版本。"));
             else if (have.Count > 0)
                 r.Add(new Check(0, "版本一致", "已安装 v" + Version + "（" + Build + "）。"));
-            foreach (var id in have)
+            var bigs = have.Where(id => !IsFps(id)).ToList();
+            foreach (var id in bigs)
             {
                 if (otherVersion) break;          // sizes are expected to differ between versions
                 var c = Comps.First(x => x.Id == id);
@@ -441,18 +536,18 @@ namespace CNVoiceInstaller
                 var top = lang.OrderBy(n => int.Parse(SkuRe.Match(n).Groups[3].Value) * 1000 + int.Parse(SkuRe.Match(n).Groups[4].Value)).Last();
                 var chain = Chain(g.Dir, top);
                 var langName = lang.Key == "chinese_t" ? "繁体中文" : lang.Key == "english" ? "英文" : lang.Key;
-                var missing = have.Where(id => !chain.Contains(BigOf(id), StringComparer.OrdinalIgnoreCase)).ToList();
+                var missing = bigs.Where(id => !chain.Contains(BigOf(id), StringComparer.OrdinalIgnoreCase)).ToList();
                 int audioAt = chain.FindIndex(b => b.Equals("EnglishAudio.big", StringComparison.OrdinalIgnoreCase));
-                var late = have.Where(id => Comps.First(c => c.Id == id).Kind != "text" && audioAt >= 0
+                var late = bigs.Where(id => Comps.First(c => c.Id == id).Kind != "text" && audioAt >= 0
                                             && chain.FindIndex(b => b.Equals(BigOf(id), StringComparison.OrdinalIgnoreCase)) > audioAt).ToList();
-                if (have.Count > 0 && missing.Count == have.Count)
+                if (bigs.Count > 0 && missing.Count == bigs.Count)
                     r.Add(new Check(2, langName + "版没有加载本 MOD", "MOD 文件还在，但游戏配置被还原了（常见于 Steam“验证游戏文件完整性”之后）。请重新点“安装 / 更新”。"));
                 else if (missing.Count > 0)
                     r.Add(new Check(2, langName + "版有内容没加载", "没有加载：" + string.Join("、", missing.Select(id => Comps.First(c => c.Id == id).Name)) + "。请重新点“安装 / 更新”。"));
                 else if (late.Count > 0)
                     r.Add(new Check(2, langName + "版加载顺序不对", "中文语音排在英文语音之后，不会生效。请重新点“安装 / 更新”。"));
-                else if (have.Count > 0)
-                    r.Add(new Check(0, langName + "版已加载", "启动 " + top + " 时会读取本 MOD 的全部 " + have.Count + " 项内容。"));
+                else if (bigs.Count > 0)
+                    r.Add(new Check(0, langName + "版已加载", "启动 " + top + " 时会读取本 MOD 的全部 " + bigs.Count + " 项内容。"));
                 var others = chain.Where(b => !b.StartsWith("CNVoice", StringComparison.OrdinalIgnoreCase)
                                               && !OfficialBig.Any(o => b.ToLowerInvariant().StartsWith(o))).Distinct().ToList();
                 if (others.Count > 0)
@@ -469,7 +564,12 @@ namespace CNVoiceInstaller
             foreach (var d in new[] { Path.Combine(data, "d3d9.dll"), Path.Combine(g.Dir, "d3d9.dll") })
                 if (File.Exists(d) && !fps)
                     r.Add(new Check(1, "发现其它 d3d9.dll", d + "。可能是 DXVK、ReShade 等工具，和高帧率补丁不能同时使用。"));
-            if (fps) r.Add(new Check(0, "高帧率补丁已安装", "SAGE-Unlocked（帧率在 Data\\SAGEUnlocked.ini 里设置）。"));
+            if (fps)
+            {
+                var set = FpsSetting(g);
+                r.Add(new Check(0, "高帧率补丁已安装", "SAGE-Unlocked，" + (set.HasValue ? "设为 " + set + " 帧" : "没有读到帧率设置") + "（不会超过显示器刷新率；在 Data\\SAGEUnlocked.ini 里改，填 15 的倍数）"
+                                + (File.Exists(Path.Combine(data, FpsMark)) ? "。" : "。这是你自己装的，本 MOD 不会动它。")));
+            }
             return r;
         }
 
@@ -665,6 +765,7 @@ namespace CNVoiceInstaller
         /// 把已下载的补丁装进游戏：补丁包放在各自组件的正前方，语音长度表换成补丁里的
         public void ApplyPatch(Game g, Dictionary<string, object> patch)
         {
+            EnsureNotRunning(g);
             var data = Path.Combine(g.Dir, "Data");
             var have = Installed(g);
             var game = (Dictionary<string, object>)((Dictionary<string, object>)patch["games"])[g.Kind];
@@ -740,6 +841,7 @@ namespace CNVoiceInstaller
             { "mission",   new[] { "剧情对白",         "任务对话、单位介绍、教学关" } },
             { "movie",     new[] { "过场视频配音",     "过场动画、简报、视频通话" } },
             { "text",      new[] { "简体中文文字",     "界面、说明、字幕改为简体" } },
+            { "fps",       new[] { "高帧率 120 帧",    "SAGE-Unlocked 插件，画面更流畅" } },
         };
 
         const string Xaml = @"
@@ -824,6 +926,7 @@ namespace CNVoiceInstaller
           </StackPanel>
         </StackPanel>
         <StackPanel Orientation='Horizontal' HorizontalAlignment='Right' VerticalAlignment='Top' Margin='0,7,52,0'>
+          <TextBlock x:Name='Listen' Text='试听全部配音' FontSize='13' Foreground='#C9CDD3' Cursor='Hand' Margin='0,0,22,0'/>
           <TextBlock x:Name='Upd' Text='检查更新' FontSize='13' Foreground='#C9CDD3' Cursor='Hand' Margin='0,0,22,0'/>
           <TextBlock x:Name='Diag' Text='故障诊断' FontSize='13' Foreground='#C9CDD3' Cursor='Hand'/>
         </StackPanel>
@@ -878,6 +981,18 @@ namespace CNVoiceInstaller
         static int Main(string[] args)
         {
             // 测试用命令行（不显示界面）：--dirs "<目录1>|<目录2>" --components all|none|a,b,c
+            int li = Array.IndexOf(args, "--listen-dump");   // 测试：--listen-dump <输出目录> <间隔>
+            int ls = Array.IndexOf(args, "--listen-snapshot");   // 测试：试听窗口渲染成 PNG
+            if (ls >= 0)
+            {
+                ListenWindow.Snapshot = args[ls + 1];
+                var host = new Window { Width = 1, Height = 1, WindowStyle = WindowStyle.None, ShowInTaskbar = false,
+                                        WindowStartupLocation = WindowStartupLocation.Manual, Left = -3000 };
+                host.Loaded += (s, e) => { ListenWindow.Show(host, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "files")); host.Close(); };
+                new Application().Run(host);
+                return 0;
+            }
+            if (li >= 0) return AudioLib.Dump(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "files"), args[li + 1], int.Parse(args[li + 2])) > 0 ? 0 : 1;
             int di = Array.IndexOf(args, "--dirs");
             if (di >= 0 && Array.IndexOf(args, "--diagnose") >= 0)
             {
@@ -933,7 +1048,13 @@ namespace CNVoiceInstaller
             {
                 var g = new Game { Dir = d.TrimEnd('\\'), Kind = Mod.KindOf(d) };
                 if (!mod.Covers(g.Kind)) { Console.WriteLine(g.Kind + ": not in this package (" + mod.Edition + ")"); continue; }
-                try { mod.Apply(g, want); Console.WriteLine(g.Kind + ": " + string.Join(",", mod.Installed(g))); }
+                try
+                {
+                    mod.Apply(g, want);
+                    Console.WriteLine(g.Kind + ": " + string.Join(",", mod.Installed(g)));
+                    foreach (var n in mod.Notes) Console.WriteLine(g.Kind + " NOTE " + n);
+                    mod.Notes.Clear();
+                }
                 catch (Exception e) { Console.WriteLine(g.Kind + " ERROR " + e.Message); bad++; }
             }
             return bad;
@@ -966,9 +1087,12 @@ namespace CNVoiceInstaller
                 + (mod.Edition == "完整版" ? "完整版（原版 + 起义时刻）" : mod.Edition + "专用") + " · 社区非盈利作品";
             Find<Grid>("Header").MouseLeftButtonDown += (s, e) => { if (e.ButtonState == MouseButtonState.Pressed) win.DragMove(); };
             Find<Button>("Close").Click += (s, e) => win.Close();
-            Find<TextBlock>("Diag").MouseLeftButtonUp += (s, e) => ShowDiagnosis();
+            Find<TextBlock>("Diag").MouseLeftButtonDown += (s, e) => { e.Handled = true; ShowDiagnosis(); };   // 顶栏能拖动窗口：在按下时响应，不交给拖动
             if (string.IsNullOrEmpty(mod.UpdateUrl)) Find<TextBlock>("Upd").Visibility = Visibility.Collapsed;
-            Find<TextBlock>("Upd").MouseLeftButtonUp += (s, e) => CheckUpdates(true);
+            Find<TextBlock>("Upd").MouseLeftButtonDown += (s, e) => { e.Handled = true; CheckUpdates(true); };
+            // 试听：直接播放安装包里的配音（files\listen_index.json 索引），装不装都能听
+            if (!File.Exists(Path.Combine(files, "listen_index.json"))) Find<TextBlock>("Listen").Visibility = Visibility.Collapsed;
+            Find<TextBlock>("Listen").MouseLeftButtonDown += (s, e) => { e.Handled = true; ListenWindow.Show(win, files); };
             Find<Button>("Install").Click += (s, e) => Run(false);
             Find<Button>("Uninstall").Click += (s, e) => Run(true);
             Find<TextBlock>("Pick").MouseLeftButtonUp += (s, e) => PickFolder();
@@ -1026,7 +1150,7 @@ namespace CNVoiceInstaller
                 title.Children.Add(new TextBlock { Text = info[0], FontSize = 14.5, FontWeight = FontWeights.SemiBold, Foreground = Brush("#ECEEF1") });
                 stack.Children.Add(title);
                 stack.Children.Add(new TextBlock { Text = info[1], FontSize = 11.5, Foreground = Brush("#8A9099"), TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 3, 0, 0) });
-                c.Box = new CheckBox { Content = stack, IsChecked = true, HorizontalContentAlignment = HorizontalAlignment.Stretch };
+                c.Box = new CheckBox { Content = stack, IsChecked = c.Kind != "fps", HorizontalContentAlignment = HorizontalAlignment.Stretch };   // 帧率插件默认不勾
                 card.Child = c.Box;
                 list.Children.Add(card);
             }
@@ -1062,6 +1186,8 @@ namespace CNVoiceInstaller
             {
                 c.State.Text = any.Contains(c.Id) ? "已安装" : "";
                 if (any.Count > 0) c.Box.IsChecked = any.Contains(c.Id);
+                if (c.Kind == "fps" && !any.Contains(c.Id) && games.Any(g => File.Exists(Path.Combine(g.Dir, "Data", "CnCFpsUnlocker.dll"))))
+                    c.State.Text = "你已自己装过";
             }
             var status = Find<TextBlock>("Status");
             status.Foreground = Brush("#8A9099");
@@ -1199,12 +1325,14 @@ namespace CNVoiceInstaller
                 mod.Log(g.Label + "：" + (want.Count == 0 ? "正在恢复原版……" : "正在安装……"));
                 try
                 {
-                    if (want.Any(c => c.Kind != "text"))
+                    if (want.Any(c => c.Kind != "text" && c.Kind != "fps"))
                     {
                         var w = mod.AudioWarning(g);
                         if (w != null) warnings.Add(g.Label + "：" + w);
                     }
                     await Task.Run(() => mod.Apply(g, want));
+                    warnings.AddRange(mod.Notes.Select(n => g.Label + "：" + n));
+                    mod.Notes.Clear();
                 }
                 catch (UnauthorizedAccessException)
                 {

@@ -14,6 +14,7 @@ import glob
 import html
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -59,6 +60,12 @@ TEXT_NAME = '简体中文文字（界面、字幕）'
 # movie component: whole .snd files of EnglishMovieAudio.big with the dialogue re-dubbed (no core)
 MOVIE = 'movie'
 MOVIE_NAME = '过场视频（剧情、简报、通话）'
+# optional frame-rate unlock: SAGE-Unlocked (GPL-3.0, https://github.com/TheeHorse/SAGE-Unlocked), redistributed unmodified
+FPS = 'fps'
+FPS_NAME = '高帧率 120 帧（SAGE-Unlocked）'
+FPS_DIR = os.path.join(ROOT, 'third_party', 'sage-unlocked')
+FPS_VERSION = 'v1.9.5'
+FPS_FILES = ('d3d9.dll', 'CnCFpsUnlocker.dll', 'SAGEUnlocked.ini')
 
 
 TERM_MAP = os.path.join(ROOT, 'work', 'terms', 'term_map.json')
@@ -410,6 +417,9 @@ def cmd_release(args):
         os.remove(os.path.join(ROOT, 'release', RELEASE_NAME + '.zip'))
     import datetime
     build_id = datetime.datetime.now().strftime('%Y%m%d-%H%M')   # same for all three editions of one release
+    sizes = {}
+    import listen_index   # tools/ is on sys.path (build_installer above)
+    listen_rows = {g: listen_index.entries(g, AudioStream(chain_for_game(GAMES[g])), COMP_BIG) for g in GAMES}
     for edition, games in EDITIONS:
         rel = release_dir(edition)
         shutil.rmtree(rel, ignore_errors=True)
@@ -418,7 +428,8 @@ def cmd_release(args):
                'components': [{'id': c, 'name': BATCH_NAMES[c], 'letter': LETTER[c], 'kind': 'voice'} for c in COMPONENTS]
                              + [{'id': MOVIE, 'name': MOVIE_NAME, 'kind': 'movie'}] * all(
                                  os.path.exists(os.path.join(ROOT, 'dist', g, COMP_BIG.format(MOVIE))) for g in games)
-                             + [{'id': TEXT, 'name': TEXT_NAME, 'kind': 'text'}], 'games': {}}
+                             + [{'id': TEXT, 'name': TEXT_NAME, 'kind': 'text'}]
+                             + [{'id': FPS, 'name': FPS_NAME, 'kind': 'fps'}], 'games': {}}
         for g in games:
             src = os.path.join(ROOT, 'dist', g)
             os.makedirs(os.path.join(rel, 'files', g, 'core'))
@@ -428,6 +439,13 @@ def cmd_release(args):
                 shutil.copyfile(f, os.path.join(rel, 'files', g, 'core', os.path.basename(f)))
             pkg['games'][g] = json.load(open(os.path.join(src, 'build.json'), encoding='utf-8'))
         shutil.copyfile(FONT_LICENSE, os.path.join(rel, 'files', '字体许可证_OFL.txt'))
+        os.makedirs(os.path.join(rel, 'files', FPS))
+        for f in FPS_FILES + ('LICENSE.txt',):
+            shutil.copyfile(os.path.join(FPS_DIR, f), os.path.join(rel, 'files', FPS, f))
+        with open(os.path.join(rel, 'files', FPS, '来源说明.txt'), 'w', encoding='utf-8-sig', newline='\r\n') as f:
+            f.write(f'帧率解锁插件 SAGE-Unlocked {FPS_VERSION}，作者 TheeHorse，以 GPL-3.0 发布（许可证见 LICENSE.txt）。\n'
+                    '本 MOD 原样附带、未作修改。源代码：https://github.com/TheeHorse/SAGE-Unlocked\n'
+                    f'（对应版本：https://github.com/TheeHorse/SAGE-Unlocked/releases/tag/{FPS_VERSION}）\n')
         json.dump(pkg, open(os.path.join(rel, 'files', 'package.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
         # PowerShell 5.1 needs a BOM to read UTF-8 scripts; .bat files stay ASCII
         with open(os.path.join(inst, 'installer.ps1'), encoding='utf-8') as f:
@@ -447,6 +465,8 @@ def cmd_release(args):
                       .replace('{EDITION_HINT}', EDITION_HINT[edition]))
         with open(os.path.join(rel, '说明.txt'), 'w', encoding='utf-8-sig', newline='\r\n') as f:
             f.write(readme)
+        # the installer's 试听 window plays lines straight out of files/<game>/*.big; this is only the index
+        print(f'listen index [{edition}]: {listen_index.write(os.path.join(rel, "files"), listen_rows, games)} lines')
         zpath = rel + '.zip'
         with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as z:
             for dirpath, _, fnames in os.walk(rel):
@@ -454,6 +474,8 @@ def cmd_release(args):
                     full = os.path.join(dirpath, fn)
                     z.write(full, os.path.relpath(full, os.path.dirname(rel)))
         print(f'release [{edition}] -> {zpath} ({os.path.getsize(zpath) / 1e6:.1f} MB)')
+        sizes[edition] = os.path.getsize(zpath)
+    write_publish_copy(sizes, exe_sha)
     index = os.path.join(RELEASE_INDEX, build_id + '.json')
     os.makedirs(RELEASE_INDEX, exist_ok=True)
     json.dump({'build': build_id, 'version': MOD_VERSION, 'games': {g: dist_index(g) for g in GAMES}},
@@ -522,6 +544,30 @@ def cmd_patch(args):
     json.dump({'patches': [entry], 'mirrors': UPDATE_MIRRORS}, open(os.path.join(out, 'manifest.json'), 'w', encoding='utf-8'),
               ensure_ascii=False, indent=1)
     print(f'patch -> {out}  (publish every file of this folder as one GitHub release, see HANDOFF.md)')
+
+
+PUBLISH_DIR = os.path.join(ROOT, 'docs', 'publish')   # B 站简介、GitHub Release 说明、网盘文案的模板
+REPO_URL = 'https://github.com/77652189/RA3-ChineseVoice'
+
+
+def write_publish_copy(sizes, exe_sha):
+    """Fill the publishing-copy templates with this release's sizes and checksum -> release/<same name>."""
+    def human(n):
+        return f'{n / 1e9:.1f} GB' if n >= 1e9 else f'{n / 1e6:.0f} MB'
+    fill = {'{VERSION}': MOD_VERSION, '{SETUP_EXE}': SETUP_EXE, '{SETUP_SHA256}': exe_sha, '{REPO}': REPO_URL,
+            '{FPS_VERSION}': FPS_VERSION}
+    fill.update({'{SIZE_' + e + '}': human(n) for e, n in sizes.items()})
+    for name in sorted(os.listdir(PUBLISH_DIR)):
+        with open(os.path.join(PUBLISH_DIR, name), encoding='utf-8') as f:
+            text = f.read()
+        for k, v in fill.items():
+            text = text.replace(k, v)
+        left = sorted(set(re.findall(r'\{[A-Z_]+[^{}]*\}', text)))
+        if left:
+            sys.exit(f'{name}: unfilled placeholders {left}')
+        with open(os.path.join(ROOT, 'release', name), 'w', encoding='utf-8-sig', newline='\r\n') as f:
+            f.write(text)
+        print(f'publish copy -> release/{name}')
 
 
 def run_installer(action, components='all'):

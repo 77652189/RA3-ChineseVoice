@@ -23,6 +23,12 @@
 !/work/terms/term_map.json
 !/work/terms/term_map_add.json
 !/work/terms/untranslated_zh.json
+!/work/speakers/
+/work/speakers/*
+!/work/speakers/ref_override.json
+!/work/speakers/fallback.json
+# game footage stays out of the repo
+/docs/article/img/fig1_cover.png
 
 /installer/gui/out/
 __pycache__/

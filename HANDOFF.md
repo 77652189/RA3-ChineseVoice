@@ -3,7 +3,11 @@
 状态与路线以 `docs/phase2_scope.md` 为准。
 
 ## 当前切片
-全部 8 个组件已打包并装进两个游戏，等用户游戏内检查（过场视频、字幕与配音一致性、界面名称）。
+2026-10-13 11:05 build 20261013-1101（release/）已装进两个游戏。安装器顶栏三个链接改为按下即响应（顶栏的拖动会吞掉抬起事件）。用户录了盟军一关（用户的“视频”文件夹，7 分钟），Whisper 检查无英文残留。
+- 试听：安装器右上角“试听全部配音”，读 files/listen_index.json（tools/listen_index.py）直接从包里的 .big 解码播放（installer/gui/Listen.cs，与 Python 解码逐采样一致），不另带音频。
+- 安装器和 ps1 现在在游戏运行时拒绝安装（按游戏目录判断进程）。
+- 过场 14 句已用 work/speakers/ref_override.json 修好；停顿压缩不采用。
+- 下一步（需用户确认）：推送 GitHub、建 v1.0 Release（空 manifest.json）。
 
 ## 改一句台词的流程
 1. 改 `lines/<mission|movie|...>_zh_*.json` 里对应 asset 的 zh → `python -I -X utf8 tools/merge_zh.py <批次>`

@@ -228,13 +228,14 @@ def main():
     segs.append(unit_card('s17_eva', '战场播报', 'EVA', '三阵营', [('eva', 'Aeva_ConComplete', False), ('eva', 'Aeva_BaseUndAttack', False), ('eva', 'Seva_10000credits', False)]))
     segs.append(card('s18_installer', 7, [
         draw('一键安装 · 按需勾选 · 随时卸载', 58, '(w-text_w)/2', 880),
-        draw('不改版本号，不影响联机选 1.12 / 1.13', 34, '(w-text_w)/2', 965, font='font_m.ttf', color='0x9AA0A8')],
+        draw('不改版本号，不影响联机　·　自带检查更新和故障诊断　·　可选 120 帧', 34, '(w-text_w)/2', 965, font='font_m.ttf', color='0x9AA0A8')],
         image='installer.png'))
     segs.append(card('s19_end', 7, [
         f"drawbox=x=(w-12)/2-470:y=330:w=12:h=120:color={RED}@1:t=fill",
         draw('下载见视频简介', 96, '(w-text_w)/2+10', 335),
         draw('「原版」「起义时刻」「完整版」三种安装包，不确定就下完整版', 44, '(w-text_w)/2', 520, font='font_m.ttf', color='0xC9CDD3'),
-        draw('社区非盈利作品，仅供交流学习 · 游戏版权归 Electronic Arts 所有', 32, '(w-text_w)/2', 640, font='font_m.ttf', color='0x7D838C')]))
+        draw('制作工具开源　github.com/77652189/RA3-ChineseVoice　·　制作过程见小黑盒长文', 36, '(w-text_w)/2', 625, font='font_m.ttf', color='0xC9CDD3'),
+        draw('社区非盈利作品，仅供交流学习 · 游戏版权归 Electronic Arts 所有', 32, '(w-text_w)/2', 715, font='font_m.ttf', color='0x7D838C')]))
     with open(os.path.join(OUT, 'list.txt'), 'w', encoding='utf-8') as f:
         f.writelines(f"file '{s}'\n" for s in segs)
     final = '红警3中文配音_演示.mp4'

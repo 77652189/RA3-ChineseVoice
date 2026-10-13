@@ -34,9 +34,12 @@ def longest_clip(src_dir, prefix, spoken):
     return max(paths, key=duration) if paths else None
 
 
-def speaker_ref(src_dir, prefix, asset, fallback, min_ref=MIN_REF_SECONDS, same_actor=None):
-    """Own clip; if too short, the same actor's line (same_actor map, by speaker fingerprint), else the group's
+def speaker_ref(src_dir, prefix, asset, fallback, min_ref=MIN_REF_SECONDS, same_actor=None, override=None):
+    """A hand-picked same-actor line (override map: the own clip is drowned by other voices) first; else the own
+    clip; if too short, the same actor's line (same_actor map, by speaker fingerprint), else the group's
     longest spoken clip. The last resort is only safe for single-speaker groups (unit voices)."""
+    if override and asset in override:
+        return os.path.join(src_dir, override[asset] + '.wav')
     own = os.path.join(src_dir, asset + '.wav')
     if duration(own) >= min_ref:
         return own
@@ -64,6 +67,7 @@ def main():
     src = os.path.abspath(os.path.join(ROOT, ref_dir)) if ref_dir else os.path.join(ROOT, 'original', args.unit)   # dub.py chdirs into index-tts
     min_ref = unit.get('min_ref', args.min_ref) if args.min_ref == MIN_REF_SECONDS else args.min_ref
     same_actor = json.load(open(os.path.join(ROOT, unit['same_actor']), encoding='utf-8')) if unit.get('same_actor') else None
+    override = json.load(open(os.path.join(ROOT, unit['ref_override']), encoding='utf-8')) if unit.get('ref_override') else None
     out = os.path.join(ROOT, 'candidates', args.unit)
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(ROOT, 'lines', f'{args.unit}.csv'), encoding='utf-8-sig') as f:
@@ -90,7 +94,7 @@ def main():
             if os.path.exists(dst):
                 continue
             try:
-                spk = speaker_ref(src, prefix, r['asset'], fallback, min_ref, same_actor)
+                spk = speaker_ref(src, prefix, r['asset'], fallback, min_ref, same_actor, override)
                 emo = os.path.join(src, r['asset'] + '.wav')
                 with throttle.work():
                     tts.infer(spk_audio_prompt=spk, text=r['zh'], output_path=dst,

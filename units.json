@@ -1240,6 +1240,7 @@
     "fx": {},
     "ref_dir": "original/movie_clean",
     "min_ref": 1.0,
-    "same_actor": "work/speakers/fallback.json"
+    "same_actor": "work/speakers/fallback.json",
+    "ref_override": "work/speakers/ref_override.json"
   }
 }

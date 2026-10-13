@@ -55,7 +55,7 @@ def main():
     cmd = [os.path.join(FW, 'csc.exe'), '/nologo', '/target:winexe', '/optimize+', '/codepage:65001',
            '/out:' + os.path.join(OUT, exe), '/win32icon:' + icon,
            '/win32manifest:' + manifest] + ['/r:' + r for r in REFS] + \
-          [os.path.join(GUI, 'Installer.cs')]
+          [os.path.join(GUI, f) for f in sorted(os.listdir(GUI)) if f.endswith('.cs')]
     r = subprocess.run(cmd, capture_output=True, text=True, encoding='mbcs', errors='replace')
     print(r.stdout[-4000:], r.stderr[-2000:])
     if r.returncode:

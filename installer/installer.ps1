@@ -16,7 +16,13 @@ $CompName = @{}; $CompLetter = @{}
 foreach ($c in $Pkg.components) { $CompName[$c.id] = $c.name; $CompLetter[$c.id] = $c.letter }
 # 'voice' 组件替换语音（需要配套的 core 长度表）；'text' 组件替换文字和字体，和语音无关
 $TextComp = @($Pkg.components | Where-Object { $_.kind -eq 'text' } | ForEach-Object { $_.id })
-$VoiceComp = @($AllComp | Where-Object { $TextComp -notcontains $_ })
+# 'fps' 组件 = 帧率解锁插件 SAGE-Unlocked（GPL-3.0）：三个文件放进 Data\，和本 MOD 的包无关
+$FpsComp = @($Pkg.components | Where-Object { $_.kind -eq 'fps' } | ForEach-Object { $_.id })
+$VoiceComp = @($AllComp | Where-Object { $TextComp -notcontains $_ -and $FpsComp -notcontains $_ })
+$FpsMark = 'CNVoice_fps.json'     # 记下本 MOD 装进去的插件文件和哈希：卸载时只删自己装的
+$FpsDlls = @('d3d9.dll', 'CnCFpsUnlocker.dll')
+$FpsIni = 'SAGEUnlocked.ini'
+$DefaultFps = 120                 # 插件不会超过显示器刷新率，掉帧时游戏速度也不变
 $CoreBig = $Pkg.core
 $MarkerRe = 'add-big\s+Data\\(CNVoice\w*|ChineseVoice)\.big'   # 本 MOD 写进配置的行（含旧版本的名字）
 $LegacyBigs = @('CNVoiceMod.big', 'ChineseVoice.big')
@@ -102,7 +108,62 @@ function Test-Writable([string]$dir) {
 
 # ---------------------------------------------------------------- 组件选择
 function Get-Installed($g) {
-    return @($AllComp | Where-Object { Test-Path -LiteralPath (Join-Path $g.Dir ("Data\" + (Comp-Big $_))) })
+    return @($AllComp | Where-Object {
+        if ($FpsComp -contains $_) { Test-Path -LiteralPath (Join-Path $g.Dir "Data\$FpsMark") }
+        else { Test-Path -LiteralPath (Join-Path $g.Dir ("Data\" + (Comp-Big $_))) }
+    })
+}
+
+function Get-Sha1([string]$p) { return (Get-FileHash -LiteralPath $p -Algorithm SHA1).Hash }
+
+function Get-FpsSetting($g) {
+    # 现在 ini 里设的帧率（玩家可能自己改过，重装时保留）；旧版插件的 ini 叫 RA3HighFps.ini
+    foreach ($n in $FpsIni, 'RA3HighFps.ini') {
+        $p = Join-Path $g.Dir "Data\$n"
+        if (-not (Test-Path -LiteralPath $p)) { continue }
+        $m = [regex]::Match((Read-Raw $p), '(?m)^[ \t]*fps[ \t]*=[ \t]*(\d+)')
+        if ($m.Success) { return [int]$m.Groups[1].Value }
+    }
+    return $null
+}
+
+function Set-Fps($g, [int]$fps) {
+    $data = Join-Path $g.Dir 'Data'
+    if ((Test-Path -LiteralPath (Join-Path $data 'd3d9.dll')) -and -not (Test-Path -LiteralPath (Join-Path $data 'CnCFpsUnlocker.dll'))) {
+        # 别的 d3d9.dll（ReShade、DXVK……）：两者不能同时用，不覆盖玩家的东西
+        Say '  帧率解锁没有安装：Data 里已经有别的 d3d9.dll（可能是 ReShade、DXVK 等画面工具），为避免冲突跳过了。' 'Yellow'
+        return
+    }
+    $src = Join-Path $Here 'fps'
+    $mark = [ordered]@{}
+    foreach ($n in $FpsDlls) {
+        Copy-Item -LiteralPath (Join-Path $src $n) -Destination (Join-Path $data $n) -Force
+        $mark[$n] = Get-Sha1 (Join-Path $data $n)
+    }
+    Write-Raw (Join-Path $data $FpsIni) ([regex]::Replace((Read-Raw (Join-Path $src $FpsIni)), '(?m)^fps=\d+', "fps=$fps"))
+    $mark[$FpsIni] = Get-Sha1 (Join-Path $data $FpsIni)
+    [IO.File]::WriteAllText((Join-Path $data $FpsMark), ($mark | ConvertTo-Json -Compress), (New-Object Text.UTF8Encoding $false))
+    Say "  帧率解锁已安装（$fps 帧）"
+}
+
+function Remove-Fps($g) {
+    # 只删本 MOD 装进去、之后没被换过的插件文件；玩家自己升级过插件就原样留着
+    $data = Join-Path $g.Dir 'Data'
+    $mk = Join-Path $data $FpsMark
+    if (-not (Test-Path -LiteralPath $mk)) { return }
+    $mark = [IO.File]::ReadAllText($mk, [Text.Encoding]::UTF8) | ConvertFrom-Json
+    $ours = $true
+    foreach ($n in $FpsDlls) {
+        $q = Join-Path $data $n
+        if ((Test-Path -LiteralPath $q) -and $mark.$n -ne (Get-Sha1 $q)) { $ours = $false }
+    }
+    if ($ours) {
+        foreach ($n in ($FpsDlls + $FpsIni)) {
+            $q = Join-Path $data $n
+            if (Test-Path -LiteralPath $q) { Remove-Item -LiteralPath $q -Force }
+        }
+    }
+    Remove-Item -LiteralPath $mk -Force
 }
 
 function Ask-Components([string]$title, [string]$hint, [string[]]$offer, [string[]]$checked) {
@@ -154,6 +215,7 @@ function Remove-Mod($g) {
         }
         $n++
     }
+    Remove-Fps $g
     $mk = Join-Path $g.Dir "Data\$MarkerFile"
     if (Test-Path -LiteralPath $mk) { Remove-Item -LiteralPath $mk -Force }
     # 本 MOD 的所有包都以 CNVoice 开头（含测试包和旧版本的 CNVoiceMod.big），外加最早期的 ChineseVoice.big
@@ -167,12 +229,15 @@ function Remove-Mod($g) {
 
 function Set-Components($g, [string[]]$want) {
     # 让这个游戏里装着的组件正好等于 $want（空 = 完全卸载，恢复原版）
+    $fps = Get-FpsSetting $g
+    if ($null -eq $fps) { $fps = $DefaultFps }
     [void](Remove-Mod $g)
     if ($want.Count -eq 0) { return $true }
     $voice = @($want | Where-Object { $VoiceComp -contains $_ })
     $text = @($want | Where-Object { $TextComp -contains $_ })
     if ($voice.Count -and -not (Set-Voice $g $voice)) { [void](Remove-Mod $g); return $false }
     if ($text.Count -and -not (Set-Text $g $text)) { [void](Remove-Mod $g); return $false }
+    if (@($want | Where-Object { $FpsComp -contains $_ }).Count) { Set-Fps $g $fps }
     # 记下装的是哪个版本（安装器的“故障诊断”据此区分“旧版本”和“文件损坏”）
     $build = if ($Pkg.build) { $Pkg.build } else { $Pkg.version }
     $edition = if ($Pkg.edition) { $Pkg.edition } else { '完整版' }
@@ -327,6 +392,9 @@ foreach ($g in $games) {
         $pack = if ($g.Kind -eq 'uprising') { '起义时刻' } else { '原版' }
         Say "  这个安装包不含$label 的文件，跳过。请下载「$pack」版或「完整版」。" 'Yellow'; Say ''; continue
     }
+    # 游戏运行时文件被占用，装到一半会出错：先检查，什么都不改
+    $run = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { ($_.ProcessName -match '^ra3' -or $_.ProcessName -like '*.game') -and (-not $_.Path -or $_.Path.StartsWith($g.Dir.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) } | ForEach-Object { $_.ProcessName } | Sort-Object -Unique)
+    if ($run.Count) { Say "  游戏正在运行（$($run -join '、')），请先完全退出游戏再运行。这个游戏什么都没有改动。" 'Red'; Say ''; continue }
     try {
         $have = @(Get-Installed $g)
         $want = if ($Action -eq 'install') { $chosen } else { @($have | Where-Object { $chosen -notcontains $_ }) }
