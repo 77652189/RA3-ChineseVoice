@@ -10,7 +10,7 @@
 | 原版 | 约 {SIZE_原版} | 只有红色警戒3 |
 | 起义时刻 | 约 {SIZE_起义时刻} | 只有起义时刻 |
 
-百度网盘：https://pan.baidu.com/s/5oqzy02MrWkfMGjZQ18SbPQ　演示视频：【B 站链接】
+百度网盘：https://pan.baidu.com/s/5oqzy02MrWkfMGjZQ18SbPQ　演示视频（B 站）：https://www.bilibili.com/video/BV1tGpr6REsK/　制作过程（小黑盒）：https://www.xiaoheihe.cn/app/bbs/link/193635738
 
 ### 包含的内容（安装时按需勾选）
 - 三大阵营单位语音、EVA 战场播报、合作 / AI 指挥官语音

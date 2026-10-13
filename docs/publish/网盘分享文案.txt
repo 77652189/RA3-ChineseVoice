@@ -4,5 +4,5 @@
 解压后运行「{SETUP_EXE}」，勾选内容 → 安装。蓝色安全提示点“更多信息”→“仍要运行”。
 安装器 SHA-256：{SETUP_SHA256}
 
-演示视频：【B 站链接】　制作过程：【小黑盒链接】　开源工具与在线更新：{REPO}
+演示视频：https://www.bilibili.com/video/BV1tGpr6REsK/　制作过程：https://www.xiaoheihe.cn/app/bbs/link/193635738　开源工具与在线更新：{REPO}
 社区非盈利作品，仅供交流学习；游戏版权归 Electronic Arts 所有。
