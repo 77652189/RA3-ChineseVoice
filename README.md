@@ -2,7 +2,7 @@
 
 《命令与征服：红色警戒3》和资料片《起义时刻》的社区非盈利 AI 普通话配音：单位语音、EVA 播报、指挥官、剧情对白、过场视频，外加可选的简体中文文字。音色克隆自原版配音（IndexTTS2）。
 
-**玩家请到 [Releases](https://github.com/77652189/RA3-ChineseVoice/releases) 下载安装包**，安装、更新、故障诊断都在安装器里完成，说明见安装包里的「说明.txt」。
+**玩家下载：[百度网盘](https://pan.baidu.com/s/5oqzy02MrWkfMGjZQ18SbPQ)**（「原版」「起义时刻」「完整版」三个安装包，不确定就下完整版）。安装、试听、更新、故障诊断都在安装器里完成，说明见安装包里的「说明.txt」。[Releases](https://github.com/77652189/RA3-ChineseVoice/releases) 只放在线更新用的文件。
 
 ## 仓库里有什么
 

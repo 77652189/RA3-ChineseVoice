@@ -183,4 +183,4 @@ https://github.com/TheeHorse/SAGE-Unlocked
 
 最后感谢这些开源项目：IndexTTS2（配音）、Whisper（听写）、Demucs（人声分离）、vgmstream（音频格式参考）、OpenCC（繁简转换）、思源黑体（字体）、SAGE-Unlocked（帧率解锁）。没有它们，一个人是做不出这些的。
 
-下载地址：［网盘链接］
+下载地址（百度网盘，三个安装包选一个，不确定就下完整版）：https://pan.baidu.com/s/5oqzy02MrWkfMGjZQ18SbPQ
