@@ -1,0 +1,1094 @@
+[
+ {
+  "from": "多功能步兵战斗车",
+  "to": "多功能步兵车",
+  "scope": "global",
+  "en": "Multigunner IFV",
+  "why": "术语表"
+ },
+ {
+  "from": "气球炸弹火力攻击",
+  "to": "气球炸弹齐射",
+  "scope": "global",
+  "en": "Balloon Bomb Barrage",
+  "why": "播报配音"
+ },
+ {
+  "from": "V4火箭发射车",
+  "to": "V4火箭车",
+  "scope": "global",
+  "en": "V4 Rocket Launcher",
+  "why": "术语表写法（保留型号 V4）"
+ },
+ {
+  "from": "先锋武装战艇机",
+  "to": "先驱者炮艇",
+  "scope": "global",
+  "en": "Harbinger Gunship",
+  "why": "术语表"
+ },
+ {
+  "from": "史普尼克勘查车",
+  "to": "斯普特尼克",
+  "scope": "global",
+  "en": "Sputnik",
+  "why": "术语表"
+ },
+ {
+  "from": "多功能步兵炮塔",
+  "to": "多功能炮塔",
+  "scope": "global",
+  "en": "Multigunner Turret",
+  "why": "配音“多功能炮塔”4次"
+ },
+ {
+  "from": "多功能步兵砲塔",
+  "to": "多功能炮塔",
+  "scope": "global",
+  "en": "Multigunner Turret",
+  "why": "配音“多功能炮塔”4次（“砲”写法变体）"
+ },
+ {
+  "from": "恐怖机械人袭击",
+  "to": "恐怖机器人突袭",
+  "scope": "global",
+  "en": "Terror Drone Surprise",
+  "why": "播报配音"
+ },
+ {
+  "from": "矿石精炼厂内核",
+  "to": "矿场核心",
+  "scope": "global",
+  "en": "Refinery Core",
+  "why": "配音“矿场核心”"
+ },
+ {
+  "from": "超能波毁灭设备",
+  "to": "心灵歼灭者",
+  "scope": "global",
+  "en": "Psionic Decimator",
+  "why": "配音“心灵歼灭者”9次 vs“心灵毁灭装置”2次"
+ },
+ {
+  "from": "M-鱼叉飞弹",
+  "to": "磁力鱼叉",
+  "scope": "global",
+  "en": "M-Harpoon",
+  "why": "配音“磁力鱼叉”，顺带去掉字母"
+ },
+ {
+  "from": "东山高端指挥",
+  "to": "富山高端指挥",
+  "scope": "global",
+  "en": "Toyama High Command",
+  "why": "配音和官方字幕都叫“富山”；“东山”是普通词，只改整名"
+ },
+ {
+  "from": "打击者-VX",
+  "to": "鹰击者VX",
+  "scope": "global",
+  "en": "Striker-VX",
+  "why": "术语表“鹰击者VX”"
+ },
+ {
+  "from": "机动建筑载具",
+  "to": "基地车",
+  "scope": "global",
+  "en": "Mobile Construction Vehicle",
+  "why": "术语表 MCV=基地车"
+ },
+ {
+  "from": "毁灭三角空袭",
+  "to": "辐射工兵德尔塔空袭",
+  "scope": "global",
+  "en": "Desolator Delta-Airstrike",
+  "why": "播报配音“辐射工兵德尔塔空袭”"
+ },
+ {
+  "from": "毁灭双重空袭",
+  "to": "辐射工兵双重空袭",
+  "scope": "global",
+  "en": "Desolator Dual-Airstrike",
+  "why": "播报配音"
+ },
+ {
+  "from": "毁灭设备内核",
+  "to": "歼灭者核心",
+  "scope": "global",
+  "en": "Decimator Core",
+  "why": "配音“歼灭者核心”"
+ },
+ {
+  "from": "气球炸弹爆炸",
+  "to": "气球炸弹大爆发",
+  "scope": "exact",
+  "en": "Balloon Bomb Blowout",
+  "why": "播报配音；可能出现在普通句子里，只整条替换"
+ },
+ {
+  "from": "物质发送武器",
+  "to": "物质传送武器",
+  "scope": "global",
+  "en": "Matter-Transported Ordnance",
+  "why": "同上，OpenCC“传送→发送”误转"
+ },
+ {
+  "from": "电脑主机内核",
+  "to": "主机核心",
+  "scope": "global",
+  "en": "Mainframe Core",
+  "why": "配音“主机核心”"
+ },
+ {
+  "from": "直升机-VX",
+  "to": "鹰击者直升机",
+  "scope": "global",
+  "en": "Chopper-VX",
+  "why": "配音“鹰击者直升机”，顺带去掉字母"
+ },
+ {
+  "from": "纳米虫群巢穴",
+  "to": "纳米蜂群母巢",
+  "scope": "global",
+  "en": "Nanoswarm Hive",
+  "why": "配音“纳米蜂群母巢”3次 vs“巢穴”1次"
+ },
+ {
+  "from": "超时空发送仪",
+  "to": "超时空传送仪",
+  "scope": "global",
+  "en": "Chronosphere",
+  "why": "配音“超时空传送仪”22次；OpenCC把“传送”转成了“发送”"
+ },
+ {
+  "from": "超级时空炸弹",
+  "to": "终极时间炸弹",
+  "scope": "global",
+  "en": "Supreme Time Bomb",
+  "why": "播报配音"
+ },
+ {
+  "from": "迅雷运输载具",
+  "to": "突击运输车",
+  "scope": "global",
+  "en": "Sudden Transport",
+  "why": "术语表"
+ },
+ {
+  "from": "长枪迷你潜艇",
+  "to": "长矛潜艇",
+  "scope": "global",
+  "en": "Yari Mini-Sub",
+  "why": "术语表"
+ },
+ {
+  "from": "防御周边阵地",
+  "to": "防御阵地",
+  "scope": "global",
+  "en": "Defensive Perimeter",
+  "why": "配音“防御阵地”"
+ },
+ {
+  "from": "隐士卢博物馆",
+  "to": "冬宫",
+  "scope": "global",
+  "en": "The Hermitage",
+  "why": "配音“冬宫”5次"
+ },
+ {
+  "from": "雷射导向模式",
+  "to": "激光制导模式",
+  "scope": "global",
+  "en": "Laser-Guided Mode",
+  "why": "配音“激光制导模式”"
+ },
+ {
+  "from": "高级时空炸弹",
+  "to": "豪华时间炸弹",
+  "scope": "global",
+  "en": "Deluxe Time Bomb",
+  "why": "播报配音"
+ },
+ {
+  "from": "先进火箭匣",
+  "to": "高级火箭舱",
+  "scope": "global",
+  "en": "Advanced Rocket Pods",
+  "why": "播报配音"
+ },
+ {
+  "from": "基洛夫飞船",
+  "to": "基洛夫飞艇",
+  "scope": "global",
+  "en": "Kirov Airship",
+  "why": "术语表"
+ },
+ {
+  "from": "天狗机械人",
+  "to": "天狗机甲",
+  "scope": "global",
+  "en": "Mecha Tengu",
+  "why": "术语表"
+ },
+ {
+  "from": "天皇的城堡",
+  "to": "天皇的宫殿",
+  "scope": "global",
+  "en": "Emperor's Palace",
+  "why": "配音“天皇的宫殿”，官方自己两种写法"
+ },
+ {
+  "from": "天皇的陵寝",
+  "to": "天皇陵墓",
+  "scope": "global",
+  "en": "The Emperor's Tomb",
+  "why": "配音“天皇陵墓”7次"
+ },
+ {
+  "from": "战斗研究所",
+  "to": "战争实验室",
+  "scope": "global",
+  "en": "Battle Lab",
+  "why": "配音“战争实验室”"
+ },
+ {
+  "from": "支持建筑物",
+  "to": "支援建筑",
+  "scope": "global",
+  "en": "Support Structures",
+  "why": "配音“支援建筑”4次；OpenCC把“支援”转成“支持”"
+ },
+ {
+  "from": "支持轰炸机",
+  "to": "支援轰炸机",
+  "scope": "global",
+  "en": "Advanced Support Bomber",
+  "why": "OpenCC“支援→支持”误转，配音“支援”54次"
+ },
+ {
+  "from": "机械化组装",
+  "to": "机器人组装",
+  "scope": "global",
+  "en": "Robotic Assembly",
+  "why": "播报配音"
+ },
+ {
+  "from": "激流ACV",
+  "to": "激流气垫船",
+  "scope": "global",
+  "en": "Riptide ACV",
+  "why": "术语表"
+ },
+ {
+  "from": "爆裂机械人",
+  "to": "爆裂无人机",
+  "scope": "global",
+  "en": "Burst Drone",
+  "why": "术语表"
+ },
+ {
+  "from": "生产建筑物",
+  "to": "生产建筑",
+  "scope": "global",
+  "en": "Production Structures",
+  "why": "配音“生产建筑”11次 vs“生产建筑物”1次"
+ },
+ {
+  "from": "突袭驱逐舰",
+  "to": "突击驱逐舰",
+  "scope": "global",
+  "en": "Assault Destroyer",
+  "why": "术语表"
+ },
+ {
+  "from": "维和轰炸机",
+  "to": "复仇者",
+  "scope": "global",
+  "en": "Vindicator",
+  "why": "术语表"
+ },
+ {
+  "from": "苏联娱乐场",
+  "to": "苏联纪念碑",
+  "scope": "global",
+  "en": "Soviet Monument",
+  "why": "官方误译；配音“苏联纪念碑”"
+ },
+ {
+  "from": "裂痕产生器",
+  "to": "裂缝产生器",
+  "scope": "global",
+  "en": "Gap Generator",
+  "why": "配音“裂缝产生器”"
+ },
+ {
+  "from": "质子撞击炮",
+  "to": "质子对撞机",
+  "scope": "global",
+  "en": "Proton Collider",
+  "why": "配音“质子对撞机”10次 vs“质子撞击炮”8次（大陆通行叫法）"
+ },
+ {
+  "from": "质子撞击砲",
+  "to": "质子对撞机",
+  "scope": "global",
+  "en": "Proton Collider",
+  "why": "配音“质子对撞机”10次 vs“质子撞击炮”8次（大陆通行叫法）（“砲”写法变体）"
+ },
+ {
+  "from": "超时空变换",
+  "to": "超时空互换",
+  "scope": "global",
+  "en": "Chrono Swap",
+  "why": "播报配音“超时空互换就绪”"
+ },
+ {
+  "from": "超时空裂口",
+  "to": "超时空深渊",
+  "scope": "global",
+  "en": "Chrono Chasm",
+  "why": "播报配音“超时空深渊就绪”"
+ },
+ {
+  "from": "轨道垃圾雨",
+  "to": "轨道暴雨",
+  "scope": "global",
+  "en": "Orbital Downpour",
+  "why": "播报配音"
+ },
+ {
+  "from": "防卫者内核",
+  "to": "防御者核心",
+  "scope": "global",
+  "en": "Defender Core",
+  "why": "配音“防御者核心”"
+ },
+ {
+  "from": "阿波罗战机",
+  "to": "阿波罗战斗机",
+  "scope": "global",
+  "en": "Apollo Fighter",
+  "why": "术语表（配音两种说法各1次）"
+ },
+ {
+  "from": "M-鱼叉",
+  "to": "磁力鱼叉",
+  "scope": "global",
+  "en": "M-Harpoon",
+  "why": "同上"
+ },
+ {
+  "from": "修复模式",
+  "to": "修理模式",
+  "scope": "global",
+  "en": "Repair Mode",
+  "why": "配音“修理模式”"
+ },
+ {
+  "from": "光荣自爆",
+  "to": "光荣退役",
+  "scope": "global",
+  "en": "Honorable Discharge",
+  "why": "播报配音"
+ },
+ {
+  "from": "冰冻兵团",
+  "to": "冷冻军团兵",
+  "scope": "global",
+  "en": "Cryo Legionnaire",
+  "why": "术语表"
+ },
+ {
+  "from": "冰冻军团",
+  "to": "冷冻军团兵",
+  "scope": "global",
+  "en": "Cryo Legionnaire",
+  "why": "术语表；官方字幕里的写法"
+ },
+ {
+  "from": "冰冻暴击",
+  "to": "冷冻末日",
+  "scope": "global",
+  "en": "Cryogeddon",
+  "why": "播报配音“冷冻末日就绪”"
+ },
+ {
+  "from": "冰冻轰击",
+  "to": "冷冻爆破",
+  "scope": "global",
+  "en": "Cryoblast",
+  "why": "播报配音“冷冻爆破就绪”"
+ },
+ {
+  "from": "化学部队",
+  "to": "辐射工兵",
+  "scope": "global",
+  "en": "Desolator Trooper",
+  "why": "术语表"
+ },
+ {
+  "from": "史普尼克",
+  "to": "斯普特尼克",
+  "scope": "global",
+  "en": "Sputnik",
+  "why": "术语表；官方字幕里的短写"
+ },
+ {
+  "from": "喷射模式",
+  "to": "喷气模式",
+  "scope": "global",
+  "en": "Jet Mode",
+  "why": "配音“喷气模式”"
+ },
+ {
+  "from": "塔楼内核",
+  "to": "波能塔核心",
+  "scope": "global",
+  "en": "Tower Core",
+  "why": "配音“波能塔核心”"
+ },
+ {
+  "from": "多重弹头",
+  "to": "多弹头",
+  "scope": "global",
+  "en": "Multi-Warheads",
+  "why": "配音“发射多弹头”“多弹头火箭”"
+ },
+ {
+  "from": "大量生产",
+  "to": "大规模生产",
+  "scope": "exact",
+  "en": "Mass Production",
+  "why": "播报配音；“大量生产”是普通词，只整条替换"
+ },
+ {
+  "from": "天狗战机",
+  "to": "喷气天狗",
+  "scope": "global",
+  "en": "Jet Tengu",
+  "why": "取代原有条目“天狗战机→喷射天狗”（Terms 用 dict，后出现的同名 from 生效；也可直接改原条目的 to）。配音“喷气/喷射天狗”各2次；项目已把“喷射机”当台湾用语改成“喷气机”，变形按钮也是“喷气模式”"
+ },
+ {
+  "from": "天皇复仇",
+  "to": "天皇之复仇",
+  "scope": "global",
+  "en": "Emperor's Revenge",
+  "why": "播报配音"
+ },
+ {
+  "from": "天皇惩罚",
+  "to": "天皇之惩戒",
+  "scope": "global",
+  "en": "Emperor's Retribution",
+  "why": "播报配音"
+ },
+ {
+  "from": "微缩光束",
+  "to": "缩小光束",
+  "scope": "global",
+  "en": "S.H.R.I.N.K. Beam",
+  "why": "配音“缩小光束”6次"
+ },
+ {
+  "from": "惊骇伏击",
+  "to": "伏兵奇袭",
+  "scope": "global",
+  "en": "Sleeper Ambush",
+  "why": "播报配音"
+ },
+ {
+  "from": "战争工厂",
+  "to": "战车工厂",
+  "scope": "global",
+  "en": "War Factory",
+  "why": "配音“战车工厂”2次 vs“战争工厂”1次"
+ },
+ {
+  "from": "战场支持",
+  "to": "战场支援",
+  "scope": "global",
+  "en": "Field Support",
+  "why": "同上"
+ },
+ {
+  "from": "打捞驳船",
+  "to": "打捞船",
+  "scope": "global",
+  "en": "Salvage Ship",
+  "why": "配音“打捞船”6次"
+ },
+ {
+  "from": "支持升级",
+  "to": "支援升级",
+  "scope": "exact",
+  "en": "Support Upgrade",
+  "why": "同上；只整条替换"
+ },
+ {
+  "from": "收割机甲",
+  "to": "收割者",
+  "scope": "global",
+  "en": "Reaper",
+  "why": "术语表；“收割机甲砲塔”随之变“收割者炮塔”"
+ },
+ {
+  "from": "无畏战舰",
+  "to": "无畏舰",
+  "scope": "global",
+  "en": "Dreadnought",
+  "why": "术语表"
+ },
+ {
+  "from": "时空炸弹",
+  "to": "时间炸弹",
+  "scope": "global",
+  "en": "Time Bomb",
+  "why": "配音“时间炸弹”5次"
+ },
+ {
+  "from": "机甲天狗",
+  "to": "天狗机甲",
+  "scope": "global",
+  "en": "Mecha Tengu",
+  "why": "术语表"
+ },
+ {
+  "from": "步兵支持",
+  "to": "步兵支援",
+  "scope": "global",
+  "en": "Anti-Air / Infantry Support",
+  "why": "同上"
+ },
+ {
+  "from": "武器支持",
+  "to": "武器支援",
+  "scope": "global",
+  "en": "Special Weapons Support",
+  "why": "同上"
+ },
+ {
+  "from": "毁灭空袭",
+  "to": "辐射工兵空袭",
+  "scope": "global",
+  "en": "Desolator Airstrike",
+  "why": "播报配音"
+ },
+ {
+  "from": "毒质腐蚀",
+  "to": "毒性腐蚀",
+  "scope": "global",
+  "en": "Toxic Corrosion",
+  "why": "播报配音"
+ },
+ {
+  "from": "波能坦克",
+  "to": "波能炮",
+  "scope": "global",
+  "en": "Wave-Force Artillery",
+  "why": "术语表"
+ },
+ {
+  "from": "火炮机车",
+  "to": "迫击炮摩托",
+  "scope": "global",
+  "en": "Mortar Cycle",
+  "why": "术语表（“炮”写法变体）"
+ },
+ {
+  "from": "火砲机车",
+  "to": "迫击炮摩托",
+  "scope": "global",
+  "en": "Mortar Cycle",
+  "why": "术语表"
+ },
+ {
+  "from": "牛蛙载具",
+  "to": "牛蛙",
+  "scope": "global",
+  "en": "Bullfrog",
+  "why": "术语表"
+ },
+ {
+  "from": "狂牛快攻",
+  "to": "蛮牛冲锋",
+  "scope": "global",
+  "en": "Bull Rush",
+  "why": "配音“蛮牛冲锋”"
+ },
+ {
+  "from": "现金奖励",
+  "to": "现金悬赏",
+  "scope": "exact",
+  "en": "Cash Bounty",
+  "why": "播报配音；普通词，只整条替换"
+ },
+ {
+  "from": "电磁波塔",
+  "to": "光谱塔",
+  "scope": "global",
+  "en": "Spectrum Tower",
+  "why": "术语表 spectrum=光谱，配音“光谱塔”4次"
+ },
+ {
+  "from": "盟军大使",
+  "to": "盟军特使",
+  "scope": "global",
+  "en": "Allied Emissary",
+  "why": "配音“盟军特使”2次"
+ },
+ {
+  "from": "目前所选",
+  "to": "当前选择",
+  "scope": "exact",
+  "en": "Current Selection",
+  "why": "配音“当前选择”"
+ },
+ {
+  "from": "石像控制",
+  "to": "头像控制",
+  "scope": "global",
+  "en": "Lincoln/Washington Head Control",
+  "why": "配音“头像控制中心”，与“杰斐逊头像控制”统一"
+ },
+ {
+  "from": "磁爆快艇",
+  "to": "黄貂鱼",
+  "scope": "global",
+  "en": "Stingray",
+  "why": "术语表"
+ },
+ {
+  "from": "磁爆部队",
+  "to": "磁暴步兵",
+  "scope": "global",
+  "en": "Tesla Trooper",
+  "why": "术语表"
+ },
+ {
+  "from": "精兵学院",
+  "to": "老兵学院",
+  "scope": "global",
+  "en": "Veteran Academy",
+  "why": "播报配音“老兵学院已占领”"
+ },
+ {
+  "from": "纳米虫群",
+  "to": "纳米蜂群",
+  "scope": "global",
+  "en": "Nanoswarm",
+  "why": "术语表"
+ },
+ {
+  "from": "苏联母亲",
+  "to": "母亲俄罗斯",
+  "scope": "global",
+  "en": "Mother Russia Statue",
+  "why": "术语表 Mother Russia=母亲俄罗斯，配音7次"
+ },
+ {
+  "from": "超凡磁力",
+  "to": "电磁奇点",
+  "scope": "global",
+  "en": "Magnetic Singularity",
+  "why": "播报配音"
+ },
+ {
+  "from": "轨道抛掷",
+  "to": "轨道倾倒",
+  "scope": "global",
+  "en": "Orbital Dump",
+  "why": "播报配音"
+ },
+ {
+  "from": "重机蹂躏",
+  "to": "粉碎者履带",
+  "scope": "global",
+  "en": "Grinder Treads",
+  "why": "播报配音“粉碎者履带升级已授权”"
+ },
+ {
+  "from": "防空支持",
+  "to": "防空支援",
+  "scope": "global",
+  "en": "Anti-Air Support Ship",
+  "why": "同上"
+ },
+ {
+  "from": "防空部队",
+  "to": "防空步兵",
+  "scope": "exact",
+  "en": "Flak Trooper",
+  "why": "术语表；官方字幕里“防空部队”几乎都指这个兵种（改为 exact：泛指的“防空部队”不改）"
+ },
+ {
+  "from": "高端指令",
+  "to": "高级指令",
+  "scope": "global",
+  "en": "Advanced Commands",
+  "why": "官方字幕写法，配音“高级指令”2次"
+ },
+ {
+  "from": "高端指挥",
+  "to": "高级指令",
+  "scope": "exact",
+  "en": "Advanced Commands",
+  "why": "配音“高级指令”；只整条替换，避免误伤“东山高端指挥”"
+ },
+ {
+  "from": "MCV",
+  "to": "基地车",
+  "scope": "global",
+  "en": "MCV",
+  "why": "术语表 MCV=基地车，配音61次“基地车”；官方字幕常直接写 MCV"
+ },
+ {
+  "from": "人头像",
+  "to": "摩艾石像",
+  "scope": "exact",
+  "en": "Moai",
+  "why": "配音“摩艾石像”；普通词，只整条替换"
+ },
+ {
+  "from": "俄国佬",
+  "to": "俄国佬",
+  "scope": "global",
+  "en": "(Russkies)",
+  "why": "保护条目（自身不变）：骂人话“俄国佬”按术语表保留，防止被“俄国→苏联”误改成“苏联佬”"
+ },
+ {
+  "from": "傲德萨",
+  "to": "敖德萨",
+  "scope": "global",
+  "en": "Odessa",
+  "why": "配音“敖德萨”4次"
+ },
+ {
+  "from": "刽子手",
+  "to": "处决者",
+  "scope": "global",
+  "en": "Shogun Executioner",
+  "why": "术语表“将军处决者”；官方“刽子手”全部指这台机甲，覆盖“将军刽子手”"
+ },
+ {
+  "from": "反应炉",
+  "to": "反应堆",
+  "scope": "global",
+  "en": "Reactor",
+  "why": "配音“反应堆”17次；覆盖“超级反应炉”"
+ },
+ {
+  "from": "喷射机",
+  "to": "喷气机",
+  "scope": "global",
+  "en": "(jet)",
+  "why": "台湾用语"
+ },
+ {
+  "from": "好游戏",
+  "to": "打得好",
+  "scope": "exact",
+  "en": "Good Game",
+  "why": "配音“打得好”3次"
+ },
+ {
+  "from": "平定者",
+  "to": "和平使者",
+  "scope": "global",
+  "en": "Pacifier FAV",
+  "why": "术语表"
+ },
+ {
+  "from": "征召兵",
+  "to": "动员兵",
+  "scope": "global",
+  "en": "Conscript",
+  "why": "术语表"
+ },
+ {
+  "from": "打击者",
+  "to": "鹰击者",
+  "scope": "global",
+  "en": "Striker",
+  "why": "术语表；覆盖“打击者模式”"
+ },
+ {
+  "from": "打带跑",
+  "to": "打了就跑",
+  "scope": "global",
+  "en": "Hit and Run",
+  "why": "配音“打了就跑”5次"
+ },
+ {
+  "from": "探矿车",
+  "to": "勘探者",
+  "scope": "global",
+  "en": "Prospector",
+  "why": "术语表"
+ },
+ {
+  "from": "机械人",
+  "to": "机器人",
+  "scope": "global",
+  "en": "(robot)",
+  "why": "台湾用语，配音用“机器人”（40次）"
+ },
+ {
+  "from": "杰佛逊",
+  "to": "杰斐逊",
+  "scope": "global",
+  "en": "Jefferson",
+  "why": "配音“杰斐逊”，官方自己两种写法"
+ },
+ {
+  "from": "监视哨",
+  "to": "观察哨",
+  "scope": "global",
+  "en": "Observation Post",
+  "why": "配音“观察哨”5次 vs“监视哨”2次"
+ },
+ {
+  "from": "超能波",
+  "to": "心灵",
+  "scope": "global",
+  "en": "(psionic)",
+  "why": "术语表 psionic=心灵；配音“心灵护盾/心灵支配/心灵爆破”等34次"
+ },
+ {
+  "from": "采矿车",
+  "to": "矿车",
+  "scope": "global",
+  "en": "Ore Collector",
+  "why": "术语表"
+ },
+ {
+  "from": "侦搜",
+  "to": "侦察",
+  "scope": "global",
+  "en": "(recon)",
+  "why": "台湾用语，配音用“侦察”"
+ },
+ {
+  "from": "俄军",
+  "to": "苏军",
+  "scope": "global",
+  "en": "(Soviet forces)",
+  "why": "术语表规定俄军→苏军，配音228次“苏军”"
+ },
+ {
+  "from": "俄国",
+  "to": "苏联",
+  "scope": "global",
+  "en": "(Soviet)",
+  "why": "术语表规定俄国人→苏联人；覆盖“俄国人/俄国海军”等"
+ },
+ {
+  "from": "关连",
+  "to": "关联",
+  "scope": "global",
+  "en": "Contextual Tab",
+  "why": "异体写法，配音“关联标签”"
+ },
+ {
+  "from": "内核",
+  "to": "核心",
+  "scope": "global",
+  "en": "(core)",
+  "why": "OpenCC把“核心”误转成“内核”；术语表“纳米核心”，配音所有 core 都说“核心”"
+ },
+ {
+  "from": "冰冻",
+  "to": "冷冻",
+  "scope": "global",
+  "en": "(cryo)",
+  "why": "术语表 cryo=冷冻；配音“冷冻”29次 vs“冰冻”8次"
+ },
+ {
+  "from": "升阳",
+  "to": "旭日",
+  "scope": "global",
+  "en": "Empire of the Rising Sun",
+  "why": "术语表：旭日帝国；覆盖“升阳帝国”“升阳工兵”等"
+ },
+ {
+  "from": "名椎",
+  "to": "长间",
+  "scope": "global",
+  "en": "Nagama Dojo",
+  "why": "配音和官方字幕都叫“长间”（长间晋三）"
+ },
+ {
+  "from": "工兵",
+  "to": "工程师",
+  "scope": "global",
+  "en": "Engineer",
+  "why": "术语表：工程师；覆盖“战斗工兵→战斗工程师”"
+ },
+ {
+  "from": "布署",
+  "to": "部署",
+  "scope": "global",
+  "en": "(deploy)",
+  "why": "台湾用字，配音用“部署”"
+ },
+ {
+  "from": "帐棚",
+  "to": "帐篷",
+  "scope": "global",
+  "en": "(tent)",
+  "why": "台湾用字"
+ },
+ {
+  "from": "快转",
+  "to": "快进",
+  "scope": "global",
+  "en": "Fast Forward",
+  "why": "台湾用语"
+ },
+ {
+  "from": "急奔",
+  "to": "冲刺",
+  "scope": "exact",
+  "en": "Sprint",
+  "why": "配音“冲刺”"
+ },
+ {
+  "from": "恭贺",
+  "to": "恭喜",
+  "scope": "exact",
+  "en": "Congratulations",
+  "why": "配音“恭喜”7次；短词只整条替换"
+ },
+ {
+  "from": "扫瞄",
+  "to": "扫描",
+  "scope": "global",
+  "en": "(sweep)",
+  "why": "台湾用字，配音“侦察扫描”"
+ },
+ {
+  "from": "数组",
+  "to": "阵列",
+  "scope": "global",
+  "en": "Signal Array",
+  "why": "OpenCC把“阵列”误转成“数组”（编程术语）"
+ },
+ {
+  "from": "斥侯",
+  "to": "斥候",
+  "scope": "global",
+  "en": "Advanced Anti-Surface Scout",
+  "why": "官方错字"
+ },
+ {
+  "from": "磁爆",
+  "to": "磁暴",
+  "scope": "global",
+  "en": "(Tesla)",
+  "why": "配音一律“磁暴”（磁暴线圈/磁暴坦克，42次），官方“磁爆”"
+ },
+ {
+  "from": "雷射",
+  "to": "激光",
+  "scope": "global",
+  "en": "(laser)",
+  "why": "台湾用语，配音用“激光”"
+ },
+ {
+  "from": "飞弹",
+  "to": "导弹",
+  "scope": "global",
+  "en": "(missile)",
+  "why": "台湾用语，配音用“导弹”（如“断电导弹”）"
+ },
+ {
+  "from": "砲",
+  "to": "炮",
+  "scope": "global",
+  "en": "(cannon/gun)",
+  "why": "异体字残留，配音一律用“炮”（配音0次“砲”）"
+ },
+ {
+  "from": "发射基地",
+  "to": "火力基地",
+  "scope": "exact",
+  "en": "Firebase",
+  "why": "中立科技建筑（DEFENSIVESTRUCTURETECHBUILDING），播报“火力基地已占领/已夺取”3次；只整条替换，避免改到“拉什莫尔发射基地”"
+ },
+ {
+  "from": "平民建筑物",
+  "to": "平民建筑",
+  "scope": "global",
+  "en": "Civilian Structure",
+  "why": "配音“平民建筑”4次，0次“平民建筑物”"
+ },
+ {
+  "from": "电力静止射线",
+  "to": "电磁停滞射线",
+  "scope": "global",
+  "en": "Electro-Stasis Ray",
+  "why": "配音“电磁停滞射线”（恐怖机器人介绍）"
+ },
+ {
+  "from": "远距离雷达",
+  "to": "远程雷达",
+  "scope": "global",
+  "en": "Long-Range Radar",
+  "why": "配音“远程雷达”2次（任务+过场）"
+ },
+ {
+  "from": "磁爆突波",
+  "to": "磁暴冲击",
+  "scope": "global",
+  "en": "Tesla Surge",
+  "why": "配音“磁暴冲击”；“突波”是台湾电工用语。官方原文是“磁爆突波”，比“磁爆→磁暴”长，按最长优先先匹配"
+ },
+ {
+  "from": "磁暴突波",
+  "to": "磁暴冲击",
+  "scope": "global",
+  "en": "Tesla Surge",
+  "why": "同上（“暴”写法变体，防漏）"
+ },
+ {
+  "from": "钻井高塔",
+  "to": "油井",
+  "scope": "global",
+  "en": "Oil Derrick",
+  "why": "配音“油井”6次（含3条播报）vs“钻井高塔”2次（这2条已列入 line_fixes）"
+ },
+ {
+  "from": "控制群组",
+  "to": "控制组",
+  "scope": "global",
+  "en": "Control Group",
+  "why": "配音“控制组”3次 vs“控制群组”2次（这2条已列入 line_fixes）；同时覆盖“控制群组”标签"
+ },
+ {
+  "from": "汽油弹",
+  "to": "燃烧瓶",
+  "scope": "global",
+  "en": "Molotov Cocktails",
+  "why": "配音“燃烧瓶”2次 vs“汽油弹”2次，取大陆通行说法并避开“弹”多音字；顺带覆盖迫击炮摩托的汽油弹能力名；另2条台词已列入 line_fixes"
+ },
+ {
+  "from": "喷射天狗",
+  "to": "喷气天狗",
+  "scope": "global",
+  "en": "Jet Tengu",
+  "why": "官方另一处本来就写“喷射天狗”的字串；替换只走一遍，不会二次替换上一条的输出，所以两条都要"
+ },
+ {
+  "from": "精准攻击",
+  "to": "精确打击",
+  "scope": "global",
+  "en": "Surgical Strike",
+  "why": "播报“精确打击就绪”；教程1句“精准攻击”已列入 line_fixes；大陆通行说法"
+ },
+ {
+  "from": "镇暴盾牌",
+  "to": "防暴盾牌",
+  "scope": "global",
+  "en": "Riot Shield",
+  "why": "配音“防暴/镇暴盾牌”各1次，取大陆通行“防暴盾牌”；“镇暴”那句已列入 line_fixes"
+ }
+]

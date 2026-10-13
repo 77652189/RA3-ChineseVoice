@@ -1,0 +1,14 @@
+{
+  "P0": {"label": "不加效果（对照）", "chain": []},
+  "P1": {"label": "只升调到原版音高", "chain": [["pitch", {"semitones": "auto"}]]},
+  "P2": {"label": "升调 + 金属腔", "chain": [["pitch", {"semitones": "auto"}],
+          ["comb", {"delay_ms": 2.5, "feedback": 0.55, "mix": 0.45}]]},
+  "P3": {"label": "升调 + 电子嗡鸣", "chain": [["pitch", {"semitones": "auto"}],
+          ["comb", {"delay_ms": 2.5, "feedback": 0.4, "mix": 0.3}],
+          ["ring", {"carrier_hz": 70, "mix": 0.25}]]},
+  "P4": {"label": "升调 + 合成镶边", "chain": [["pitch", {"semitones": "auto"}],
+          ["flange", {"base_ms": 1.0, "depth_ms": 2.0, "rate_hz": 0.3, "feedback": 0.5, "mix": 0.5}]]},
+  "P5": {"label": "升调 + 金属腔 + 数码颗粒", "chain": [["pitch", {"semitones": "auto"}],
+          ["comb", {"delay_ms": 2.5, "feedback": 0.45, "mix": 0.35}],
+          ["crush", {"bits": 10, "down": 2}]]}
+}

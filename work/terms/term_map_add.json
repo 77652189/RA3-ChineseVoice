@@ -1,0 +1,93 @@
+[
+ {
+  "from": "发射基地",
+  "to": "火力基地",
+  "scope": "exact",
+  "en": "Firebase",
+  "why": "中立科技建筑（DEFENSIVESTRUCTURETECHBUILDING），播报“火力基地已占领/已夺取”3次；只整条替换，避免改到“拉什莫尔发射基地”"
+ },
+ {
+  "from": "平民建筑物",
+  "to": "平民建筑",
+  "scope": "global",
+  "en": "Civilian Structure",
+  "why": "配音“平民建筑”4次，0次“平民建筑物”"
+ },
+ {
+  "from": "电力静止射线",
+  "to": "电磁停滞射线",
+  "scope": "global",
+  "en": "Electro-Stasis Ray",
+  "why": "配音“电磁停滞射线”（恐怖机器人介绍）"
+ },
+ {
+  "from": "远距离雷达",
+  "to": "远程雷达",
+  "scope": "global",
+  "en": "Long-Range Radar",
+  "why": "配音“远程雷达”2次（任务+过场）"
+ },
+ {
+  "from": "磁爆突波",
+  "to": "磁暴冲击",
+  "scope": "global",
+  "en": "Tesla Surge",
+  "why": "配音“磁暴冲击”；“突波”是台湾电工用语。官方原文是“磁爆突波”，比“磁爆→磁暴”长，按最长优先先匹配"
+ },
+ {
+  "from": "磁暴突波",
+  "to": "磁暴冲击",
+  "scope": "global",
+  "en": "Tesla Surge",
+  "why": "同上（“暴”写法变体，防漏）"
+ },
+ {
+  "from": "钻井高塔",
+  "to": "油井",
+  "scope": "global",
+  "en": "Oil Derrick",
+  "why": "配音“油井”6次（含3条播报）vs“钻井高塔”2次（这2条已列入 line_fixes）"
+ },
+ {
+  "from": "控制群组",
+  "to": "控制组",
+  "scope": "global",
+  "en": "Control Group",
+  "why": "配音“控制组”3次 vs“控制群组”2次（这2条已列入 line_fixes）；同时覆盖“控制群组”标签"
+ },
+ {
+  "from": "汽油弹",
+  "to": "燃烧瓶",
+  "scope": "global",
+  "en": "Molotov Cocktails",
+  "why": "配音“燃烧瓶”2次 vs“汽油弹”2次，取大陆通行说法并避开“弹”多音字；顺带覆盖迫击炮摩托的汽油弹能力名；另2条台词已列入 line_fixes"
+ },
+ {
+  "from": "天狗战机",
+  "to": "喷气天狗",
+  "scope": "global",
+  "en": "Jet Tengu",
+  "why": "取代原有条目“天狗战机→喷射天狗”（Terms 用 dict，后出现的同名 from 生效；也可直接改原条目的 to）。配音“喷气/喷射天狗”各2次；项目已把“喷射机”当台湾用语改成“喷气机”，变形按钮也是“喷气模式”"
+ },
+ {
+  "from": "喷射天狗",
+  "to": "喷气天狗",
+  "scope": "global",
+  "en": "Jet Tengu",
+  "why": "官方另一处本来就写“喷射天狗”的字串；替换只走一遍，不会二次替换上一条的输出，所以两条都要"
+ },
+ {
+  "from": "精准攻击",
+  "to": "精确打击",
+  "scope": "global",
+  "en": "Surgical Strike",
+  "why": "播报“精确打击就绪”；教程1句“精准攻击”已列入 line_fixes；大陆通行说法"
+ },
+ {
+  "from": "镇暴盾牌",
+  "to": "防暴盾牌",
+  "scope": "global",
+  "en": "Riot Shield",
+  "why": "配音“防暴/镇暴盾牌”各1次，取大陆通行“防暴盾牌”；“镇暴”那句已列入 line_fixes"
+ }
+]
