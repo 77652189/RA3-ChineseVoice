@@ -234,8 +234,6 @@ def main():
     segs.append(clip('s06_emperor', 'jfs01', 57.5, 20.5, 'zh', '剧情过场 · 帝国开篇', 6))
     segs.append(clip('s07_call', 'a01th01', 0, 4.8, 'zh', '任务中的视频通话', 2))
     segs.append(clip('s08_oleg', 'solgr1', 0, 5.4, 'zh', '遭遇战 AI 指挥官', 2))
-    if os.path.exists(GAMEPLAY):
-        segs.append(gameplay('s08b_play', 246, 24, '实机画面 · 盟军战役 · 东京港'))
     segs.append(card('s09_units', 3, [draw('单位语音', 90, '(w-text_w)/2', 470)]))
     segs.append(unit_card('s10_kirov', '基洛夫飞艇', 'Kirov Airship', '苏联', [('soviet', 'SUKirov_VoiCreatea', 'Kirov reporting.'), ('soviet', 'SUKirov_VoiAttackb', False)]))
     segs.append(unit_card('s11_conscript', '动员兵', 'Conscript', '苏联', [('soviet', 'SUConsc_VoiAttackc', False), ('soviet', 'SUConsc_VoiAttacke', False)]))
@@ -262,5 +260,34 @@ def main():
     print('->', os.path.join(OUT, final))
 
 
+# P2 of the Bilibili upload: a short cut of the recorded mission, in play order (start s, length s)
+PLAY_CUTS = [(25.5, 17.5), (139.5, 15.5), (162.5, 15.0), (192.5, 8.5), (246.0, 24.0), (382.5, 18.5), (411.5, 19.5)]
+
+
+def main_play():
+    """红警3中文配音_实机演示.mp4 from GAMEPLAY (the player's recording)."""
+    if not os.path.exists(GAMEPLAY):
+        sys.exit('no gameplay recording: set CNVOICE_GAMEPLAY to the video file')
+    os.makedirs(OUT, exist_ok=True)
+    fonts = os.path.join(ROOT, 'third_party', 'fonts', 'out')
+    shutil.copyfile(os.path.join(fonts, 'bhei01b.ttf'), os.path.join(OUT, 'font_b.ttf'))
+    shutil.copyfile(os.path.join(fonts, 'bhei00m.ttf'), os.path.join(OUT, 'font_m.ttf'))
+    segs = [card('p2_title', 4, [
+        f"drawbox=x=(w-12)/2-330:y=400:w=12:h=150:color={RED}@1:t=fill",
+        draw('实机演示', 110, '(w-text_w)/2+10', 405),
+        draw('盟军战役 · 东京港　·　装好 MOD 后的真实游戏画面', 44, '(w-text_w)/2', 600, font='font_m.ttf', color='0xC9CDD3')])]
+    for i, (start, length) in enumerate(PLAY_CUTS):
+        segs.append(gameplay(f'p2_{i:02d}', start, length, '实机演示 · 盟军战役 · 东京港'))
+    segs.append(card('p2_end', 5, [
+        draw('下载见视频简介', 90, '(w-text_w)/2', 400),
+        draw('完整功能演示见 P1　·　制作工具开源 github.com/77652189/RA3-ChineseVoice', 38, '(w-text_w)/2', 560,
+             font='font_m.ttf', color='0xC9CDD3')]))
+    with open(os.path.join(OUT, 'list_p2.txt'), 'w', encoding='utf-8') as f:
+        f.writelines(f"file '{s}'\n" for s in segs)
+    final = '红警3中文配音_实机演示.mp4'
+    ff(['-f', 'concat', '-safe', '0', '-i', 'list_p2.txt', '-c', 'copy', '-movflags', '+faststart', final])
+    print('->', os.path.join(OUT, final))
+
+
 if __name__ == '__main__':
-    main()
+    main_play() if '--play' in sys.argv else main()
