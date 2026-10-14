@@ -4,7 +4,7 @@
 
 **玩家下载：[夸克网盘](https://pan.quark.cn/s/61c5ce2c6548) / [百度网盘](https://pan.baidu.com/s/5oqzy02MrWkfMGjZQ18SbPQ)**，备用：[GitHub Releases](https://github.com/77652189/RA3-ChineseVoice/releases/latest)（附件 full = 完整版，ra3 = 原版，uprising = 起义时刻）。三个安装包选一个，不确定就下完整版。安装、试听、更新、故障诊断都在安装器里完成，说明见安装包里的「说明.txt」。
 
-演示视频（B 站）：https://www.bilibili.com/video/BV1tGpr6REsK/　·　制作过程与踩坑长文（小黑盒）：https://www.xiaoheihe.cn/app/bbs/link/193635738
+演示视频（B 站）：https://www.bilibili.com/video/BV1tGpr6REsK/　·　制作过程与踩坑长文（小黑盒）：https://www.xiaoheihe.cn/app/bbs/link/193661933
 
 ## 仓库里有什么
 
