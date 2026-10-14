@@ -23,7 +23,9 @@ P2 实机演示：盟军战役 · 东京港，装好 MOD 后的真实游戏画�
 · 完整版（原版 + 起义时刻，约 {SIZE_完整版}）
 · 原版红警3（约 {SIZE_原版}）
 · 起义时刻（约 {SIZE_起义时刻}）
-百度网盘（三个安装包都在里面）：https://pan.baidu.com/s/5oqzy02MrWkfMGjZQ18SbPQ
+网盘下载（两个网盘内容一样，三个安装包都在里面）：
+· 夸克网盘：https://pan.quark.cn/s/61c5ce2c6548
+· 百度网盘：https://pan.baidu.com/s/5oqzy02MrWkfMGjZQ18SbPQ
 备用下载（GitHub，国内可能较慢）：https://github.com/77652189/RA3-ChineseVoice/releases/latest
 
 安装：解压后双击「{SETUP_EXE}」，勾选要装的内容 → 安装。

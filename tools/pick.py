@@ -30,6 +30,7 @@ MODEL = 'openai/whisper-large-v3'
 SR = 48000
 PAUSE_PENALTY = 0.3
 PUNCT = re.compile(r'[\s，。！？、,.!?;；:："“”\'‘’…\-]')
+EQ_SKIP_RE = re.compile(r'_[Vv]oi(Crash|Fal|Fear)')
 
 
 # sentence particles Whisper writes interchangeably (啦/了/喽/咯) count as the same syllable
@@ -143,8 +144,11 @@ def main(unit):
         names = [n for n in winners if n.lower().startswith(prefix.lower())]
         if not names:
             continue
-        orig = [audio_io.load_mono(os.path.join(ROOT, 'original', unit, n + '.wav'), SR) for n in names]
-        taps = eq.design(orig, [winners[n] for n in names], SR)
+        # shouted crash / fall / fear lines would bend the whole group's curve (and every released line with it):
+        # they only receive the curve designed from the group's ordinary lines
+        design = [n for n in names if not EQ_SKIP_RE.search(n)] or names
+        orig = [audio_io.load_mono(os.path.join(ROOT, 'original', unit, n + '.wav'), SR) for n in design]
+        taps = eq.design(orig, [winners[n] for n in design], SR)
         for n in names:
             y = eq.apply(winners[n], taps)
             y = y * min(1.0, 0.98 / max(float(np.max(np.abs(y))), 1e-9))

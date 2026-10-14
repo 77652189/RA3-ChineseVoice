@@ -5,7 +5,8 @@
 Selects unit voice lines and EVA announcements from RA3 and Uprising, splits them into batches
 (allied / soviet / empire / eva), extracts the originals to original/<batch>/ and writes
 lines/<batch>.csv (keeping any existing en/zh text) plus the batch entries in units.json.
-Non-verbal lines (deaths, crashes, falls, screams) are left out and keep the original audio.
+Death screams (Voi*Die*) are left out and keep the original audio. Crash, fall and fear lines are shouted
+sentences (pilots going down, Tengu/Rocket Angel falls, Natasha) and are dubbed like any other line.
 """
 import csv
 import glob
@@ -25,7 +26,7 @@ GAMES = {
 }
 UNIT_RE = re.compile(r'^(?P<group>[AJIS]U[A-Za-z0-9]+?_)[Vv]oi(?P<cat>[A-Za-z0-9]*)$')   # digits too: Tanya's VoiAtkC4Ba
 EVA_RE = re.compile(r'^(?P<group>[ASI]eva_)', re.I)
-NONVERBAL_RE = re.compile(r'die|crash|^fal|fear', re.I)
+NONVERBAL_RE = re.compile(r'die', re.I)    # crash / fal / fear carry words: checked with Whisper, see tools/nonverbal_probe.py
 # co-commanders (ACGiles_, SCMoskvin_, ECKenji_ ...), soldier chatter, Commander Challenge Giles, UI chat
 COMMANDER_RE = re.compile(r'^(?P<group>(?:AC|SC|EC)[A-Z][a-z]+_|CC_[A-Za-z]+_|CHAT_[A-Za-z]+?(?=\d)|UIChat_)')
 FIELDS = ['asset', 'group', 'games', 'seconds', 'en', 'zh', 'note']
