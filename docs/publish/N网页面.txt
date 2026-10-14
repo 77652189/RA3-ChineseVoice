@@ -1,0 +1,87 @@
+【N 网（Nexus Mods）页面文案】  游戏分区：Command & Conquer: Red Alert 3（起义时刻也发在这里）
+
+======== Mod name（标题）========
+RA3 & Uprising - Full Mandarin Chinese Voice-over (AI dub)
+
+======== Summary（简介，N 网限 350 字符）========
+红警3 / 起义时刻全中文配音：单位语音、EVA、剧情对白、过场视频共 1 万多句普通话，附简体中文界面，一键安装、随时卸载。Full Mandarin Chinese voice-over for RA3 and Uprising: units, EVA, campaign dialogue and cutscenes (10,000+ lines, AI-generated), plus optional Simplified Chinese text. One-click installer, fully reversible.
+
+======== Description（正文，粘贴到 BBCode 编辑器）========
+[size=5][b]红色警戒3 / 起义时刻 全中文配音 MOD[/b][/size]
+[size=3]Full Mandarin Chinese Voice-over for Red Alert 3 & Uprising[/size]
+
+[b]一共 1 万多句普通话配音，音色照着原版配音演员克隆。[/b]谭雅还是那个谭雅，库可夫还是那个库可夫，只是说起了普通话。界面和字幕也可以一并换成简体中文。
+10,000+ lines re-voiced in Mandarin Chinese with the timbre of the original cast, plus optional Simplified Chinese UI and subtitles.
+
+[size=4][b]演示视频 / Demo[/b][/size]
+B 站（P1 功能演示，P2 实机演示）：[url=https://www.bilibili.com/video/BV1tGpr6REsK/]https://www.bilibili.com/video/BV1tGpr6REsK/[/url]
+
+[size=4][b]包含内容 / What's included[/b][/size]（安装时可以按需勾选 / pick what you want in the installer）
+[list]
+[*]三大阵营全部单位语音、三阵营 EVA 战场播报、合作 / AI 指挥官语音 — all unit voices, EVA of all three factions, co-commanders
+[*]战役任务对白、单位介绍旁白、教学关讲解 — campaign mission dialogue, unit intros, tutorials
+[*]剧情过场、任务简报、任务中的视频通话、遭遇战 AI 指挥官视频 — cutscenes, briefings, in-mission video calls (English voices removed, music and effects kept)
+[*]简体中文界面和字幕，字幕与中文配音逐句对应 — Simplified Chinese UI and subtitles that match the dub line by line
+[*]可选：高帧率 120 帧（开源插件 SAGE-Unlocked，不超过显示器刷新率）— optional 120 FPS via SAGE-Unlocked
+[/list]
+
+[size=4][b]下载 / Download[/b][/size]
+三个安装包选一个，不确定就下「完整版」 / Pick one package; take the Full edition if unsure:
+[list]
+[*]完整版 Full（原版 + 起义时刻，约 1.6 GB）
+[*]原版红警3 RA3 only（约 963 MB）
+[*]起义时刻 Uprising only（约 589 MB）
+[/list]
+本页「Files」里有三个安装包；国内下载更快的网盘（两个网盘内容一样）：
+[list]
+[*]夸克网盘：[url=https://pan.quark.cn/s/61c5ce2c6548]https://pan.quark.cn/s/61c5ce2c6548[/url]
+[*]百度网盘：[url=https://pan.baidu.com/s/5oqzy02MrWkfMGjZQ18SbPQ]https://pan.baidu.com/s/5oqzy02MrWkfMGjZQ18SbPQ[/url]
+[*]GitHub Releases：[url=https://github.com/77652189/RA3-ChineseVoice/releases/latest]https://github.com/77652189/RA3-ChineseVoice/releases/latest[/url]
+[/list]
+
+[size=4][b]安装 / Installation[/b][/size]
+[list=1]
+[*]解压后双击「红警3中文配音安装器.exe」，勾选要装的内容 → 安装。 / Unzip, run the installer, tick what you want, click Install.
+[*]Windows 弹出蓝色“已保护你的电脑”：点“更多信息”→“仍要运行”（个人作品没有购买数字签名）。 / If SmartScreen appears: "More info" → "Run anyway" (the installer is not code-signed).
+[*]正常启动游戏即可，不用改启动项。 / Start the game as usual.
+[/list]
+[list]
+[*]支持 Steam、EA App、Origin 版；原版和起义时刻都装了的话一起列出来。 / Steam, EA App and Origin versions are detected automatically.
+[*]不改版本号，不影响联机选 1.12 / 1.13；随时可以在安装器里全部卸载，原文件有备份。 / Game version untouched (online 1.12 / 1.13 unaffected); uninstall restores everything.
+[*]安装器右上角「试听全部配音」，装之前可以先听；「检查更新」只下载改动的部分；「故障诊断」处理 Steam 验证文件后配置被还原等常见问题。 / The installer has a listening window, online updates and a troubleshooter.
+[*]游戏运行时不能安装或卸载，请先退出游戏。 / Close the game before installing or uninstalling.
+[/list]
+
+[size=4][b]已知不足 / Known issues[/b][/size]
+[list]
+[*]真人过场里 AI 配音的情感比原版演员平淡。 / Emotion in live-action cutscenes is flatter than the original actors.
+[*]大厅音乐里带人声的歌没有做。 / Vocal songs in the menu music are not dubbed.
+[*]联机没有实测；理论上只换了声音和文字，不影响同步。遇到问题请先卸载再联机。 / Multiplayer not tested; uninstall first if you run into issues.
+[*]少数战役专用单位（豪华轿车、越野车、打捞船等）用的是 EA 遗留的红警2 英文占位语音，还没配。 / A few campaign-only units still use leftover RA2 placeholder voices in English.
+[/list]
+念错、翻错、声线不对的地方，欢迎在评论区（Posts）或 GitHub Issues 告诉我，会通过在线更新修掉。 / Report wrong readings or voices in Posts or GitHub Issues; fixes ship as online updates.
+
+[size=4][b]关于 AI 配音与版权 / AI voices and rights[/b][/size]
+[list]
+[*]配音由 AI 语音合成生成（IndexTTS2），音色参考原版配音，未经原配音演员授权。 / The voices are AI-generated (IndexTTS2) from the original voice recordings, without the voice actors' endorsement.
+[*]社区非盈利作品，仅供交流学习，不收任何费用，请勿商用。 / Non-commercial fan work, free, not for commercial use.
+[*]游戏和原版音频、视频的版权归 Electronic Arts 所有；安装包需要正版游戏才能用。 / Command & Conquer: Red Alert 3 and its assets belong to Electronic Arts. A legitimate copy of the game is required.
+[*]配音演员或权利方如有异议，请联系我，会立即下架或替换。 / Voice actors or rights holders: contact me and the content will be removed or replaced.
+[/list]
+
+[size=4][b]致谢与许可 / Credits & licenses[/b][/size]
+[list]
+[*]制作工具开源（GPL-3.0），不含任何游戏文件 / Tools (GPL-3.0, no game files)：[url=https://github.com/77652189/RA3-ChineseVoice]https://github.com/77652189/RA3-ChineseVoice[/url]
+[*]制作过程长文 / Making-of (Chinese)：小黑盒「我用AI给红警3配了一万句普通话：从拆包到安装器全过程」
+[*]IndexTTS2（配音 / TTS）、Whisper（听写 / ASR）、Demucs（人声分离 / vocal separation）、vgmstream（音频格式参考）、OpenCC（繁简转换）
+[*]思源黑体 Source Han Sans（SIL Open Font License，许可证随包附带）
+[*]SAGE-Unlocked by TheeHorse（GPL-3.0，原样附带）：[url=https://github.com/TheeHorse/SAGE-Unlocked]https://github.com/TheeHorse/SAGE-Unlocked[/url]
+[/list]
+
+======== 上传时的其他选项（建议）========
+· Category（分类）：Audio - Voice（如果没有，选 Audio）
+· Language：Chinese
+· Tags：Voice, Audio, Translation, Chinese
+· Permissions：不允许转载上传到其他站点（Upload permission: No），不允许拿去商用；其他内容的来源写明 EA、SAGE-Unlocked（GPL-3.0）、思源黑体（OFL）
+· Files：把三个 zip 都传上去（完整版标 Main file，原版、起义时刻标 Optional）；文件说明里写清楚是哪个版本
+· 封面图：不要用带世界地图的那张（库可夫简报），用安装器截图或单位语音卡片

@@ -241,7 +241,9 @@ function Set-Components($g, [string[]]$want) {
     # 记下装的是哪个版本（安装器的“故障诊断”据此区分“旧版本”和“文件损坏”）
     $build = if ($Pkg.build) { $Pkg.build } else { $Pkg.version }
     $edition = if ($Pkg.edition) { $Pkg.edition } else { '完整版' }
-    $marker = [ordered]@{ version = $Pkg.version; build = $build; edition = $edition; components = @($want) }
+    # a full package rebuilt from an update patch keeps that patch's release as base, so later patches still apply
+    $base = if ($Pkg.base) { $Pkg.base } else { $build }
+    $marker = [ordered]@{ version = $Pkg.version; build = $build; base = $base; edition = $edition; components = @($want) }
     [IO.File]::WriteAllText((Join-Path $g.Dir "Data\$MarkerFile"), ($marker | ConvertTo-Json -Compress), (New-Object Text.UTF8Encoding $false))
     return $true
 }

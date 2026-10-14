@@ -398,7 +398,35 @@ def release_dir(edition='完整版'):
     return os.path.join(ROOT, 'release', f'{RELEASE_NAME}_{edition}')
 
 
+def verify_dist_matches_patch(patch):
+    """A full package rebuilt from a patch must hold exactly what that patch delivers (files and cores)."""
+    import hashlib
+    src = os.path.join(PATCH_DIR, patch['build'])
+    for g, info in patch['games'].items():
+        for f in info['files']:
+            pbig = os.path.join(src, f['path'])
+            names = [n for n, _, _ in big.read_index(pbig)]
+            want = big.read_files(pbig, names)
+            got = big.read_files(os.path.join(ROOT, 'dist', g, COMP_BIG.format(f['component'])), names)
+            bad = [n for n in names if got.get(n) != want[n]]
+            if bad:
+                sys.exit(f'dist/{g} differs from patch {patch["build"]} ({f["component"]}: {len(bad)} files); rebuild the patch')
+        for letters, c in info['core'].items():
+            p = os.path.join(ROOT, 'dist', g, 'core', f'CNVoice_core_{letters}.big')
+            if hashlib.sha256(open(p, 'rb').read()).hexdigest() != c['sha256']:
+                sys.exit(f'dist/{g} core {letters} differs from patch {patch["build"]}; rebuild the patch')
+
+
 def cmd_release(args):
+    global MOD_VERSION, RELEASE_NAME
+    # --from-patch: the full package equals <base release> + that patch and keeps the patch's build, version and
+    # base, so later patches (always cumulative against the base release) apply to it as to a patched install
+    patch = None
+    if args.from_patch:
+        patch = json.load(open(os.path.join(PATCH_DIR, args.from_patch, 'patch.json'), encoding='utf-8'))
+        verify_dist_matches_patch(patch)
+        MOD_VERSION = patch['version']
+        RELEASE_NAME = f'红警3中文配音MOD_v{MOD_VERSION}'
     for g in GAMES:
         info = json.load(open(os.path.join(ROOT, 'dist', g, 'build.json'), encoding='utf-8'))
         if info['test_build']:
@@ -416,7 +444,7 @@ def cmd_release(args):
     if os.path.exists(os.path.join(ROOT, 'release', RELEASE_NAME + '.zip')):
         os.remove(os.path.join(ROOT, 'release', RELEASE_NAME + '.zip'))
     import datetime
-    build_id = datetime.datetime.now().strftime('%Y%m%d-%H%M')   # same for all three editions of one release
+    build_id = patch['build'] if patch else datetime.datetime.now().strftime('%Y%m%d-%H%M')   # same for all editions
     sizes = {}
     import listen_index   # tools/ is on sys.path (build_installer above)
     listen_rows = {g: listen_index.entries(g, AudioStream(chain_for_game(GAMES[g])), COMP_BIG) for g in GAMES}
@@ -430,6 +458,8 @@ def cmd_release(args):
                                  os.path.exists(os.path.join(ROOT, 'dist', g, COMP_BIG.format(MOVIE))) for g in games)
                              + [{'id': TEXT, 'name': TEXT_NAME, 'kind': 'text'}]
                              + [{'id': FPS, 'name': FPS_NAME, 'kind': 'fps'}], 'games': {}}
+        if patch:
+            pkg['base'] = patch['base']
         for g in games:
             src = os.path.join(ROOT, 'dist', g)
             os.makedirs(os.path.join(rel, 'files', g, 'core'))
@@ -476,6 +506,9 @@ def cmd_release(args):
         print(f'release [{edition}] -> {zpath} ({os.path.getsize(zpath) / 1e6:.1f} MB)')
         sizes[edition] = os.path.getsize(zpath)
     write_publish_copy(sizes, exe_sha)
+    if patch:
+        print(f'no release index: later patches keep diffing against base {patch["base"]}')
+        return
     index = os.path.join(RELEASE_INDEX, build_id + '.json')
     os.makedirs(RELEASE_INDEX, exist_ok=True)
     json.dump({'build': build_id, 'version': MOD_VERSION, 'games': {g: dist_index(g) for g in GAMES}},
@@ -591,7 +624,10 @@ def main():
                    help='test build: also map clips onto e.g. JUImper_Voi (Imperial Warrior) lines')
     b.set_defaults(fn=cmd_build)
     p = sub.add_parser('preview'); p.add_argument('batches', nargs='*'); p.set_defaults(fn=cmd_preview)
-    sub.add_parser('release').set_defaults(fn=cmd_release)
+    r = sub.add_parser('release')
+    r.add_argument('--from-patch', metavar='BUILD',
+                   help='package = base release + patches/BUILD (keeps its build, version and base)')
+    r.set_defaults(fn=cmd_release)
     pa = sub.add_parser('patch', help='update patch against a release build (releases/<build>.json)')
     pa.add_argument('--base', required=True, help='build id of the release players have, e.g. 20261013-1200')
     pa.add_argument('--version', required=True, help='version shown to players, e.g. 1.0.1')

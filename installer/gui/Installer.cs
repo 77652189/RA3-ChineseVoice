@@ -46,7 +46,7 @@ namespace CNVoiceInstaller
         static readonly Regex AddConfig = new Regex(@"^[ \t]*add-config[ \t]+(\S+)", RegexOptions.Multiline | RegexOptions.IgnoreCase);
         const string LocaleBig = "ChineseT.big";   // 非繁中语言用简体文字时，还要加载繁中包里的字体映射
 
-        public string Root, Version, CoreBig, CompBig, Edition, Build;
+        public string Root, Version, CoreBig, CompBig, Edition, Build, Base;
         public const string Marker = "CNVoice_installed.json";   // Data\ 里记录装的是哪个版本
         public List<Comp> Comps = new List<Comp>();
         public Dictionary<string, object> Games;
@@ -67,6 +67,9 @@ namespace CNVoiceInstaller
             Version = (string)pkg["version"];
             Edition = pkg.ContainsKey("edition") ? (string)pkg["edition"] : "完整版";
             Build = pkg.ContainsKey("build") ? (string)pkg["build"] : Version;
+            // a full package rebuilt from an update patch keeps the release it patches as its base,
+            // so later patches (cumulative against that release) still apply on top of it
+            Base = pkg.ContainsKey("base") ? (string)pkg["base"] : Build;
             UpdateUrl = pkg.ContainsKey("update_url") ? (string)pkg["update_url"] : "";
             if (pkg.ContainsKey("update_mirrors")) Mirrors = ((object[])pkg["update_mirrors"]).Cast<string>().ToList();
             CoreBig = (string)pkg["core"];
@@ -383,7 +386,7 @@ namespace CNVoiceInstaller
                 if (voice.Count > 0) SetVoice(g, voice);
                 if (text.Count > 0) SetText(g, text);
                 if (want.Any(c => c.Kind == "fps")) SetFps(g, fps);
-                WriteMarker(g, Version, Build, Build, want.Select(c => c.Id));
+                WriteMarker(g, Version, Build, Base, want.Select(c => c.Id));
                 try { ReapplyCached(g); } catch (Exception ex) { Log("  （已下载的更新没能重新应用：" + ex.Message + "）"); }
             }
             catch

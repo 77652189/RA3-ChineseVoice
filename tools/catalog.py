@@ -26,6 +26,9 @@ GAMES = {
 }
 UNIT_RE = re.compile(r'^(?P<group>[AJIS]U[A-Za-z0-9]+?_)[Vv]oi(?P<cat>[A-Za-z0-9]*)$')   # digits too: Tanya's VoiAtkC4Ba
 EVA_RE = re.compile(r'^(?P<group>[ASI]eva_)', re.I)
+# spoken lines whose file name lacks the _Voi marker (found by walking the games' *Voice* audio events):
+# the Tesla Tank's select picks these two now and then
+UNNAMED_VOICE = {'sutesla_seltnka', 'sutesla_seltnkb'}
 NONVERBAL_RE = re.compile(r'die', re.I)    # crash / fal / fear carry words: checked with Whisper, see tools/nonverbal_probe.py
 # co-commanders (ACGiles_, SCMoskvin_, ECKenji_ ...), soldier chatter, Commander Challenge Giles, UI chat
 COMMANDER_RE = re.compile(r'^(?P<group>(?:AC|SC|EC)[A-Z][a-z]+_|CC_[A-Za-z]+_|CHAT_[A-Za-z]+?(?=\d)|UIChat_)')
@@ -44,6 +47,8 @@ def select(asset_name):
     m = EVA_RE.match(asset_name) or COMMANDER_RE.match(asset_name)
     if m:
         return m['group']
+    if asset_name.lower() in UNNAMED_VOICE:
+        return asset_name.split('_')[0] + '_'
     m = UNIT_RE.match(asset_name)
     if not m:
         return None
