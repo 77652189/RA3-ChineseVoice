@@ -5,7 +5,9 @@
 ## 当前切片
 2026-10-13 v1.0 已发布：B 站 BV1tGpr6REsK（审核中，P1 功能演示 / P2 实机演示）、小黑盒 https://www.xiaoheihe.cn/app/bbs/link/193661933 、百度网盘 + GitHub v1.0 Release（三个安装包 + SHA256SUMS + 空 manifest）。两个游戏装着 build 20261013-1101。
 - 待办：收集评论里的问题，用 `ra3cv.py patch --base 20261013-1101` 出补丁，发到新的 GitHub Release（标 latest）。
-- 2026-10-13：B 站简介已补小黑盒链接、夸克网盘 https://pan.quark.cn/s/61c5ce2c6548（与百度并列）。补丁 1.0.1 已在本地生成：`patches/20261013-2109/`（补配 34 句坠机/坠落/娜塔莎喊话），尚未发布。
+- 2026-10-14：v1.0.1 已发布（GitHub Release v1.0.1 = 补丁 `patches/20261014-0037/` 全部文件 + 三个完整包 RA3-CNVoice-v1.0.1-*.zip）。补配 34 句坠机/坠落/娜塔莎喊话 + 磁爆坦克 2 句选中语音。完整包用 `ra3cv.py release --from-patch 20261014-0037` 打出：build 20261014-0037、base 仍是 20261013-1101，所以**下一个补丁照样 `--base 20261013-1101`**，装 1.0 的和装 1.0.1 完整包的都能收到。网盘文件夹（夸克 https://pan.quark.cn/s/61c5ce2c6548 、百度）由用户替换成 1.0.1 包，链接不变。
+- 小黑盒只允许 N 网分发 mod：文章（193661933）正文和评论里不放任何下载指引。N 网页面文案在 docs/publish/N网页面.txt（内置浏览器过不了 Cloudflare，用户自己在 Edge 里建页面）。
+- 已知未配：少数战役专用单位（豪华轿车、越野车、打捞船、雷达船、炸弹船、苏联火车/汽车、海军陆战队）用 EA 遗留的红警2 英文占位语音（TEMP_*，约 36 句），用户选择留到以后。
 - 试听：安装器右上角“试听全部配音”，读 files/listen_index.json（tools/listen_index.py）直接从包里的 .big 解码播放（installer/gui/Listen.cs，与 Python 解码逐采样一致），不另带音频。
 - 安装器和 ps1 现在在游戏运行时拒绝安装（按游戏目录判断进程）。
 - 过场 14 句已用 work/speakers/ref_override.json 修好；停顿压缩不采用。
