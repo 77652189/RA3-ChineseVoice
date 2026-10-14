@@ -512,6 +512,8 @@ namespace CNVoiceInstaller
             foreach (var id in bigs)
             {
                 if (otherVersion) break;          // sizes are expected to differ between versions
+                // updated online: the old release's pack sits under a patch pack, while this package has the patch merged in
+                if (File.Exists(Path.Combine(data, "CNVoice_patch_" + id + ".big"))) continue;
                 var c = Comps.First(x => x.Id == id);
                 var src = Path.Combine(Root, g.Kind, BigOf(id));
                 var dst = Path.Combine(data, BigOf(id));
@@ -644,6 +646,16 @@ namespace CNVoiceInstaller
             return m.ContainsKey("patches") ? (object[])m["patches"] : new object[0];
         }
 
+        /// 连不上就早点放弃（默认要等 100 秒），下载中途卡住 30 秒也算失败
+        System.Net.HttpWebRequest Request(string url)
+        {
+            var req = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+            req.UserAgent = "RA3-CNVoice-Installer/" + Version;
+            req.Timeout = 15000;
+            req.ReadWriteTimeout = 30000;
+            return req;
+        }
+
         IEnumerable<string> Candidates(string url)
         {
             yield return url;
@@ -659,7 +671,9 @@ namespace CNVoiceInstaller
             {
                 try
                 {
-                    var json = new System.Net.WebClient { Encoding = Encoding.UTF8 }.DownloadString(u);
+                    string json;
+                    using (var resp = Request(u).GetResponse()) using (var rd = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
+                        json = rd.ReadToEnd();
                     var m = (Dictionary<string, object>)new JavaScriptSerializer().DeserializeObject(json);
                     if (m.ContainsKey("mirrors")) Mirrors = ((object[])m["mirrors"]).Cast<string>().ToList();
                     return Patches(json);
@@ -745,9 +759,7 @@ namespace CNVoiceInstaller
                 long got = 0;
                 try
                 {
-                    var req = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
-                    req.UserAgent = "RA3-CNVoice-Installer/" + Version;
-                    using (var resp = req.GetResponse()) using (var src = resp.GetResponseStream()) using (var dst = File.Create(tmp))
+                    using (var resp = Request(url).GetResponse()) using (var src = resp.GetResponseStream()) using (var dst = File.Create(tmp))
                     {
                         var buf = new byte[1 << 16];
                         int n;
@@ -796,7 +808,7 @@ namespace CNVoiceInstaller
                 File.Copy(Path.Combine(Cache, build, ((string)((Dictionary<string, object>)cores[letters])["path"]).Replace('/', '\\')),
                           Path.Combine(data, CoreBig), true);
             var mk = ReadMarker(g);
-            var bas = mk != null && mk.ContainsKey("base") ? (string)mk["base"] : Build;
+            var bas = mk == null ? Build : mk.ContainsKey("base") ? (string)mk["base"] : (string)mk["build"];   // same fallback as PatchFor
             WriteMarker(g, (string)patch["version"], build, bas, have);
         }
 
@@ -1207,21 +1219,38 @@ namespace CNVoiceInstaller
 
         static object[] Patches(string json) { return Mod.Patches(json); }
 
+        bool updating;   // 检查 / 下载更新进行中：再点“检查更新”不重复开始
+
         async void CheckUpdates(bool userAsked)
+        {
+            if (updating) return;
+            updating = true;
+            try { await CheckUpdatesOnce(userAsked); }
+            finally { updating = false; }
+        }
+
+        async Task CheckUpdatesOnce(bool userAsked)
         {
             var status = Find<TextBlock>("Status");
             var targets = games.Where(g => mod.Covers(g.Kind) && mod.Installed(g).Count > 0).ToList();
             if (targets.Count == 0) { if (userAsked) status.Text = "还没有安装本 MOD，先点“安装 / 更新”。"; return; }
             status.Text = "正在检查更新……";
             object[] patches;
+            List<Tuple<Game, Dictionary<string, object>>> todo;
+            long total;
             try
             {
                 patches = await Task.Run(() => mod.LoadManifest());
+                todo = targets.Select(g => Tuple.Create(g, mod.PatchFor(g, patches))).Where(t => t.Item2 != null).ToList();
+                total = todo.Sum(t => mod.PatchFiles(t.Item1, t.Item2).Sum(f => f.Item2));
             }
-            catch (Exception ex) { if (userAsked) status.Text = "检查更新失败（网络不通或服务器暂时不可用）：" + ex.Message; else status.Text = ""; return; }
-            var todo = targets.Select(g => Tuple.Create(g, mod.PatchFor(g, patches))).Where(t => t.Item2 != null).ToList();
+            catch (Exception ex)
+            {
+                if (userAsked) { status.Text = "检查更新失败（连不上更新服务器）。也可以到网盘下载最新的完整安装包，直接安装即可。"; status.ToolTip = ex.Message; }
+                else status.Text = "";
+                return;
+            }
             if (todo.Count == 0) { if (userAsked) status.Text = "已经是最新版本。"; else Refresh(); return; }
-            long total = todo.Sum(t => mod.PatchFiles(t.Item1, t.Item2).Sum(f => f.Item2));
             var first = todo[0].Item2;
             var msg = "发现新版本 v" + first["version"] + "（" + first["build"] + "）\n\n" + first["notes"] + "\n\n需要下载约 "
                       + Math.Max(1, total / 1000000) + " MB，现在更新吗？";
@@ -1248,7 +1277,7 @@ namespace CNVoiceInstaller
                 status.Foreground = Brush("#5FBF7F");
             }
             catch (UnauthorizedAccessException) { MessageBox.Show(win, "没有写入权限，请右键安装程序选择“以管理员身份运行”。", "更新没有完成"); }
-            catch (Exception ex) { MessageBox.Show(win, ex.Message, "更新没有完成"); status.Text = "更新没有完成，可以稍后再试。"; }
+            catch (Exception ex) { MessageBox.Show(win, ex.Message, "更新没有完成"); status.Text = "更新没有完成，可以稍后再试，或到网盘下载最新的完整安装包直接安装。"; }
             foreach (var b in new[] { "Install", "Uninstall", "Close" }) Find<Button>(b).IsEnabled = true;
             Refresh();
         }
