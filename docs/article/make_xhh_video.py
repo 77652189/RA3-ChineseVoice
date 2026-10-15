@@ -89,11 +89,17 @@ def call(seg, game, movie, title, tag):
 
 
 def play_cuts():
-    """The P2 gameplay cuts; reuse the ones already rendered for Bilibili."""
+    """The P2 gameplay cuts, with the sound brought up to the current build where patch_gameplay_audio.py has
+    written it (work/demo/p2_XX.wav); otherwise the Bilibili render is reused."""
     out = []
     for i, (start, length) in enumerate(md.PLAY_CUTS):
         done = os.path.join(DEMO, f'p2_{i:02d}.mp4')
-        out.append(done if os.path.exists(done) else md.gameplay(f'p2_{i:02d}', start, length, '实机演示 · 盟军战役 · 东京港'))
+        patched = os.path.join(DEMO, f'p2_{i:02d}.wav')
+        if os.path.exists(patched) or not os.path.exists(done):
+            out.append(md.gameplay(f'p2_{i:02d}', start, length, '实机演示 · 盟军战役 · 东京港',
+                                   audio=patched if os.path.exists(patched) else None))
+        else:
+            out.append(done)
     return out
 
 

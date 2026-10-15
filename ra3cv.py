@@ -124,6 +124,17 @@ def _movie_job(job):
 MOVIE_CACHE = os.path.join(ROOT, 'work', 'movie_cache')
 
 
+MOVIE_OFFSETS = os.path.join(ROOT, 'work', 'movie_offsets.json')
+
+
+def movie_offsets():
+    """{asset: seconds} where the actor speaks well after the subtitle time (measured on the separated vocals):
+    the dub and its removal window move, the subtitle keeps the game's timing."""
+    if not os.path.exists(MOVIE_OFFSETS):
+        return {}
+    return {k: float(v) for k, v in json.load(open(MOVIE_OFFSETS, encoding='utf-8')).items() if not k.startswith('_')}
+
+
 def movie_jobs(game, voices_dir):
     """[(pack, snd name, [(start, dur, wav)], vocals .npy)] for every movie of a game with dubbed lines."""
     path = os.path.join(ROOT, 'lines', 'movie.csv')
@@ -131,11 +142,12 @@ def movie_jobs(game, voices_dir):
         return [], {}
     with open(path, encoding='utf-8-sig') as f:
         rows = [r for r in csv.DictReader(f) if r['games'] == game]
+    shift = movie_offsets()
     by_movie = {}
     for r in rows:
         wav = os.path.join(voices_dir, MOVIE, r['asset'] + '.wav')
         if os.path.exists(wav):
-            by_movie.setdefault(r['movie'], []).append((float(r['start']), float(r['dur']), wav))
+            by_movie.setdefault(r['movie'], []).append((float(r['start']) + shift.get(r['asset'], 0.0), float(r['dur']), wav))
     pack = os.path.join(GAMES[game], 'Data', 'EnglishMovieAudio.big')
     sep = os.path.join(ROOT, 'work', 'sep', game)
     jobs = [(pack, 'data\\movies\\' + m + '.snd', sorted(v), os.path.join(sep, m + '.npy'))

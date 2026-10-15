@@ -247,6 +247,40 @@ def test_movie_removal_window_swallows_the_whole_english_line():
     assert m[int(5.5 * sr)] == 0                                   # undubbed background voice kept
 
 
+def test_movie_removal_window_bridges_a_breath():
+    """a07th08: "We" at 0.85 s, a 0.1 s breath, then the rest of the line from 1.05 s (subtitle 1.2 s).
+    The lone "We" must go too; a voice 0.6 s after the line (no dub) stays."""
+    from ra3voice import movie
+    sr = movie.SR
+    voc = np.zeros((5 * sr, 2), dtype=np.int16)
+    rng = np.random.default_rng(5)
+    voc[int(0.85 * sr):int(0.95 * sr)] = rng.normal(0, 3000, (int(0.1 * sr), 2)).astype(np.int16)
+    voc[int(1.05 * sr):int(2.5 * sr)] = rng.normal(0, 3000, (int(1.45 * sr), 2)).astype(np.int16)
+    voc[int(3.1 * sr):int(3.6 * sr)] = rng.normal(0, 3000, (int(0.5 * sr), 2)).astype(np.int16)
+    m = movie.removal_mask(voc, [(1.1, 2.4)])
+    assert m[int(0.9 * sr)] == 1 and m[int(1.0 * sr)] == 1
+    assert m[int(3.3 * sr)] == 0
+
+
+def test_movie_dub_level_follows_the_actor_when_the_subtitle_is_early():
+    """sfs00 "Please.": subtitle at 1.0-1.8 s, actor at 1.8-2.3 s. The window is nearly silent, so the reference
+    must come from the voiced part of the grown span (else the dub is matched to silence); a normal line keeps
+    its window."""
+    from ra3voice import movie
+    sr = movie.SR
+    rng = np.random.default_rng(6)
+    ref = rng.normal(0, 3, 4 * sr)
+    ref[int(1.8 * sr):int(1.8 * sr) + sr // 2] = rng.normal(0, 3000, sr // 2)
+    span = movie.grown_spans(ref[:, None], [(0.9, 2.1)])[0]
+    assert span[1] >= 2.29
+    got = movie.level_reference(ref, 1.0, 0.8, span)
+    assert np.sqrt(np.mean(got ** 2)) > 2000
+    ref2 = rng.normal(0, 3, 4 * sr)
+    ref2[int(1.0 * sr):int(1.8 * sr)] = rng.normal(0, 3000, int(0.8 * sr))
+    span2 = movie.grown_spans(ref2[:, None], [(0.9, 2.1)])[0]
+    assert len(movie.level_reference(ref2, 1.0, 0.8, span2)) == int(0.8 * sr)
+
+
 def test_text_terms_and_subtitles_follow_the_dub():
     from ra3voice import textpack
     t = textpack.Terms()

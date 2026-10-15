@@ -19,6 +19,7 @@
 /lines/*
 !/lines/GLOSSARY.md
 /work/*
+!/work/movie_offsets.json
 !/work/terms/
 /work/terms/*
 !/work/terms/term_map.json

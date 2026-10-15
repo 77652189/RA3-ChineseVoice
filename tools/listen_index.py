@@ -162,12 +162,16 @@ def entries(game, stream, comp_big):
     movie_big = os.path.join(dist, comp_big.format('movie'))
     if os.path.exists(movie_big):
         inside = {n.lower() for n, _, _ in big.read_index(movie_big)}
+        # where the actor speaks well after the subtitle, the dub was placed later too (ra3cv.movie_offsets)
+        off_path = os.path.join(ROOT, 'work', 'movie_offsets.json')
+        shift = json.load(open(off_path, encoding='utf-8')) if os.path.exists(off_path) else {}
         with open(os.path.join(ROOT, 'lines', 'movie.csv'), encoding='utf-8-sig') as f:
             for r in csv.DictReader(f):
                 entry = 'data\\movies\\' + r['movie'] + '.snd'
                 if not r['zh'].strip() or entry not in inside or game not in r['games'].split('+'):
                     continue
-                start, slot = float(r['start']), max(float(r['dur']), float(r['slot'] or r['dur']))
+                start = float(r['start']) + float(shift.get(r['asset'], 0))
+                slot = max(float(r['dur']), float(r['slot'] or r['dur']))
                 cat, grp = movie_group(r['movie'], r['asset'])
                 out.append([cat, grp, r['zh'], r['en'], game, comp_big.format('movie'), entry, 'm', 0, 0,
                             round(max(0.0, start - 0.1), 2), round(min(slot, 12.0) + 0.3, 2)])

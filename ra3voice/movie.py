@@ -60,6 +60,7 @@ def _ramp_mask(n, spans):
 
 VOICE_REL_DB = -40      # separated-vocal level (vs. the movie's loudest vocal) that still counts as speech
 EXTEND_MAX = 2.0        # how far a removal window may grow to swallow the rest of the English line
+BRIDGE = 0.25           # a breath this short inside the English line doesn't stop the growth (a07th08: "We ... only")
 
 
 def speech_channels(nch):
@@ -70,11 +71,25 @@ def speech_channels(nch):
 def removal_mask(voc, windows):
     """1 where the English voice must go, 0 elsewhere (ramped). windows: [(start_s, end_s)] of dubbed lines;
     each grows over the contiguous separated-vocal activity it touches, so late/early words go too."""
+    return 1 - _ramp_mask(len(voc), grown_spans(voc, windows))
+
+
+def _active(env):
+    return 20 * np.log10(env / (env.max() + 1e-9) + 1e-12) > VOICE_REL_DB if len(env) else np.zeros(0, bool)
+
+
+def grown_spans(voc, windows):
+    """[(start_s, end_s)] per window, grown over the English voice it touches (see removal_mask)."""
     n = len(voc)
     hop = SR // 100
     nf = n // hop
     env = np.sqrt(np.mean(np.abs(voc[:nf * hop]).astype(np.float64).reshape(nf, hop, -1) ** 2, axis=(1, 2)))
-    active = 20 * np.log10(env / (env.max() + 1e-9) + 1e-12) > VOICE_REL_DB if nf else np.zeros(0, bool)
+    active = _active(env)
+    # close short gaps between active frames, so a word split off by a breath still counts as the same line
+    on = np.flatnonzero(active)
+    for a, b in zip(on[:-1], on[1:]):
+        if 1 < b - a <= BRIDGE * 100:
+            active[a:b] = True
     spans = []
     for a, b in windows:
         fa, fb = max(0, int(a * 100)), min(nf, int(b * 100))
@@ -84,7 +99,30 @@ def removal_mask(voc, windows):
         while hi < nf and active[hi] and hi - fb < EXTEND_MAX * 100:
             hi += 1
         spans.append((lo / 100, hi / 100))
-    return 1 - _ramp_mask(n, spans)
+    return spans
+
+
+LEVEL_SLACK_DB = 6      # window reference this much quieter than the line's own English: the subtitle time is off
+
+
+def level_reference(level_ref, start, dur, span):
+    """The original clip a dub is level-matched to: normally the subtitle window; but where the subtitle comes
+    early or late (sfs00 "Please.", a second ahead of the actor), the window holds little or no English and the
+    dub came out inaudible, so then the voiced part of the line's grown removal span is used instead."""
+    win = level_ref[max(0, int(start * SR)):int((start + dur) * SR)]
+    a, b = max(0, int(span[0] * SR)), min(len(level_ref), int(span[1] * SR))
+    hop = SR // 100
+    nf = (b - a) // hop
+    if nf <= 0:
+        return win
+    seg = level_ref[a:a + nf * hop]
+    env = np.sqrt(np.mean(seg.reshape(nf, hop) ** 2, axis=1))
+    voiced = np.flatnonzero(env > env.max() * 10 ** (VOICE_REL_DB / 20)) if env.max() > 0 else []
+    if not len(voiced):
+        return win
+    speech = seg[voiced[0] * hop:(voiced[-1] + 1) * hop]
+    rms = lambda y: np.sqrt(np.mean(y ** 2)) if len(y) else 0.0   # noqa: E731
+    return speech if rms(win) < rms(speech) * 10 ** (-LEVEL_SLACK_DB / 20) else win
 
 
 def build(snd, lines, voc=None):
@@ -99,7 +137,9 @@ def build(snd, lines, voc=None):
     base = x[:, chans].astype(np.float64).mean(axis=1)
     level_ref = base if voc is None else voc[:, chans].astype(np.float64).mean(axis=1)
     out = np.zeros(n)
-    mutes, windows, report = [], [], []
+    mutes, report = [], []
+    windows = [(start - MUTE_BEFORE, start + dur + MUTE_AFTER) for start, dur, _ in lines]
+    spans = None if voc is None else grown_spans(voc[:, speech_channels(nch)], windows)
     for i, (start, dur, dub) in enumerate(lines):
         nxt = lines[i + 1][0] if i + 1 < len(lines) else n / SR
         avail = max(0.2, nxt - start - GUARD)
@@ -112,7 +152,8 @@ def build(snd, lines, voc=None):
                 cut = len(dub) / SR - avail
                 dub = dub[:int(avail * SR)]
                 dub[-RAMP:] *= np.linspace(1, 0, min(RAMP, len(dub)))
-        ref = level_ref[max(0, int(start * SR)):int((start + dur) * SR)]
+        ref = (level_ref[max(0, int(start * SR)):int((start + dur) * SR)] if spans is None
+               else level_reference(level_ref, start, dur, spans[i]))
         if len(ref) and np.abs(ref).max() > 0:
             dub = audio_io.match_level(dub, np.round(ref).astype(np.int16))
         dub = dub * 32768
@@ -121,13 +162,12 @@ def build(snd, lines, voc=None):
         out[a:a + len(seg)] += seg
         end = max(start + dur + MUTE_AFTER, start + len(seg) / SR)
         mutes.append((start - MUTE_BEFORE, min(end, nxt - GUARD if i + 1 < len(lines) else end)))
-        windows.append((start - MUTE_BEFORE, start + dur + MUTE_AFTER))
         report.append((start, rate, cut))
     if voc is None:
         track = base * _ramp_mask(n, mutes) + out
         track = np.round(np.clip(track, -32768, 32767)).astype(np.int16)
         return eaxa.replace_channels(snd, {c: track for c in chans}), report
-    gone = removal_mask(voc[:, speech_channels(nch)], windows)
+    gone = 1 - _ramp_mask(n, spans)
     new = {}
     for c in speech_channels(nch):
         y = x[:, c].astype(np.float64) - voc[:, c].astype(np.float64) * gone

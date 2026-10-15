@@ -130,15 +130,16 @@ def clip(seg, movie, start, length, lang, tag, channels):
 GAMEPLAY = os.environ.get('CNVOICE_GAMEPLAY', os.path.expanduser(os.path.join('~', 'Videos', '2026-10-13 10-43-21.mp4')))
 
 
-def gameplay(seg, start, length, tag):
-    """A piece of real play: in-game video call, unit replies and EVA, as recorded (scaled up to the demo size)."""
-    ff(['-ss', str(start), '-t', str(length), '-i', GAMEPLAY,
+def gameplay(seg, start, length, tag, audio=None):
+    """A piece of real play: in-game video call, unit replies and EVA, as recorded (scaled up to the demo size).
+    audio: the cut's sound brought up to a newer dub build (docs/article/patch_gameplay_audio.py) instead."""
+    ff(['-ss', str(start), '-t', str(length), '-i', GAMEPLAY] + (['-i', audio] if audio else []) + [
         '-filter_complex',
         # the corner label would sit on the game's HUD: top centre on a dark box instead
         f"[0:v]scale={W}:{H}:flags=lanczos,setsar=1,"
         + draw(tag, 40, '(w-text_w)/2', 36, extra=':box=1:boxcolor=black@0.6:boxborderw=16') + ","
         f"fade=t=in:st=0:d=0.4,fade=t=out:st={length - 0.4}:d=0.4[v];"
-        f"[0:a]{LOUD},afade=t=in:st=0:d=0.3,afade=t=out:st={length - 0.4}:d=0.4[a]",
+        f"[{1 if audio else 0}:a]{LOUD},afade=t=in:st=0:d=0.3,afade=t=out:st={length - 0.4}:d=0.4[a]",
         '-map', '[v]', '-map', '[a]', '-t', f'{length}'] + ENC + [f'{seg}.mp4'])
     return f'{seg}.mp4'
 
@@ -281,7 +282,9 @@ def main_play():
         draw('实机演示', 110, '(w-text_w)/2+10', 405),
         draw('盟军战役 · 东京港　·　装好 MOD 后的真实游戏画面', 44, '(w-text_w)/2', 600, font='font_m.ttf', color='0xC9CDD3')])]
     for i, (start, length) in enumerate(PLAY_CUTS):
-        segs.append(gameplay(f'p2_{i:02d}', start, length, '实机演示 · 盟军战役 · 东京港'))
+        patched = os.path.join(OUT, f'p2_{i:02d}.wav')     # docs/article/patch_gameplay_audio.py
+        segs.append(gameplay(f'p2_{i:02d}', start, length, '实机演示 · 盟军战役 · 东京港',
+                             audio=patched if os.path.exists(patched) else None))
     segs.append(card('p2_end', 5, [
         draw('下载见视频简介', 90, '(w-text_w)/2', 400),
         draw('完整功能演示见 P1　·　制作工具开源 github.com/77652189/RA3-ChineseVoice', 38, '(w-text_w)/2', 560,
