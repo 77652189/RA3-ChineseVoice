@@ -32,6 +32,12 @@
 - 过场 14 句已用 work/speakers/ref_override.json 修好；停顿压缩不采用。
 - 下一步（需用户确认）：推送 GitHub、建 v1.0 Release（空 manifest.json）。
 
+## 进行中：过场配音对齐演员开口（2026-10-15 暂停）
+- 已证实：全屏过场（afs/sfs/jfs、mm 简报）原版字幕普遍比演员开口早 1.2–1.7 秒（A01MM01 画面：字幕 2.3 s 时 Krukov 还在走进画面，3.6 s 开口），通话小窗（th）晚约 0.7 秒。中文过去按字幕时间放 → 比口型早。决定：中文对齐演员开口，字幕保持原版时间。
+- 工具 `tools/align_movies.py`：`transcribe`（Whisper 逐词时间戳，限流，可续跑，按静音切 ≤25 s 段、max_new_tokens 200、显存不够自动对半切）→ `work/align/<游戏>/<过场>.json`；`offsets` → `work/align/report.csv` + `work/align/offsets.json`（提议值；规则：第一个词「结束点」附近最后开始的人声段为开口，|偏移|≥0.35 s 才挪，邻句一致时补上没认出的句子）。试跑的 7 个过场和手工测的 4 句全部吻合。
+- 进度：831 个过场里转写完 632 个，接着跑 `python -I -X utf8 tools/align_movies.py transcribe`（已完成的自动跳过）。
+- 下一步：`offsets` → 看分布和异常值 → 把 offsets.json 合进 `work/movie_offsets.json` → `ra3cv.py build`（只重编码受影响的过场）→ 用 scratchpad 的 leftover_en / quiet_dub 检测复查 → 打包工具两处隐患（见上）→ 1.0.2。之后：编码器按声道并行。
+
 ## 构建缓存（2026-10-14 改）
 - 语音包按句缓存在 `work/voice_cache/<游戏>/`（键 = wav 内容 + 原版音频 + 资源格式 + 编码代码），没命中的句子 7 进程并行编码。
 - 过场缓存（`work/movie_cache/`）的键是「准备阶段的结果」（每句的位置、速度、音量后的整条配音轨 + 英文去除范围）+ 混音编码代码，不再是 movie.py 全文：改放置/音量算法时只有结果真变了的过场才重编码。改 `movie.mix` 及其调用的函数、eaxa.py、vgm.py 会让全部过场重编码（这是对的）。
