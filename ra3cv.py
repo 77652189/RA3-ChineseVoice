@@ -111,14 +111,19 @@ def _build_text(game):
 
 
 def _movie_job(job):
+    """Worker: plan the movie (cheap), and re-encode it only when the plan's key differs from the cached one.
+    Returns (name, new .snd bytes or None = cache still valid, report, separated, key)."""
     from ra3voice import movie
     import numpy as np
-    pack, name, spec, voc_path = job
+    pack, name, spec, voc_path, cached_key = job
     snd = big.read_files(pack, [name])[name]
     lines = [(s, d, audio_io.load_mono(p, movie.SR)) for s, d, p in spec]
     voc = np.load(voc_path) if os.path.exists(voc_path) else None   # tools/separate_movies.py
-    new, report = movie.build(snd, lines, voc)
-    return name, new, report, voc is not None
+    prep = movie.prepare(snd, lines, voc)
+    key = movie_cache_key(name, snd, voc_path, prep)
+    if key == cached_key:
+        return name, None, prep['report'], voc is not None, key
+    return name, movie.mix(snd, prep, voc), prep['report'], voc is not None, key
 
 
 MOVIE_CACHE = os.path.join(ROOT, 'work', 'movie_cache')
@@ -155,49 +160,60 @@ def movie_jobs(game, voices_dir):
     return jobs, by_movie
 
 
-def movie_cache_key(job):
-    """Changes whenever a movie's dubs, its separated vocals or the assembly code change."""
+def _mix_code():
+    """Source of everything between a plan and the encoded .snd (movie.mix and what it calls)."""
     import hashlib
-
-    def stamp(p):
-        # content, not mtime: fx.py rewrites every voice file even when nothing in it changed
-        if not os.path.exists(p):
-            return f'{p}|-'
-        if p.endswith('.npy'):        # separated vocals: large, written once per movie by separate_movies.py
-            return f'{p}|{os.path.getsize(p)}|{int(os.path.getmtime(p))}'
-        return f'{p}|' + hashlib.sha1(open(p, 'rb').read()).hexdigest()
-    pack_, name_, spec, voc = job
-    h = hashlib.sha256(b''.join(open(os.path.join(ROOT, 'ra3voice', f), 'rb').read()
-                                for f in ('movie.py', 'eaxa.py', 'stretch.py')))
-    h.update('\n'.join([name_, stamp(voc)] + [f'{s}|{d}|{stamp(p)}' for s, d, p in spec]).encode('utf-8'))
+    import inspect
+    from ra3voice import movie
+    h = hashlib.sha256(repr((movie.SR, movie.RAMP)).encode())
+    for f in (movie.mix, movie._ramp_mask, movie.decode, movie.dialogue_channels, movie.speech_channels):
+        h.update(inspect.getsource(f).encode('utf-8'))
+    for f in ('eaxa.py', 'vgm.py'):
+        h.update(open(os.path.join(ROOT, 'ra3voice', f), 'rb').read())
     return h.hexdigest()
 
 
-def build_movies(game, voices_dir, out):
-    """dist/<game>/CNVoice_movie.big from voices/movie/<asset>.wav and lines/movie.csv. Returns stats."""
+def movie_cache_key(name, snd, voc_path, prep):
+    """Keyed on what goes into the expensive mix, not on the code that planned it: the original movie, its
+    separated vocals, the plan (movie.digest: every placed, stretched and levelled dub, the English removal
+    spans) and the mix/encoder code. A change to placement or levelling re-encodes only the movies it moves."""
+    import hashlib
+    voc = (f'{os.path.getsize(voc_path)}|{int(os.path.getmtime(voc_path))}'    # written once per movie
+           if os.path.exists(voc_path) else '-')
+    from ra3voice import movie
+    parts = [name, hashlib.sha1(snd).hexdigest(), voc, movie.digest(prep), _mix_code()]
+    return hashlib.sha256('|'.join(parts).encode('utf-8')).hexdigest()
+
+
+def build_movies(game, voices_dir, out, only=None):
+    """dist/<game>/CNVoice_movie.big from voices/movie/<asset>.wav and lines/movie.csv. Returns stats.
+    only: movie names (e.g. {'afs07'}) to re-plan; every other movie is taken from the cache unchecked (quick
+    look at a fix; the result is marked partial and cannot be released)."""
     from concurrent.futures import ProcessPoolExecutor
     jobs, by_movie = movie_jobs(game, voices_dir)
     if not jobs:
         return {}
     cache = os.path.join(MOVIE_CACHE, game)
     os.makedirs(cache, exist_ok=True)
-    key = movie_cache_key
-    results, todo = {}, []
-    for j in jobs:
-        base = os.path.join(cache, os.path.basename(j[1]))
-        k = key(j)
-        if os.path.exists(base) and os.path.exists(base + '.json'):
-            meta = json.load(open(base + '.json', encoding='utf-8'))
-            if meta['key'] == k:
-                results[j[1]] = (open(base, 'rb').read(), meta['report'], meta['separated'])
-                continue
-        todo.append((j, base, k))
-    if todo:
-        with ProcessPoolExecutor(max(1, (os.cpu_count() or 2) - 2)) as ex:
-            for (j, base, k), (name, new, report, separated) in zip(todo, ex.map(_movie_job, [t[0] for t in todo])):
+    todo, results = [], {}
+    for pack, name, spec, voc in jobs:
+        base = os.path.join(cache, os.path.basename(name))
+        meta = json.load(open(base + '.json', encoding='utf-8')) if os.path.exists(base + '.json') else None
+        if only is not None and os.path.basename(name)[:-4] not in only and meta and os.path.exists(base):
+            results[name] = (open(base, 'rb').read(), meta['report'], meta['separated'])
+            continue
+        todo.append((pack, name, spec, voc, meta and meta.get('key')))
+    encoded = 0
+    with ProcessPoolExecutor(max(1, (os.cpu_count() or 2) - 2)) as ex:
+        for name, new, report, separated, k in ex.map(_movie_job, todo):
+            base = os.path.join(cache, os.path.basename(name))
+            if new is None:
+                new = open(base, 'rb').read()
+            else:
+                encoded += 1
                 open(base, 'wb').write(new)
                 json.dump({'key': k, 'report': report, 'separated': separated}, open(base + '.json', 'w', encoding='utf-8'))
-                results[name] = (new, report, separated)
+            results[name] = (new, report, separated)
     files, sped, cut, unseparated = [], 0, 0, 0
     for j in jobs:
         new, report, separated = results[j[1]]
@@ -207,7 +223,7 @@ def build_movies(game, voices_dir, out):
         cut += sum(1 for _, _, c in report if c > 0)
     big.write(os.path.join(out, COMP_BIG.format(MOVIE)), files)
     return {'movies': len(files), 'lines': sum(len(v) for v in by_movie.values()), 'sped up': sped, 'cut': cut,
-            'without vocal separation': unseparated, 'reassembled': len(todo)}
+            'without vocal separation': unseparated, 'reassembled': encoded}
 
 
 def load_units():
@@ -246,7 +262,114 @@ def test_redirects(stream, jobs, prefix):
     return extra
 
 
+VOICE_CACHE = os.path.join(ROOT, 'work', 'voice_cache')
+_worker_stream = {}
+
+
+def _voice_clip(stream, asset, wav, original, no_level):
+    """One voice line: level-match our wav to the original clip, encode it like the asset. -> (cdata blob, samples)."""
+    ref, sr = stream.decode(asset, original)
+    x = audio_io.load_mono(wav, sr)
+    if not no_level:
+        x = audio_io.match_level(x, ref)
+    pcm = audio_io.to_int16(x)
+    (_, blob), = stream.cdata_files({asset.short_name: pcm})
+    return blob, len(pcm)
+
+
+def _voice_worker_init(game):
+    _worker_stream[game] = AudioStream(chain_for_game(GAMES[game]))
+
+
+def _voice_worker(task):
+    game, name, wav, original, no_level = task
+    stream = _worker_stream[game]
+    return name, _voice_clip(stream, stream.get(name), wav, original, no_level)
+
+
+def _voice_code():
+    """Source of everything between (our wav, the original clip) and the encoded cdata."""
+    import hashlib
+    import inspect
+    from ra3voice import game as game_mod
+    h = hashlib.sha256()
+    for f in (_voice_clip, game_mod.AudioStream.decode, game_mod.AudioStream.cdata_files,
+              game_mod.AudioStream._layout, game_mod.AudioStream.header_in_bin):
+        h.update(inspect.getsource(f).encode('utf-8'))
+    h.update(repr(game_mod.STREAM_BLOCK_SAMPLES).encode())
+    for f in ('snr.py', 'refpack.py', 'vgm.py', 'audio_io.py'):
+        h.update(open(os.path.join(ROOT, 'ra3voice', f), 'rb').read())
+    return h.hexdigest()
+
+
+def voice_clips(game, stream, jobs, no_level):
+    """{short_name: (cdata blob, samples)} for [(asset, wav)]. Each line is cached under the hash of its wav, its
+    original clip (the level reference), the asset's layout and the encoding code, so a build only re-encodes the
+    lines that changed; those run in parallel (XAS encoding in Python is the slow part, ~10 min per game).
+    Returns (clips, number re-encoded)."""
+    import hashlib
+    from concurrent.futures import ProcessPoolExecutor
+    cache = os.path.join(VOICE_CACHE, game)
+    os.makedirs(cache, exist_ok=True)
+    index_path = os.path.join(cache, 'index.json')
+    index = json.load(open(index_path, encoding='utf-8')) if os.path.exists(index_path) else {}
+    code = _voice_code()
+    originals = stream.read_cdata([a for a, _ in jobs])
+    clips, todo, keys = {}, [], {}
+    for a, wav in jobs:
+        layout = (a.cdata_path, *stream._layout(a), stream.header_in_bin(a) is None, bool(no_level))
+        k = hashlib.sha256('|'.join([code, repr(layout), hashlib.sha1(originals[a.short_name]).hexdigest(),
+                                     hashlib.sha1(open(wav, 'rb').read()).hexdigest()]).encode()).hexdigest()
+        keys[a.short_name] = k
+        blob_path = os.path.join(cache, a.short_name + '.cdata')
+        hit = index.get(a.short_name)
+        if hit and hit['key'] == k and os.path.exists(blob_path):
+            clips[a.short_name] = (open(blob_path, 'rb').read(), hit['n'])
+        else:
+            todo.append((game, a.short_name, wav, originals[a.short_name], no_level))
+    if todo:
+        with ProcessPoolExecutor(max(1, (os.cpu_count() or 2) - 2), initializer=_voice_worker_init,
+                                 initargs=(game,)) as ex:
+            for name, (blob, n) in ex.map(_voice_worker, todo, chunksize=16):
+                open(os.path.join(cache, name + '.cdata'), 'wb').write(blob)
+                index[name] = {'key': keys[name], 'n': n}
+                clips[name] = (blob, n)
+        json.dump(index, open(index_path, 'w', encoding='utf-8'))
+    return clips, len(todo)
+
+
+def build_movies_only(game, args):
+    """build --movies: re-plan just these movies into the existing dist/<game> (voice and text packs untouched)."""
+    out = os.path.join(ROOT, 'dist', game)
+    info_path = os.path.join(out, 'build.json')
+    if not os.path.exists(info_path):
+        sys.exit(f'dist/{game} has no full build yet; run "python ra3cv.py build" first')
+    known = {os.path.basename(j[1])[:-4] for j in movie_jobs(game, args.voices)[0]}
+    wanted = set(args.movies) & known
+    if not wanted:
+        print(f'{game}: none of {sorted(args.movies)} has dubbed lines here, skipped')
+        return
+    info = json.load(open(info_path, encoding='utf-8'))
+    info['movie'] = build_movies(game, args.voices, out, only=wanted)
+    info['partial'] = sorted(set(info.get('partial', [])) | wanted)
+    json.dump(info, open(info_path, 'w', encoding='utf-8'), indent=1)
+    print(f'{game}: movies {sorted(wanted)} re-planned, {info["movie"]["reassembled"]} re-encoded  [PARTIAL BUILD]')
+
+
+def require_full_build():
+    """release / patch only from a complete, non-test build of both games."""
+    for g in GAMES:
+        info = json.load(open(os.path.join(ROOT, 'dist', g, 'build.json'), encoding='utf-8'))
+        if info['test_build']:
+            sys.exit(f'dist/{g} is a TEST build; run "python ra3cv.py build" first')
+        if info.get('partial'):
+            sys.exit(f'dist/{g} is a partial build (build --movies {" ".join(info["partial"])}); '
+                     f'run "python ra3cv.py build" first')
+
+
 def build_game(game, args):
+    if args.movies:
+        return build_movies_only(game, args)
     stream = AudioStream(chain_for_game(GAMES[game]))
     files = voice_files(args.voices, game)
     jobs = [(stream.by_name[k], p, c) for k, (p, c) in sorted(files.items()) if k in stream.by_name]
@@ -254,30 +377,29 @@ def build_game(game, args):
         extra = test_redirects(stream, [(a, p) for a, p, _ in jobs], args.test_on)
         comp_of = {p: c for _, p, c in jobs}
         jobs += [(a, p, comp_of[p]) for a, p in extra]
-    originals = stream.read_cdata([a for a, _, _ in jobs])
+    clips, encoded = voice_clips(game, stream, [(a, p) for a, p, _ in jobs], args.no_level)
     by_comp = {}
     for a, p, c in jobs:
-        ref, sr = stream.decode(a, originals[a.short_name])
-        x = audio_io.load_mono(p, sr)
-        if not args.no_level:
-            x = audio_io.match_level(x, ref)
-        by_comp.setdefault(c, {})[a.short_name] = audio_io.to_int16(x)
+        by_comp.setdefault(c, {})[a.short_name] = clips[a.short_name]
     out = os.path.join(ROOT, 'dist', game)
     shutil.rmtree(out, ignore_errors=True)
     os.makedirs(os.path.join(out, 'core'))
     comps = [c for c in COMPONENTS if c in by_comp]
     for c in comps:
-        big.write(os.path.join(out, COMP_BIG.format(c)), stream.cdata_files(by_comp[c]))
+        # same order as AudioStream.cdata_files: by short name
+        big.write(os.path.join(out, COMP_BIG.format(c)),
+                  [(stream.get(n).cdata_path, blob) for n, (blob, _) in sorted(by_comp[c].items())])
     for combo in combos(comps):
-        lengths = {n: len(pcm) for c in combo for n, pcm in by_comp[c].items()}
+        lengths = {n: k for c in combo for n, (_, k) in by_comp[c].items()}
         big.write(os.path.join(out, 'core', core_name(combo)), [stream.bin_file(lengths)])
     text = build_text(game)
     big.write(os.path.join(out, COMP_BIG.format(TEXT)), text)
     movies = build_movies(game, args.voices, out)
     audio_big = os.path.join(GAMES[game], 'Data', 'EnglishAudio.big')
     info = {'clips': sum(len(v) for v in by_comp.values()), 'components': {c: len(by_comp[c]) for c in comps},
+            'voice re-encoded': encoded,
             'text files': [n for n, _ in text], 'movie': movies,
-            'test_build': bool(args.test_on), 'EnglishAudio.big size': os.path.getsize(audio_big)}
+            'test_build': bool(args.test_on), 'partial': [], 'EnglishAudio.big size': os.path.getsize(audio_big)}
     json.dump(info, open(os.path.join(out, 'build.json'), 'w', encoding='utf-8'), indent=1)
     print(f'{game}: {info["components"]} -> {out} ({len(combos(comps))} core variants)' + ('  [TEST BUILD]' if args.test_on else ''))
 
@@ -439,10 +561,7 @@ def cmd_release(args):
         verify_dist_matches_patch(patch)
         MOD_VERSION = patch['version']
         RELEASE_NAME = f'红警3中文配音MOD_v{MOD_VERSION}'
-    for g in GAMES:
-        info = json.load(open(os.path.join(ROOT, 'dist', g, 'build.json'), encoding='utf-8'))
-        if info['test_build']:
-            sys.exit(f'dist/{g} is a TEST build; run "python ra3cv.py build" first')
+    require_full_build()
     import hashlib
     sys.path.insert(0, os.path.join(ROOT, 'tools'))
     import build_installer
@@ -552,6 +671,7 @@ def cmd_patch(args):
     base release, plus all cores; manifest entry patches/<build>/patch.json (add it to the hosted manifest.json)."""
     import datetime
     import hashlib
+    require_full_build()
     base = json.load(open(os.path.join(RELEASE_INDEX, args.base + '.json'), encoding='utf-8'))
     build_id = datetime.datetime.now().strftime('%Y%m%d-%H%M')
     out = os.path.join(PATCH_DIR, build_id)
@@ -632,6 +752,8 @@ def main():
     b.add_argument('--game', choices=['all', *GAMES], default='all')
     b.add_argument('--no-level', action='store_true')
     b.add_argument('--voices', default=os.path.join(ROOT, 'voices'), help='folder of <Asset>.wav (or batch subfolders)')
+    b.add_argument('--movies', nargs='+', metavar='MOVIE',
+                   help='quick: re-plan only these movies (e.g. afs07 a07th08) into the existing dist; cannot be released')
     b.add_argument('--test-on', metavar='PREFIX',
                    help='test build: also map clips onto e.g. JUImper_Voi (Imperial Warrior) lines')
     b.set_defaults(fn=cmd_build)

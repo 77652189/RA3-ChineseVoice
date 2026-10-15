@@ -32,6 +32,12 @@
 - 过场 14 句已用 work/speakers/ref_override.json 修好；停顿压缩不采用。
 - 下一步（需用户确认）：推送 GitHub、建 v1.0 Release（空 manifest.json）。
 
+## 构建缓存（2026-10-14 改）
+- 语音包按句缓存在 `work/voice_cache/<游戏>/`（键 = wav 内容 + 原版音频 + 资源格式 + 编码代码），没命中的句子 7 进程并行编码。
+- 过场缓存（`work/movie_cache/`）的键是「准备阶段的结果」（每句的位置、速度、音量后的整条配音轨 + 英文去除范围）+ 混音编码代码，不再是 movie.py 全文：改放置/音量算法时只有结果真变了的过场才重编码。改 `movie.mix` 及其调用的函数、eaxa.py、vgm.py 会让全部过场重编码（这是对的）。
+- 实测：什么都没变 1 分 41 秒；只动一个过场约 5 分钟（长过场的 Python EA-XA 编码本身要 4 分钟）；首次/编码代码变了约 12 分钟（以前 110 分钟）。
+- `ra3cv.py build --movies afs07 a07th08`：只重建这些过场到现有 dist，其余直接取缓存，build.json 标 partial；release 和 patch 会拒绝 partial 或 test 构建，发版前跑一次完整 `build`。
+
 ## 改一句台词的流程
 1. 改 `lines/<mission|movie|...>_zh_*.json` 里对应 asset 的 zh → `python -I -X utf8 tools/merge_zh.py <批次>`
 2. 删掉 `candidates/<批次>/<asset>_*.wav` → `third_party/index-tts/.venv/Scripts/python.exe -I -X utf8 tools/dub.py <批次> --takes 10 --only <asset>`

@@ -1,6 +1,8 @@
 """Assemble dubbed movie audio: put each Chinese line back at its subtitle time in the dialogue track
 and re-encode that channel of the movie's .snd (see eaxa.py and tools/catalog_movie.py)."""
+import hashlib
 import os
+import struct
 import tempfile
 
 import numpy as np
@@ -125,16 +127,21 @@ def level_reference(level_ref, start, dur, span):
     return speech if rms(win) < rms(speech) * 10 ** (-LEVEL_SLACK_DB / 20) else win
 
 
-def build(snd, lines, voc=None):
-    """snd: original movie bytes. lines: [(start, dur, dub float array in [-1, 1] at SR)] sorted by start.
-    voc: separated English vocals [n, channels] int16 (see separate.py) or None. With it, the dubbed lines'
-    English is removed from every speaker channel (it bleeds into L/R and the surrounds), keeping music,
-    effects and undubbed background voices; without it only the dialogue channel is replaced.
-    Returns (new snd bytes, report [(start, rate, cut_seconds)])."""
-    x = decode(snd)
-    n, nch = x.shape
+def total_samples(snd):
+    """Samples per channel, from the block headers (no decoding)."""
+    return sum(struct.unpack_from('>I', snd, off + 8)[0] for tag, off, _ in eaxa.blocks(snd) if tag == b'SCDl')
+
+
+def prepare(snd, lines, voc=None):
+    """The cheap half of build: where each dub goes, how fast and how loud, and which English goes.
+    Decodes the movie only when there are no separated vocals (the level reference is then the movie itself).
+    Returns a dict for mix() and digest(); its report is [(start, rate, cut_seconds)]."""
+    nch = eaxa.channels(snd)
+    n = total_samples(snd)
     chans = dialogue_channels(nch)
-    base = x[:, chans].astype(np.float64).mean(axis=1)
+    base = None
+    if voc is None:
+        base = decode(snd)[:, chans].astype(np.float64).mean(axis=1)
     level_ref = base if voc is None else voc[:, chans].astype(np.float64).mean(axis=1)
     out = np.zeros(n)
     mutes, report = [], []
@@ -163,15 +170,45 @@ def build(snd, lines, voc=None):
         end = max(start + dur + MUTE_AFTER, start + len(seg) / SR)
         mutes.append((start - MUTE_BEFORE, min(end, nxt - GUARD if i + 1 < len(lines) else end)))
         report.append((start, rate, cut))
+    return {'n': n, 'nch': nch, 'out': out, 'mutes': mutes, 'spans': spans, 'report': report}
+
+
+def digest(prep):
+    """Hash of everything mix() takes from prepare(): equal digests (and the same movie, vocals and mix code)
+    give the same .snd, so a change to placement or levelling only re-encodes the movies it actually moves."""
+    h = hashlib.sha256(repr((prep['n'], prep['nch'], prep['mutes'], prep['spans'])).encode())
+    h.update(np.ascontiguousarray(prep['out']).tobytes())
+    return h.hexdigest()
+
+
+def mix(snd, prep, voc=None):
+    """The expensive half: decode, take the English out (or mute the dialogue channel), add the dubs, re-encode.
+    Its source is part of the movie cache key (ra3cv.movie_cache_key), so keep everything that shapes the output
+    and is not in prepare() inside this function."""
+    x = decode(snd)
+    n, nch = x.shape
+    chans = dialogue_channels(nch)
+    out = prep['out']
     if voc is None:
-        track = base * _ramp_mask(n, mutes) + out
+        base = x[:, chans].astype(np.float64).mean(axis=1)
+        track = base * _ramp_mask(n, prep['mutes']) + out
         track = np.round(np.clip(track, -32768, 32767)).astype(np.int16)
-        return eaxa.replace_channels(snd, {c: track for c in chans}), report
-    gone = 1 - _ramp_mask(n, spans)
+        return eaxa.replace_channels(snd, {c: track for c in chans})
+    gone = 1 - _ramp_mask(n, prep['spans'])
     new = {}
     for c in speech_channels(nch):
         y = x[:, c].astype(np.float64) - voc[:, c].astype(np.float64) * gone
         if c in chans:
             y += out
         new[c] = np.round(np.clip(y, -32768, 32767)).astype(np.int16)
-    return eaxa.replace_channels(snd, new), report
+    return eaxa.replace_channels(snd, new)
+
+
+def build(snd, lines, voc=None):
+    """snd: original movie bytes. lines: [(start, dur, dub float array in [-1, 1] at SR)] sorted by start.
+    voc: separated English vocals [n, channels] int16 (see separate.py) or None. With it, the dubbed lines'
+    English is removed from every speaker channel (it bleeds into L/R and the surrounds), keeping music,
+    effects and undubbed background voices; without it only the dialogue channel is replaced.
+    Returns (new snd bytes, report [(start, rate, cut_seconds)])."""
+    prep = prepare(snd, lines, voc)
+    return mix(snd, prep, voc), prep['report']
