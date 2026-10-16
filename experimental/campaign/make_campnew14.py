@@ -15,7 +15,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import make_campnew13 as c13                    # noqa: E402
-from mapterrain import HeightMap                # noqa: E402
+from mapterrain import HeightMap, Tiles         # noqa: E402
 
 c7, c6, c4, c2 = c13.c7, c13.c6, c13.c4, c13.c2
 NAME = 'CampNew14'
@@ -25,6 +25,12 @@ c2.BUILT = os.path.join(c2.SDK, 'BuiltMods', 'mods', NAME.lower(), 'data')
 c2.OUT = c4.OUT = os.path.join(os.path.expanduser('~'), 'Documents', 'Red Alert 3', 'Mods', NAME)
 c7.MAP_MOD = NAME + 'Map'
 ISLAND, TOP, RADIUS = (3056.0, 358.0), 350.0, 200.0
+# (lowest height, texture), highest band first
+# measured with CNV_BANDS=1: only cells above ~285 (elevation / 16) show above the water although the water area
+# says 200 -- the relation between the two scales is not understood yet, so the bands follow the measurement
+BANDS = [(300.0, 'Grass_Heidelberg01'), (270.0, 'Sand_SantaMonica01')]
+BANDS_MEASURE = [(290.0, 'Grass_Heidelberg01'), (260.0, 'Rock_Yucatan01'), (230.0, 'Dirt_Yucatan01'),
+                 (200.0, 'Pavement_Heidelberg10')]
 
 _edit = c6.edit
 
@@ -36,6 +42,19 @@ def edit(m):
     print(f'island at {ISLAND} (cell {i},{j}, floor {hm.get(i, j):.0f}):', hm.raise_hill(*ISLAND, TOP, RADIUS),
           'cells raised')
     hm.store()
+    # ground textures by height band; CNV_BANDS=1 paints measuring rings to find the visible waterline
+    tiles = Tiles(m, hm.width)
+    bands = BANDS_MEASURE if os.environ.get('CNV_BANDS') == '1' else BANDS
+    r = int(RADIUS / 10) + 1
+    cells = {tex: [] for _, tex in bands}
+    for jj in range(j - r, j + r + 1):
+        for ii in range(i - r, i + r + 1):
+            h = hm.get(ii, jj)
+            tex = next((t for lo, t in bands if h > lo), None)
+            if tex:
+                cells[tex].append((ii, jj))
+    print('painted', {t: tiles.paint(c, t) for t, c in cells.items()})
+    tiles.store()
 
 
 c6.edit = edit

@@ -3,7 +3,9 @@
 HeightMapData v6 (Heidelberg: 627316 bytes): u32 width, height, border width (cells), u32 border count, borders
 of 4 x u32, u32 cell count (= width * height), then u16 elevation per cell, row by row. A cell is 10 world units,
 world (0, 0) is cell (border, border); height in world units = elevation / 16 (Heidelberg 114..629, water at 200,
-GlobalWaterSettings).
+GlobalWaterSettings and the StandingWaterAreas entry). But on the bench (make_campnew14, CNV_BANDS=1) only cells
+above ~285 by that scale stick out of Heidelberg's river, so either the scale or the water height means something
+else; treat 285 as the measured waterline there.
 """
 import math
 import struct
@@ -53,3 +55,53 @@ class HeightMap:
 
     def store(self):
         self.node.head = self.head + struct.pack(f'<{len(self.elev)}H', *self.elev)
+
+
+class Tiles:
+    """Ground textures (BlendTileData v27, Heidelberg 3.4 MB): u32 N (= width * height), then four u16 arrays of N
+    (tile, blend, three-way blend, cliff texture), more per-cell data, then u32 texture cells, u32 blended tiles,
+    u32 cliff infos, u32 texture count and textures (u32 cell start, cell count, cell size, magic, name). A
+    texture tiles in size x size cells of 2 x 2 tiles; tile value = 4 * cell + quadrant, cell = start +
+    (x // 2) % size + ((y // 2) % size) * size, quadrant = x % 2 + 2 * (y % 2) (reads 0 1 4 5 8 9 12 13 ...
+    along the first row)."""
+
+    def __init__(self, m, width):
+        self.node = next(n for _, n in m.walk() if n.name == 'BlendTileData')
+        d = self.node.head
+        self.n = struct.unpack_from('<I', d, 0)[0]
+        self.width = width
+        self.arrays = [list(struct.unpack_from(f'<{self.n}H', d, 4 + 2 * self.n * k)) for k in range(4)]
+        self.rest_at = 4 + 8 * self.n
+        self.textures = self._textures(d)
+
+    @staticmethod
+    def _textures(d):
+        import re
+        first = re.search(rb'\x12\x00Grass_|[\x04-\x40]\x00[A-Z][a-z]+_[A-Za-z]', d[4:])     # the first name
+        p = 4 + first.start() - 16
+        while True:         # walk back to the texture count: entries are 16 bytes + u16-prefixed name
+            count = struct.unpack_from('<I', d, p - 4)[0]
+            if 0 < count < 256:
+                break
+            p -= 4
+        out, q = {}, p
+        for _ in range(count):
+            start, cells, size, _ = struct.unpack_from('<4I', d, q)
+            ln = struct.unpack_from('<H', d, q + 16)[0]
+            out[d[q + 18:q + 18 + ln].decode('latin-1')] = (start, cells, size)
+            q += 18 + ln
+        return out
+
+    def paint(self, cells, texture):
+        start, _, size = self.textures[texture]
+        tile, blend, three, _ = self.arrays
+        for i, j in cells:
+            c = start + (i // 2) % size + ((j // 2) % size) * size
+            k = j * self.width + i
+            tile[k] = 4 * c + i % 2 + 2 * (j % 2)
+            blend[k] = three[k] = 0
+        return len(cells)
+
+    def store(self):
+        d = self.node.head
+        self.node.head = (d[:4] + b''.join(struct.pack(f'<{self.n}H', *a) for a in self.arrays) + d[self.rest_at:])
