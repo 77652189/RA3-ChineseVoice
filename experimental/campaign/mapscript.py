@@ -97,8 +97,9 @@ class MapFile:
         """The .map the game reads: RefPack('EAR\\0' + u32 size + RefPack(chunk file)), stored (not compressed).
         The size is that of the uncompressed chunk file (retail: 0x51d5c6 for Heidelberg's 5363142 bytes); with the
         compressed length there instead the game hangs at ~60 % of the loading screen."""
+        import refpack_lz       # real compression (11-15 % of the chunk file, a few seconds per map)
         chunks = self.chunk_file()
-        inner = refpack.compress_literal(chunks)
+        inner = refpack_lz.compress(chunks)
         return refpack.compress_literal(b'EAR\0' + struct.pack('<I', len(chunks)) + inner)
 
     def walk(self, nodes=None, depth=0):
