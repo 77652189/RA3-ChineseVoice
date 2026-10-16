@@ -136,7 +136,8 @@ def voiced_runs(x):
             k = j
         else:
             k += 1
-    return [(a / 100, b / 100) for a, b in runs if b - a >= 8]
+    # under 0.25 s is a click, not a line starting (calls open with a radio blip ~0.2 s long)
+    return [(a / 100, b / 100) for a, b in runs if b - a >= 25]
 
 
 def offsets():
@@ -169,7 +170,7 @@ def offsets():
             got = [k for k in idx if k in match]
             start = float(r['start'])
             row = {'game': game, 'movie': mv, 'asset': r['asset'], 'dubbed': r['asset'] in dubbed, 'csv_start': start,
-                   'words': len(idx), 'matched': len(got), 'onset': '', 'shift': '', 'applied': ''}
+                   'words': len(idx), 'matched': len(got), 'onset': '', 'shift': '', 'applied': '', 'rejected': ''}
             if idx and got:
                 first = got[0]
                 ws, we = hyp_t[match[first]]
@@ -179,7 +180,14 @@ def offsets():
                 # the word, and by just past the word's end.
                 lo = max(prev_end, ws - 0.6)
                 cand = [a for a, b in runs if lo <= a <= we + 0.15]
+                if not cand:      # the first word's end came out early: the next real stretch of voice
+                    cand = [a for a, b in runs if lo <= a <= we + 1.0][:1]
                 onset = cand[-1] if cand else None
+                if onset is not None and idx.index(first) > 0:
+                    # the line's first word was not heard (a08th01 "Ah, ...", j08th03 "Well, ..."): it sits in a
+                    # voiced run just before, which must not be left outside the window
+                    before = [a for a, b in runs if max(prev_end, onset - 1.5) <= a < onset]
+                    onset = before[0] if before else onset
                 last_t = hyp_t[match[got[-1]]][1]
                 prev_end = max(prev_end, last_t if last_t is not None else we)
                 if onset is None:
@@ -193,9 +201,25 @@ def offsets():
                     proposal[r['asset']] = round(shift - LEAD, 2)
                     row['applied'] = f'{shift - LEAD:+.2f}'
             report.append(row)
+        here = [row for row in report if row['movie'] == mv and row['game'] == game]
+        # a shift nothing around it agrees with is a misplaced match (afs10_01 "-8.06"): keep the subtitle time.
+        # Subtitles drift smoothly (sfs00 creeps from +1.2 to +2.6 s), so a neighbour or the movie median must be close
+        measured = [(i, float(row['shift'])) for i, row in enumerate(here) if row['shift']]
+        med = float(np.median([s for _, s in measured])) if measured else 0.0
+        for i, row in enumerate(here):
+            if not row['applied']:
+                continue
+            s = float(row['shift'])
+            near = [t for j, t in measured if j != i and abs(j - i) <= 1]
+            whole = row['words'] >= 3 and row['matched'] == row['words'] and abs(s) <= 3.0   # every word heard there
+            agrees = whole or (any(abs(s - t) <= 0.8 for t in near) or abs(s - med) <= 0.8 if len(measured) >= 3
+                               else abs(s) <= 3.0 and row['matched'] >= 0.8 * row['words'])
+            if not agrees:
+                proposal.pop(row['asset'], None)
+                row['applied'] = ''
+                row['rejected'] = 'no neighbour agrees'
         # a dubbed line Whisper could not place, between two placed lines that moved alike, moves with them
         # (else the neighbours slide past it and squeeze its dub)
-        here = [row for row in report if row['movie'] == mv and row['game'] == game]
         placed = [(i, float(row['shift'])) for i, row in enumerate(here) if row['shift'] and
                   (row['applied'] or abs(float(row['shift'])) < MIN_SHIFT) and row['matched'] / max(1, row['words']) >= MIN_MATCH]
         for i, row in enumerate(here):
@@ -207,6 +231,17 @@ def offsets():
                 v = round((before[0] + after[0]) / 2 - LEAD, 2)
                 proposal[row['asset']] = v
                 row['applied'] = f'{v:+.2f} (from neighbours)'
+        # lines keep their order: a moved line may not reach within 0.3 s of the line before or after it
+        for _ in range(3):
+            new = [row['csv_start'] + proposal.get(row['asset'], 0.0) for row in here]
+            for i, row in enumerate(here):
+                if row['asset'] not in proposal:
+                    continue
+                if (i and new[i] <= new[i - 1] + 0.3) or (i + 1 < len(here) and new[i] >= new[i + 1] - 0.3):
+                    proposal.pop(row['asset'])
+                    row['applied'] = ''
+                    row['rejected'] = 'would pass a neighbouring line'
+                    break
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, 'report.csv'), 'w', newline='', encoding='utf-8-sig') as f:
         w = csv.DictWriter(f, fieldnames=list(report[0].keys()))
