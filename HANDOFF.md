@@ -57,7 +57,7 @@
 - 走不通的：SDK 编的 `data\additionalmaps\mapmetadata_mod` 流（军械库的做法）启动约 3 秒就崩，原因未明；SDK 的 AllTypesHash（177706643）和 1.12（1424942948）不同。
 - 测试台默认把游戏窗口挪到屏幕外、只静音测试进程自己的音频会话（`-Visible` / `-Sound` 关掉），游戏自己的 "Game crash" 弹窗会被识别并结束本次运行。
 - 脚本编辑器（`mapscript.py`）：按原版 379 种条件 / 动作的目录（`script_catalog.json`）新建条件和动作、新建脚本、增删脚本和其中的条件 / 动作、读写任务目标；`make_campnew6.py` 新增两条脚本弹出中文提示、删掉一段通话、改目标名，游戏里都生效。
-- 自己编 map.* 流（`mapxml.py` + `make_campnew7.py`）：从 .map 生成 map.xml（物体包含、GameMap、环境数据），BAB 只编 GameMap，其余实例按引用从 worldbuilder 流和原地图各层里取最新一层"链接"进来。坑：1.11 补丁改了 GameObject 的二进制布局，SDK 编出来的不能用；大小为 0 的补丁条目也会更新类型哈希（用旧哈希会弹 "Type hash mismatch"）；缺 EnvironmentData 时整个画面变洋红。地形图集 SDK 里没有源贴图，只能沿用原版地图的。
+- 自己编 map.* 流（`mapxml.py` + `make_campnew7.py`）：从 .map 生成 map.xml（物体包含、GameMap、环境数据），BAB 只编 GameMap，其余实例按引用从 worldbuilder 流和原地图各层里取最新一层"链接"进来。更正：SDK 编的 GameObject 也能用（`make_campnew12.py` 全换成 SDK 版本，游戏照常跑，没有类型哈希报错；之前只凭哈希不同推断"不能用"，是错的），只需把 SDK 对模型的泛型引用改到同名 W3DContainer；默认仍优先用原版 1.12 数据，因为带补丁平衡改动。坑：大小为 0 的补丁条目也会更新类型哈希（用旧哈希会弹 "Type hash mismatch"）；缺 EnvironmentData 时整个画面变洋红。地形图集 SDK 里没有源贴图，只能沿用原版地图的。
 - 第四阵营入口（`make_campnew8/9/10.py`）：阵营菜单 APT 调 `%Campaign_SetFaction?FactionIndex=N`。N 不是 CampaignEnumerator 的位置；APT 常量表能安全改（在末尾追加字符串再改指针，对照组正常）；但同一条命令里串第二个调用、或在编号后面加字符，都会得到 "undefined" 简报然后崩溃。真正的第 4 个入口要改 APT 字节码（第 4 张卡片的点击事件里分两次调用 SetFaction 和 SetMission），或者改引擎；数据层面已经能把新章节挂在原版战役后面。
 - 画质线索：Remix mod（B 站 BV1LJ4m1g7nT）的光照差异，对应 .map 里的 GlobalLighting / PostEffectsChunk。`make_campnew11.py` 把 GlobalLighting 的光源颜色调暖，测试台同一秒对比图明显变暖（work/testbench/light_cmp.png）：逐关重调光照可行。泛光等后处理还没试。
 

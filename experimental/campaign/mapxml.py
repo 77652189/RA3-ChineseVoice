@@ -266,11 +266,12 @@ def append_instance(stream, other, name):
 
 
 # ------------------------------------------------------------------ linker
-# BAB's GameObjects are no good for the game: the 1.11 patch changed the GameObject layout (type hash 3621320486 in
-# the SDK and retail map.10 streams, 3415017856 in map.11 / static.12) and re-emitted every GameObject of every map
-# stream. GameMap kept its layout (4100291602 everywhere). So our stream is linked: our GameMap (BAB) + every
-# instance it needs that the static / global / audio streams lack, copied from retail streams at their newest layer
-# (the 1.12 layout), closed over references; the game checks nothing else (append_instance probe CampNew7).
+# The stream is linked: our GameMap (BAB) + every instance it needs that the static / global / audio streams lack,
+# copied from retail streams at their newest layer, closed over references. Retail GameObjects are preferred because
+# they carry the 1.11/1.12 patch data (the patch re-emitted every map stream's GameObjects, type hash 3621320486 in
+# the SDK / map.10 -> 3415017856 in map.11 / static.12). BAB's own GameObjects work too, though: CampNew12 (all 168
+# of the map's GameObjects from BAB) plays like CampNew7 with no type hash complaint, unlike SpecialPowerTemplate's
+# stale hash, which the game rejects. So new units can come from the SDK; only their model references need retype().
 WB_LAYERS = [('WBData.big', 'data\\worldbuilder.'), ('Core5.big', 'data\\worldbuilder.5.'),
              ('Core9.big', 'data\\worldbuilder.9.'), ('Core10.big', 'data\\worldbuilder.10.'),
              ('Core11.big', 'data\\worldbuilder.11.')]
@@ -336,18 +337,28 @@ def link(own, library, have, type_hash, header, heads, manifests):
     an older layout. Header fields other than counts and sizes come from `header` (BAB's), AllTypesHash the game's.
     Returns (files, missing references, names in an older layout)."""
     picked, missing, order = {}, set(), []
-    # an untyped AssetIdProperty (WorldDict musicZone) compiles to a reference of a generic type (50c68ad4); point
-    # such a reference at the one asset with that instance id
+    # untyped references compile to a generic type: an AssetIdProperty (WorldDict musicZone, 50c68ad4) or an SDK
+    # GameObject's model (BaseRenderAssetType, b22f87c9); point such a reference at the asset with that instance
+    # id, preferring a render container when a mesh / hierarchy shares the name
     by_id = {}
     for k in list(have) + list(library):
         by_id.setdefault(k[1], set()).add(k)
-    for inst in own:
-        inst.refs = [r if r in have or r in library or len(by_id.get(r[1], ())) != 1 else next(iter(by_id[r[1]]))
-                     for r in inst.refs]
+    tname = {k[0]: v.name.split(b':')[0].decode() for k, v in library.items()}
+    prefer = ['W3DContainer', 'W3DMesh', 'W3DHierarchy', 'Texture']
+
+    def retype(r):
+        if r in have or r in library or r in picked:
+            return r
+        cand = by_id.get(r[1], ())
+        if len(cand) > 1:
+            ranked = sorted(cand, key=lambda k: prefer.index(tname[k[0]]) if tname.get(k[0]) in prefer else 99)
+            cand = ranked[:1] if tname.get(ranked[0][0]) in prefer else ()
+        return next(iter(cand)) if len(cand) == 1 else r
 
     def visit(key, inst):
         if key in picked:
             return
+        inst.refs = [retype(r) for r in inst.refs]
         picked[key] = inst
         for r in inst.refs:
             if r in have or r in picked:

@@ -29,6 +29,7 @@ MAP_MOD = NAME + 'Map'          # separate SDK mod folder for the map compile
 GAME_MAP_ID = 'CAMP_A03_Heidelberg_Smith'      # same id as the retail stream had (atlas lookup unknown yet)
 
 _edited = c4.c2.map_files       # make_campnew6's edited_map_files
+SDK_OBJECTS = False             # make_campnew12 sets it
 
 
 def compile_map(m):
@@ -63,6 +64,13 @@ def map_files():
     # the base map's own instances besides GameMap / script lists come along: its atlas and its campaign
     # overrides of static objects (AlliedMCV ...), which no reference from the GameMap would pull in
     own += [x for x in base.values() if not x.name.startswith((b'GameMap:', b'GameScriptList:'))]
+    if SDK_OBJECTS:     # test: BAB's own GameObjects (SDK layout) in place of the retail 1.12 ones
+        sdk = {(e[0], e[1]): mapxml.Inst(list(e), c, mapxml.sa.refs(bB, e), mapxml.sa.cstr(bB[2], e[6]),
+                                         mapxml.sa.cstr(bB[3], e[7]), 'sdk')
+               for e, c in zip(bE, bC) if mapxml.sa.cstr(bB[2], e[6]).startswith(b'GameObject:')}
+        library.update(sdk)
+        own = [sdk.get((x.entry[0], x.entry[1]), x) for x in own]
+        print('  SDK-compiled GameObjects used:', len(sdk))
     have = mapxml.table(mapxml.TOP_TABLES)
     type_hash = {k[0]: v for k, v in have.items()}
     (man, b, r, i), missing, stale = mapxml.link(own, library, have, type_hash, bh, (braw[1][:4], braw[2][:4],
