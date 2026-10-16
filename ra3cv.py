@@ -533,10 +533,14 @@ def release_dir(edition='完整版'):
 
 
 def verify_dist_matches_patch(patch):
-    """A full package rebuilt from a patch must hold exactly what that patch delivers (files and cores)."""
+    """A full package rebuilt from a patch must equal base release + that patch: every file the patch carries is
+    in dist with the same bytes, every other dist file is unchanged since the base (all components, also
+    eva / mission / text / movie), and the cores match."""
     import hashlib
     src = os.path.join(PATCH_DIR, patch['build'])
+    base = json.load(open(os.path.join(RELEASE_INDEX, patch['base'] + '.json'), encoding='utf-8'))
     for g, info in patch['games'].items():
+        carried = {}
         for f in info['files']:
             pbig = os.path.join(src, f['path'])
             names = [n for n, _, _ in big.read_index(pbig)]
@@ -545,6 +549,13 @@ def verify_dist_matches_patch(patch):
             bad = [n for n in names if got.get(n) != want[n]]
             if bad:
                 sys.exit(f'dist/{g} differs from patch {patch["build"]} ({f["component"]}: {len(bad)} files); rebuild the patch')
+            carried[COMP_BIG.format(f['component'])] = set(names)
+        old = base['games'].get(g, {})
+        for arc, names in dist_index(g).items():
+            extra = [n for n, h in names.items() if old.get(arc, {}).get(n) != h and n not in carried.get(arc, ())]
+            if extra:
+                sys.exit(f'dist/{g} {arc}: {len(extra)} files changed since base {patch["base"]} but not in patch '
+                         f'{patch["build"]} (e.g. {extra[:2]}); rebuild the patch')
         for letters, c in info['core'].items():
             p = os.path.join(ROOT, 'dist', g, 'core', f'CNVoice_core_{letters}.big')
             if hashlib.sha256(open(p, 'rb').read()).hexdigest() != c['sha256']:
@@ -666,13 +677,39 @@ def dist_index(game):
     return out
 
 
+def earlier_patch_entries(base_build, game):
+    """{component archive name: set of entries} that any earlier patch on this base delivered for a game.
+    Full packages made with release --from-patch carry those entries inside their component archives, so a new
+    patch must deliver them again even where they went back to the base release's content."""
+    out = {}
+    for pj in glob.glob(os.path.join(PATCH_DIR, '*', 'patch.json')):
+        patch = json.load(open(pj, encoding='utf-8'))
+        if patch.get('base') != base_build:
+            continue
+        for f in patch['games'].get(game, {}).get('files', []):
+            p = os.path.join(os.path.dirname(pj), f['path'])
+            out.setdefault(COMP_BIG.format(f['component']), set()).update(n for n, _, _ in big.read_index(p))
+    return out
+
+
 def cmd_patch(args):
     """patches/<build>/: per game, one archive per changed component with the files that changed since the
-    base release, plus all cores; manifest entry patches/<build>/patch.json (add it to the hosted manifest.json)."""
+    base release (and every file an earlier patch on that base delivered), plus all cores; manifest entry
+    patches/<build>/patch.json (add it to the hosted manifest.json)."""
     import datetime
     import hashlib
     require_full_build()
     base = json.load(open(os.path.join(RELEASE_INDEX, args.base + '.json'), encoding='utf-8'))
+    # a patch can only add or replace files: anything the base or an earlier patch shipped must still exist
+    for g in GAMES:
+        new = dist_index(g)
+        shipped = {arc: set(names) for arc, names in base['games'].get(g, {}).items()}
+        for arc, names in earlier_patch_entries(args.base, g).items():
+            shipped.setdefault(arc, set()).update(names)
+        gone = [f'{arc}:{n}' for arc, names in shipped.items() for n in sorted(names - set(new.get(arc, {})))]
+        if gone:
+            sys.exit(f'{g}: {len(gone)} files shipped before are missing from dist (a patch cannot delete them), '
+                     f'e.g. {gone[:3]}; make a new full release instead')
     build_id = datetime.datetime.now().strftime('%Y%m%d-%H%M')
     out = os.path.join(PATCH_DIR, build_id)
     shutil.rmtree(out, ignore_errors=True)
@@ -685,11 +722,12 @@ def cmd_patch(args):
     for g in GAMES:
         old = base['games'].get(g, {})
         new = dist_index(g)
+        earlier = earlier_patch_entries(args.base, g)
         os.makedirs(out, exist_ok=True)
         files = []
         for arc, names in new.items():
             comp = arc[len('CNVoice_'):-len('.big')]
-            diff = [n for n, h in names.items() if old.get(arc, {}).get(n) != h]
+            diff = [n for n, h in names.items() if old.get(arc, {}).get(n) != h or n in earlier.get(arc, ())]
             if not diff:
                 continue
             # one patch per component, so a player only ever adds patches for what they installed

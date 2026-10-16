@@ -307,6 +307,76 @@ def test_text_terms_and_subtitles_follow_the_dub():
     assert 'SUBTITLE:A01TH05' not in textpack.subtitle_overrides(en, mission, movie[:2])
 
 
+def _load_ra3cv():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('ra3cv', os.path.join(ROOT, 'ra3cv.py'))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def _fake_project(m, d):
+    """Point ra3cv at a temp project with one game: base release 'B' with eva {a: 1, b: 1, c: 1}."""
+    m.ROOT, m.GAMES = d, {'g': d}
+    m.RELEASE_INDEX, m.PATCH_DIR = os.path.join(d, 'releases'), os.path.join(d, 'patches')
+    os.makedirs(os.path.join(d, 'dist', 'g', 'core'))
+    os.makedirs(m.RELEASE_INDEX)
+    json_dump = __import__('json').dump
+    json_dump({'test_build': False, 'partial': []}, open(os.path.join(d, 'dist', 'g', 'build.json'), 'w'))
+    eva = os.path.join(d, 'dist', 'g', 'CNVoice_eva.big')
+    big.write(eva, [('a', b'1'), ('b', b'1'), ('c', b'1')])
+    json_dump({'build': 'B', 'games': {'g': m.dist_index('g')}}, open(os.path.join(m.RELEASE_INDEX, 'B.json'), 'w'))
+    return eva
+
+
+def test_patch_redelivers_what_an_earlier_patch_changed():
+    """Patch 1 changed eva:a; the 1.0.1 full package (base + patch 1) has the new a inside CNVoice_eva.big. If
+    patch 2 sets a back to the base bytes it must still carry a, or those players keep patch 1's a under patch 2's
+    core lengths. A file that disappears from dist cannot be expressed by a patch at all."""
+    import argparse
+    import json
+    m = _load_ra3cv()
+    with tempfile.TemporaryDirectory() as d:
+        eva = _fake_project(m, d)
+        args = argparse.Namespace(base='B', version='x', notes='')
+        big.write(eva, [('a', b'2'), ('b', b'1'), ('c', b'1')])
+        m.cmd_patch(args)
+        first = os.listdir(m.PATCH_DIR)[0]
+        os.rename(os.path.join(m.PATCH_DIR, first), os.path.join(m.PATCH_DIR, 'p1'))
+        big.write(eva, [('a', b'1'), ('b', b'3'), ('c', b'1')])          # a reverted, b changed
+        m.cmd_patch(args)
+        p2 = [x for x in os.listdir(m.PATCH_DIR) if x != 'p1'][0]
+        patch = json.load(open(os.path.join(m.PATCH_DIR, p2, 'patch.json'), encoding='utf-8'))
+        (f,) = patch['games']['g']['files']
+        assert sorted(n for n, _, _ in big.read_index(os.path.join(m.PATCH_DIR, p2, f['path']))) == ['a', 'b']
+        big.write(eva, [('a', b'1'), ('b', b'3')])                        # c gone
+        try:
+            m.cmd_patch(args)
+            raise AssertionError('a missing file must stop the patch')
+        except SystemExit as e:
+            assert 'missing' in str(e)
+
+
+def test_full_package_check_sees_changes_outside_the_patch():
+    """release --from-patch: dist must equal base + patch in every component, not only in the patched ones."""
+    import argparse
+    import json
+    m = _load_ra3cv()
+    with tempfile.TemporaryDirectory() as d:
+        eva = _fake_project(m, d)
+        big.write(eva, [('a', b'2'), ('b', b'1'), ('c', b'1')])
+        m.cmd_patch(argparse.Namespace(base='B', version='x', notes=''))
+        p = os.listdir(m.PATCH_DIR)[0]
+        patch = json.load(open(os.path.join(m.PATCH_DIR, p, 'patch.json'), encoding='utf-8'))
+        m.verify_dist_matches_patch(patch)                                 # dist == base + patch: fine
+        big.write(eva, [('a', b'2'), ('b', b'9'), ('c', b'1')])          # a change the patch does not carry
+        try:
+            m.verify_dist_matches_patch(patch)
+            raise AssertionError('an unpatched change must be caught')
+        except SystemExit as e:
+            assert 'not in patch' in str(e)
+
+
 if __name__ == '__main__':
     for k, f in list(globals().items()):
         if k.startswith('test_'):
