@@ -33,8 +33,9 @@ from ra3voice import big, refpack                       # noqa: E402
 
 DATA = r'C:\Program Files (x86)\Steam\steamapps\common\Command and Conquer Red Alert 3\Data'
 GAME = DATA + r'\StaticStream.big'
-# the stream the game opens: static.12 links static.11 -> ... -> static; an asset must be in its table to exist
-TOP = ('static.12', DATA + r'\Core12.big')
+# the streams the game opens (one per LOD setting): static.12 links static.11 -> ... -> static, likewise
+# static_l.12 / static_m.12; an asset must be in the opened stream's table to exist
+TOPS = [(s, DATA + r'\Core12.big') for s in ('static.12', 'static_l.12', 'static_m.12')]
 HEADER = '<BBHIIIIIIIIIII'
 ENTRY = '<12I'
 
@@ -127,20 +128,25 @@ def splice(stem, mod, only, archive=GAME, add_new=False):
     return done, added, [(names[0], man)] + [(names[n + 1], head[n] + b''.join(c[n] for c in chunks)) for n in range(3)]
 
 
-def main():
-    src, out = sys.argv[1:3]
-    only = {tuple(int(x, 16) for x in a.split(':')) for a in sys.argv[3:]}
+def spliced_files(src, only=()):
+    """[(path in the mod BIG, bytes)] of every static stream the built mod in <src> changes."""
     mh, mE, mC, mB = parse(*(open(os.path.join(src, f'mod.{x}'), 'rb').read() for x in ('manifest', 'bin', 'relo', 'imp')))
     mod = {(e[0], e[1]): (e, c, refs(mB, e), cstr(mB[2], e[6])) for e, c in zip(mE, mC)}
     for key, (e, c, rl, name) in mod.items():
         print(f'  mod {key[0]:08x}:{key[1]:08x} {name.decode()}: {len(c[0])} bytes, {len(rl)} refs')
     files = []
-    for stem, archive, add_new in (('static', GAME, False), ('static_l', GAME, False), ('static_m', GAME, False),
-                                   (TOP[0], TOP[1], True)):
+    for stem, archive, add_new in [('static', GAME, False), ('static_l', GAME, False), ('static_m', GAME, False)] + \
+            [(s, a, True) for s, a in TOPS]:
         done, added, fs = splice(stem, mod, only, archive, add_new)
         print(stem, 'replaced', [f'{t:08x}:{n:08x}' for t, n in done], 'added', [f'{t:08x}:{n:08x}' for t, n in added])
         files += fs
-    big.write(out, files)
+    return files
+
+
+def main():
+    src, out = sys.argv[1:3]
+    only = {tuple(int(x, 16) for x in a.split(':')) for a in sys.argv[3:]}
+    big.write(out, spliced_files(src, only))
     print('->', out, f'{os.path.getsize(out) / 1e6:.0f} MB')
 
 
