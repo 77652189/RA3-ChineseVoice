@@ -1,0 +1,19 @@
+LIBRARY d3d9
+EXPORTS
+    Direct3DCreate9
+    D3DPERF_BeginEvent=stub_D3DPERF_BeginEvent
+    D3DPERF_EndEvent=stub_D3DPERF_EndEvent
+    D3DPERF_GetStatus=stub_D3DPERF_GetStatus
+    D3DPERF_QueryRepeatFrame=stub_D3DPERF_QueryRepeatFrame
+    D3DPERF_SetMarker=stub_D3DPERF_SetMarker
+    D3DPERF_SetOptions=stub_D3DPERF_SetOptions
+    D3DPERF_SetRegion=stub_D3DPERF_SetRegion
+    DebugSetLevel=stub_DebugSetLevel
+    DebugSetMute=stub_DebugSetMute
+    Direct3D9EnableMaximizedWindowedModeShim=stub_Direct3D9EnableMaximizedWindowedModeShim
+    Direct3DCreate9Ex=stub_Direct3DCreate9Ex
+    Direct3DCreate9On12=stub_Direct3DCreate9On12
+    Direct3DCreate9On12Ex=stub_Direct3DCreate9On12Ex
+    Direct3DShaderValidatorCreate9=stub_Direct3DShaderValidatorCreate9
+    PSGPError=stub_PSGPError
+    PSGPSampleTexture=stub_PSGPSampleTexture

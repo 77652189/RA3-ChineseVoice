@@ -36,3 +36,9 @@
 __pycache__/
 *.pyc
 .mineru/
+
+# build outputs of the experimental shims
+/experimental/**/*.dll
+/experimental/**/*.obj
+/experimental/**/*.lib
+/experimental/**/*.exp
