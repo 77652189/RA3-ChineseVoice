@@ -11,6 +11,7 @@ import argparse
 import html
 import json
 import os
+import shutil
 import sys
 
 import numpy as np
@@ -86,6 +87,11 @@ def main():
         for n in names:
             prefix = next(p for p in prefixes if n.lower().startswith(p.lower()))
             pid = a.preset or chosen.get(prefix, 'P0')
+            if not presets[pid]['chain']:
+                # no effect: copy the bytes. Re-encoding through float shifts every sample a hair (x 32767/32768),
+                # and a rerun then touched every released line (all movies in the next patch)
+                shutil.copyfile(os.path.join(ROOT, 'clean', a.unit, n + '.wav'), os.path.join(out, n + '.wav'))
+                continue
             audio_io.save_wav(os.path.join(out, n + '.wav'), audio_io.to_int16(process(a.unit, n, presets[pid], shifts, prefixes)), SR)
         print(f'{len(names)} clips -> {out}  presets: {a.preset or chosen}')
         return

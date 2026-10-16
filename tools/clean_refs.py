@@ -2,6 +2,9 @@
 
   python tools/clean_refs.py [movie ...]      (default: every dubbed movie)
 
+Lines with a trusted measured onset (work/align/report.csv) are cut from where the actor starts to the next
+line's onset; the rest by subtitle time as before.
+
 The plain references (original/movie/<asset>.wav, from tools/catalog_movie.py) are slices of the mixed
 dialogue track: music and effects underneath, and in fast exchanges the tail of the previous speaker.
 IndexTTS2 copies whatever it hears, so multi-speaker cutscenes came out with blended voices.
@@ -30,6 +33,14 @@ def main(only):
     by = {}
     for r in rows:
         by.setdefault((r['games'], r['movie']), []).append(r)
+    # measured onsets (tools/align_movies.py); only trusted ones: the offset was applied or the line was on time
+    onset = {}
+    report = os.path.join(ROOT, 'work', 'align', 'report.csv')
+    if os.path.exists(report):
+        with open(report, encoding='utf-8-sig') as f:
+            for q in csv.DictReader(f):
+                if q['onset'] and not q['rejected'] and (q['applied'] or abs(float(q['shift'])) < 0.35):
+                    onset[q['asset']] = float(q['onset'])
     made = 0
     for (game, mv), rs in sorted(by.items()):
         if only and mv not in only:
@@ -43,12 +54,19 @@ def main(only):
         rs.sort(key=lambda r: float(r['start']))
         for i, r in enumerate(rs):
             s, d = float(r['start']), float(r['dur'])
-            lo = s - PAD_BEFORE
-            if i:
-                lo = max(lo, float(rs[i - 1]['start']) + float(rs[i - 1]['dur']) + GAP)
-            hi = s + d + PAD_AFTER
-            if i + 1 < len(rs):
-                hi = min(hi, float(rs[i + 1]['start']) - GAP)
+            if r['asset'] in onset:
+                # where the actor really speaks: the subtitle runs ~1.3 s ahead in full-screen movies, so a slice at
+                # the subtitle time was mostly the previous speaker (R_afs05_04 Bingham came out in Eva's voice)
+                lo = onset[r['asset']] - PAD_BEFORE
+                later = [onset[q['asset']] for q in rs[i + 1:] if q['asset'] in onset]
+                hi = min([onset[r['asset']] + d + 1.0] + [t - GAP for t in later[:1]])
+            else:
+                lo = s - PAD_BEFORE
+                if i:
+                    lo = max(lo, float(rs[i - 1]['start']) + float(rs[i - 1]['dur']) + GAP)
+                hi = s + d + PAD_AFTER
+                if i + 1 < len(rs):
+                    hi = min(hi, float(rs[i + 1]['start']) - GAP)
             a, b = max(0, int(lo * movie.SR)), min(len(v), int(hi * movie.SR))
             if b - a < movie.SR // 5:
                 continue
