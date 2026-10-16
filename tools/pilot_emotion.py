@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.join(ROOT, 'tools'))
 REF = os.path.join(ROOT, 'original', 'movie_clean')
 EMOTIONS = ['happy', 'angry', 'sad', 'afraid', 'disgusted', 'melancholic', 'surprised', 'calm']
 TAKES = 6                 # per method and line
-SAME_VOICE = 0.55         # CAMPPlus similarity to the character below this = not that character
+SAME_VOICE_SLACK = 0.08   # CAMPPlus similarity this far under the character's median take = not that character
 
 
 def out_dir(mv):
@@ -206,7 +206,10 @@ def pick(mv):
             rel_t = np.log2(f0 / s['char_take_f0']) if f0 and s['char_take_f0'] else 0.0
             return (abs(spread - spread_o) / max(spread_o, 2.0) + abs(swing - swing_o) / max(swing_o, 3.0)
                     + 2 * abs(rel_t - rel_o))
-        voice_ok = [s for s in ok if s['spk_sim'] >= SAME_VOICE] or ok
+        # cross-language similarity runs low (released A dubs: 0.46-0.60), so judge each take against its
+        # character's other takes: drop the ones clearly off the voice
+        floor = np.median([s['spk_sim'] for s in scored if emo['lines'][s['asset']]['character'] == c]) - SAME_VOICE_SLACK
+        voice_ok = [s for s in ok if s['spk_sim'] >= floor] or ok
         picks['C'][a] = min(voice_ok, key=lambda s: s['usual'] + 0.5 * expressive_gap(s))
     # EQ each version per character to the originals, as pick.py does, so B / C differ from A by voice and delivery
     for v, chosen in picks.items():

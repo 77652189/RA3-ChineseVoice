@@ -140,6 +140,47 @@ def voiced_runs(x):
     return [(a / 100, b / 100) for a, b in runs if b - a >= 25]
 
 
+def dub_seconds(asset):
+    from ra3voice import audio_io
+    p = os.path.join(ROOT, 'voices', 'movie', asset + '.wav')
+    return len(movie.trim(audio_io.load_mono(p, movie.SR).astype(np.float64))) / movie.SR if os.path.exists(p) else 0.0
+
+
+def fit_dubs(here, proposal):
+    """Moving a line must not leave its dub (or the previous line's) less room than it had at the subtitle time:
+    the Chinese is often longer than the actor (afs05_03: actor 1.3 s, dub 2.8 s), and squeezing it means speeding
+    it up and cutting it. Then the line only moves as far as still fits (it starts a little ahead of the actor),
+    never past its subtitle time."""
+    gap = movie.GUARD
+    for _ in range(2):
+        start0 = [row['csv_start'] for row in here]
+        start1 = [s + proposal.get(row['asset'], 0.0) for s, row in zip(start0, here)]
+        for i, row in enumerate(here):
+            a = row['asset']
+            if a not in proposal:
+                continue
+            v = proposal[a]
+            if v > 0 and i + 1 < len(here):
+                need = min(dub_seconds(a), start0[i + 1] - start0[i] - gap)      # the room it had before
+                latest = start1[i + 1] - gap - need
+                if start1[i] > latest:
+                    v = max(0.0, latest - start0[i])
+            elif v < 0 and i > 0:
+                p = here[i - 1]['asset']
+                need = min(dub_seconds(p), start0[i] - start0[i - 1] - gap)
+                earliest = start1[i - 1] + gap + need
+                if start1[i] < earliest:
+                    v = min(0.0, earliest - start0[i])
+            if abs(v) < MIN_SHIFT:
+                proposal.pop(a)
+                row['applied'] = ''
+                row['rejected'] = 'would not fit'
+            elif v != proposal[a]:
+                proposal[a] = round(v, 2)
+                row['applied'] = f'{v:+.2f} (fitted)'
+            start1[i] = start0[i] + proposal.get(a, 0.0)
+
+
 def offsets():
     groups, dubbed = movie_rows()
     report, proposal = [], {}
@@ -242,6 +283,7 @@ def offsets():
                     row['applied'] = ''
                     row['rejected'] = 'would pass a neighbouring line'
                     break
+        fit_dubs(here, proposal)
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, 'report.csv'), 'w', newline='', encoding='utf-8-sig') as f:
         w = csv.DictWriter(f, fieldnames=list(report[0].keys()))
