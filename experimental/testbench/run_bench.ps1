@@ -32,9 +32,16 @@ public static class Bench {
         PostMessage(h, 0x0201, (IntPtr)1, pos); System.Threading.Thread.Sleep(60);
         PostMessage(h, 0x0202, IntPtr.Zero, pos);
     }
-    public static void Key(IntPtr h, int vk) {     // WM_KEYDOWN / WM_KEYUP
-        PostMessage(h, 0x0100, (IntPtr)vk, (IntPtr)1); System.Threading.Thread.Sleep(60);
-        PostMessage(h, 0x0101, (IntPtr)vk, (IntPtr)unchecked((int)0xC0000001));
+    [DllImport("user32.dll")] static extern uint MapVirtualKey(uint code, uint type);
+    public static void Key(IntPtr h, int vk) {     // WM_KEYDOWN / WM_KEYUP with the scan code in lParam bits 16-23
+        int sc = (int)MapVirtualKey((uint)vk, 0) << 16;
+        // the game drops keys while it thinks it is inactive: tell it (messages only, the window is not raised)
+        PostMessage(h, 0x001C, (IntPtr)1, IntPtr.Zero);   // WM_ACTIVATEAPP
+        PostMessage(h, 0x0006, (IntPtr)1, IntPtr.Zero);   // WM_ACTIVATE, WA_ACTIVE
+        PostMessage(h, 0x0007, IntPtr.Zero, IntPtr.Zero); // WM_SETFOCUS
+        System.Threading.Thread.Sleep(100);
+        PostMessage(h, 0x0100, (IntPtr)vk, (IntPtr)(sc | 1)); System.Threading.Thread.Sleep(80);
+        PostMessage(h, 0x0101, (IntPtr)vk, (IntPtr)unchecked((int)(0xC0000001 | (uint)sc)));
     }
 }
 '@
@@ -63,6 +70,8 @@ foreach ($s in 1..$Seconds) {
     if ($keyAt.ContainsKey($s)) {
         $hw = [Bench]::MainWindow([uint32]$p.Id); "KEY at $s s: vk $($keyAt[$s])"
         if ($hw -ne [IntPtr]::Zero) { [Bench]::Key($hw, $keyAt[$s]) }
+        # the game polls the keyboard (GetAsyncKeyState): the capture shim makes the key read as held for 300 ms
+        Set-Content (Join-Path $shotDir 'key.req') $keyAt[$s] -Encoding ascii
     }
     if ($shotAt -contains $s) { "REQ shot at $s s"; Set-Content (Join-Path $shotDir 'shot.req') ('{0:D3}s' -f $s) -Encoding ascii }
     $crash = Get-WinEvent -FilterHashtable @{LogName = 'Application'; Id = 1000; StartTime = $t0} -ErrorAction SilentlyContinue |

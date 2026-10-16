@@ -180,14 +180,158 @@ static HRESULT STDMETHODCALLTYPE h_EndScene(IDirect3DDevice9 *d)
     return o_EndScene(d);
 }
 
+// ---------------------------------------------------------------- synthetic keys
+// Posted WM_KEYDOWN does not skip movies: the game polls the keyboard. We patch its imports of GetAsyncKeyState /
+// GetKeyState so that, while a request is active, the requested key reads as held down. Request: a file "key.req"
+// in the shot folder holding a virtual-key code (decimal); it is held for 300 ms, then released.
+typedef SHORT(WINAPI *GetKeyFn)(int);
+static GetKeyFn o_GetAsyncKeyState, o_GetKeyState;
+static volatile int g_fake_vk;
+static volatile DWORD g_fake_until;
+static int g_vk_seen[256];
+
+static bool faked(int vk)
+{
+    if (vk > 0 && vk < 256 && g_vk_seen[vk]++ == 0) logf("game polls vk %d\n", vk);
+    return g_fake_vk && vk == g_fake_vk && GetTickCount() < g_fake_until;
+}
+static SHORT WINAPI h_GetAsyncKeyState(int vk) { return faked(vk) ? (SHORT)0x8001 : o_GetAsyncKeyState(vk); }
+static SHORT WINAPI h_GetKeyState(int vk) { return faked(vk) ? (SHORT)0xFF80 : o_GetKeyState(vk); }
+
+// replace a function the main module imports from user32.dll
+static void hook_import(const char *fn, void *hook, void **orig)
+{
+    BYTE *base = (BYTE *)GetModuleHandleW(0);
+    IMAGE_NT_HEADERS *nt = (IMAGE_NT_HEADERS *)(base + ((IMAGE_DOS_HEADER *)base)->e_lfanew);
+    IMAGE_DATA_DIRECTORY dir = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
+    for (IMAGE_IMPORT_DESCRIPTOR *d = (IMAGE_IMPORT_DESCRIPTOR *)(base + dir.VirtualAddress); d->Name; d++)
+    {
+        if (lstrcmpiA((char *)(base + d->Name), "user32.dll")) continue;
+        IMAGE_THUNK_DATA *names = (IMAGE_THUNK_DATA *)(base + (d->OriginalFirstThunk ? d->OriginalFirstThunk : d->FirstThunk));
+        IMAGE_THUNK_DATA *iat = (IMAGE_THUNK_DATA *)(base + d->FirstThunk);
+        for (; names->u1.AddressOfData; names++, iat++)
+        {
+            if (IMAGE_SNAP_BY_ORDINAL(names->u1.Ordinal)) continue;
+            if (lstrcmpA(((IMAGE_IMPORT_BY_NAME *)(base + names->u1.AddressOfData))->Name, fn)) continue;
+            DWORD old;
+            VirtualProtect(&iat->u1.Function, sizeof(void *), PAGE_READWRITE, &old);
+            *orig = (void *)iat->u1.Function;
+            iat->u1.Function = (ULONG_PTR)hook;
+            VirtualProtect(&iat->u1.Function, sizeof(void *), old, &old);
+            logf("hooked import %s\n", fn);
+            return;
+        }
+    }
+    logf("import %s not found\n", fn);
+}
+
+// Hot-patch a user32 export in place (Windows' "mov edi,edi" prologue with 5 spare bytes before it), so every caller
+// goes through the hook, also code that found the function with GetProcAddress. *orig = function + 2.
+static bool hotpatch(const char *fn, void *hook, void **orig)
+{
+    BYTE *f = (BYTE *)GetProcAddress(GetModuleHandleW(L"user32.dll"), fn);
+    DWORD old;
+    if (f && f[0] == 0xE9)
+    {
+        // someone (the Steam overlay watches hotkeys) already put a jmp here: chain in front of it
+        BYTE *target = f + 5 + *(LONG *)(f + 1);
+        VirtualProtect(f, 5, PAGE_EXECUTE_READWRITE, &old);
+        *orig = target;
+        *(LONG *)(f + 1) = (LONG)((BYTE *)hook - (f + 5));
+        VirtualProtect(f, 5, old, &old);
+        FlushInstructionCache(GetCurrentProcess(), f, 5);
+        logf("user32!%s already hooked (-> %p): chained in front\n", fn, (void *)target);
+        return true;
+    }
+    if (!f || f[0] != 0x8B || f[1] != 0xFF) { logf("hotpatch %s: unknown prologue (%02x %02x)\n", fn, f ? f[0] : 0, f ? f[1] : 0); return false; }
+    VirtualProtect(f - 5, 7, PAGE_EXECUTE_READWRITE, &old);
+    *orig = f + 2;
+    f[-5] = 0xE9;                                            // jmp hook
+    *(DWORD *)(f - 4) = (DWORD)((BYTE *)hook - f);
+    *(WORD *)f = 0xF9EB;                                     // jmp short -7 (to f-5)
+    VirtualProtect(f - 5, 7, old, &old);
+    FlushInstructionCache(GetCurrentProcess(), f - 5, 7);
+    logf("hot-patched user32!%s\n", fn);
+    return true;
+}
+
+typedef BOOL(WINAPI *GetKbState_t)(PBYTE);
+static GetKbState_t o_GetKeyboardState;
+static int g_kbstate_calls;
+static BOOL WINAPI h_GetKeyboardState(PBYTE s)
+{
+    BOOL r = o_GetKeyboardState(s);
+    if (g_kbstate_calls++ == 0) logf("game calls GetKeyboardState\n");
+    if (r && g_fake_vk && GetTickCount() < g_fake_until) s[g_fake_vk] |= 0x80;
+    return r;
+}
+
+// what key messages the game actually takes out of its queue
+typedef BOOL(WINAPI *PeekMsg_t)(LPMSG, HWND, UINT, UINT, UINT);
+typedef BOOL(WINAPI *GetMsg_t)(LPMSG, HWND, UINT, UINT);
+static PeekMsg_t o_PeekMessageA;
+static GetMsg_t o_GetMessageA;
+static int g_keymsgs;
+static void seen_msg(const MSG *m)
+{
+    if ((m->message >= WM_KEYFIRST && m->message <= WM_KEYLAST) || m->message == WM_INPUT)
+        if (g_keymsgs++ < 40) logf("game took msg 0x%04x wParam %u lParam %08lx\n", m->message, (UINT)m->wParam, (DWORD)m->lParam);
+}
+static BOOL WINAPI h_PeekMessageA(LPMSG m, HWND h, UINT a, UINT b, UINT rm)
+{
+    BOOL r = o_PeekMessageA(m, h, a, b, rm);
+    if (r && (rm & PM_REMOVE)) seen_msg(m);
+    return r;
+}
+static BOOL WINAPI h_GetMessageA(LPMSG m, HWND h, UINT a, UINT b)
+{
+    BOOL r = o_GetMessageA(m, h, a, b);
+    if (r > 0) seen_msg(m);
+    return r;
+}
+
+// the bench must not take the user's desktop: refuse the game's requests to come to the front (logged)
+typedef BOOL(WINAPI *HwndFn_t)(HWND);
+static HwndFn_t o_SetForegroundWindow, o_BringWindowToTop;
+static int g_front_blocked;
+static BOOL WINAPI h_SetForegroundWindow(HWND h)
+{
+    if (g_front_blocked++ < 10) logf("blocked SetForegroundWindow(%p)\n", (void *)h);
+    return TRUE;
+}
+static BOOL WINAPI h_BringWindowToTop(HWND h)
+{
+    if (g_front_blocked++ < 10) logf("blocked BringWindowToTop(%p)\n", (void *)h);
+    return TRUE;
+}
+
+static void poll_key_request()
+{
+    WCHAR req[MAX_PATH];
+    wsprintfW(req, L"%s\\key.req", g_dir);
+    FILE *f = _wfopen(req, L"r");
+    if (!f) return;
+    int vk = 0;
+    fscanf(f, "%d", &vk);
+    fclose(f);
+    DeleteFileW(req);
+    g_fake_vk = vk;
+    g_fake_until = GetTickCount() + 300;
+    logf("key request: vk %d held 300 ms\n", vk);
+}
+
 // SAGE-Unlocked swaps the device's vtable pointer for its own copy some time after CreateDevice, which bypasses
 // hooks put into the original table: watch the pointer and hook whatever table the device uses now.
 static DWORD WINAPI watch_vtable(LPVOID)
 {
     void **seen = g_dev_vt;
-    for (;;)
+    for (int tick = 0;; tick++)
     {
         Sleep(100);
+        poll_key_request();
+        if (tick == 200)
+            logf("loaded: dinput8 %p, dinput %p, xinput1_3 %p\n", (void *)GetModuleHandleW(L"dinput8.dll"),
+                 (void *)GetModuleHandleW(L"dinput.dll"), (void *)GetModuleHandleW(L"xinput1_3.dll"));
         void **vt = *(void ***)g_dev;
         if (vt != seen)
         {
@@ -218,6 +362,13 @@ static HRESULT STDMETHODCALLTYPE h_CreateDevice(IDirect3D9 *d3d, UINT ad, D3DDEV
             sc->Release();
         }
         logf("device %p hooks: Present, EndScene, SwapChain::Present\n", (void *)g_dev);
+        hotpatch("GetAsyncKeyState", (void *)h_GetAsyncKeyState, (void **)&o_GetAsyncKeyState);
+        hotpatch("GetKeyState", (void *)h_GetKeyState, (void **)&o_GetKeyState);
+        hotpatch("GetKeyboardState", (void *)h_GetKeyboardState, (void **)&o_GetKeyboardState);
+        hotpatch("SetForegroundWindow", (void *)h_SetForegroundWindow, (void **)&o_SetForegroundWindow);
+        hotpatch("BringWindowToTop", (void *)h_BringWindowToTop, (void **)&o_BringWindowToTop);
+        hook_import("PeekMessageA", (void *)h_PeekMessageA, (void **)&o_PeekMessageA);
+        hook_import("GetMessageA", (void *)h_GetMessageA, (void **)&o_GetMessageA);
         CreateThread(0, 0, watch_vtable, 0, 0, 0);
     }
     return hr;
