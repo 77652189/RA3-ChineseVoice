@@ -1,6 +1,7 @@
 """Score IndexTTS candidates with Whisper (zh) and keep the best take per line.
 
   python tools/pick.py giga_fortress
+  python tools/pick.py eva --only Svea_RedAlertAct ...   # just these lines; released lines stay bit-identical
 
 Score = toneless-pinyin syllable error rate vs. the intended text
       + PAUSE_PENALTY per unexplained mid-sentence pause (ra3voice.pauses)
@@ -93,9 +94,17 @@ def trim(x, sr, thresh_db=-45, pad=0.04):
     return x[max(0, on[0] - p):min(len(x), on[-1] + p)]
 
 
-def main(unit):
+def main(unit, only=None):
+    """only: re-pick just these assets. Their voice groups' EQ curve is designed exactly as a whole-batch run
+    would, from the takes the other lines already won (lines/<unit>_qc.csv), so only these lines change."""
     with open(os.path.join(ROOT, 'lines', f'{unit}.csv'), encoding='utf-8-sig') as f:
         rows = [r for r in csv.DictReader(f) if r['zh'].strip()]
+    qc_path = os.path.join(ROOT, 'lines', f'{unit}_qc.csv')
+    old_qc = []
+    if only:
+        only = {a.lower() for a in only}
+        old_qc = list(csv.DictReader(open(qc_path, encoding='utf-8-sig'))) if os.path.exists(qc_path) else []
+        rows = [r for r in rows if r['asset'].lower() in only]
     cand_dir = os.path.join(ROOT, 'candidates', unit)
     out_dir = os.path.join(ROOT, 'clean', unit)
     os.makedirs(out_dir, exist_ok=True)
@@ -144,16 +153,28 @@ def main(unit):
         names = [n for n in winners if n.lower().startswith(prefix.lower())]
         if not names:
             continue
+        if only:   # the group's other lines keep their released takes, and the curve they were EQ'd with
+            kept = [q for q in old_qc if q['asset'].lower().startswith(prefix.lower()) and q['asset'] not in winners]
+            for q in kept:
+                winners[q['asset']] = trim(audio_io.load_mono(os.path.join(cand_dir, q['take']), SR), SR)
+            # in the batch's row order, as a whole-batch run feeds them to eq.design (float sums depend on it)
+            order = {q['asset']: k for k, q in enumerate(old_qc)}
+            names = sorted(names + [q['asset'] for q in kept], key=lambda n: order.get(n, len(order)))
         # shouted crash / fall / fear lines would bend the whole group's curve (and every released line with it):
         # they only receive the curve designed from the group's ordinary lines
         design = [n for n in names if not EQ_SKIP_RE.search(n)] or names
         orig = [audio_io.load_mono(os.path.join(ROOT, 'original', unit, n + '.wav'), SR) for n in design]
         taps = eq.design(orig, [winners[n] for n in design], SR)
         for n in names:
+            if only and n.lower() not in only:
+                continue
             y = eq.apply(winners[n], taps)
             y = y * min(1.0, 0.98 / max(float(np.max(np.abs(y))), 1e-9))
             audio_io.save_wav(os.path.join(out_dir, n + '.wav'), audio_io.to_int16(y), SR)
-    with open(os.path.join(ROOT, 'lines', f'{unit}_qc.csv'), 'w', newline='', encoding='utf-8-sig') as f:
+    if only:   # merge into the batch report
+        new = {r['asset']: r for r in report}
+        report = [new.pop(q['asset'], q) for q in old_qc] + list(new.values())
+    with open(qc_path, 'w', newline='', encoding='utf-8-sig') as f:
         w = csv.DictWriter(f, fieldnames=list(report[0].keys()))
         w.writeheader()
         w.writerows(report)
@@ -162,4 +183,4 @@ def main(unit):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[sys.argv.index('--only') + 1:] if '--only' in sys.argv else None)

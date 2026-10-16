@@ -377,6 +377,16 @@ def test_full_package_check_sees_changes_outside_the_patch():
             assert 'not in patch' in str(e)
 
 
+def test_batched_eaxa_encoder_matches_the_reference():
+    """encode_channel_areas (all blocks at once) must give the same bytes as encode_channel_area block by block,
+    for odd lengths, a single frame, loud noise and tones."""
+    from ra3voice import eaxa
+    rng = np.random.default_rng(8)
+    pieces = [rng.integers(-32768, 32767, n) for n in (1, 27, 28, 29, 56, 57, 300, 1500)]
+    pieces += [(np.sin(np.arange(n) / 5) * 30000).astype(np.int64) for n in (28, 700, 1500)]
+    assert eaxa.encode_channel_areas(pieces) == [eaxa.encode_channel_area(p) for p in pieces]
+
+
 if __name__ == '__main__':
     for k, f in list(globals().items()):
         if k.startswith('test_'):

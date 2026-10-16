@@ -143,6 +143,65 @@ def encode_channel_area(pcm):
     return bytes(out)
 
 
+BATCH_ROWS = 2048       # blocks encoded side by side; bounds the (rows x 52 candidates x 28) work arrays
+
+
+def encode_channel_areas(pieces):
+    """encode_channel_area for many blocks at once, byte for byte the same. Every block starts from its own PCM
+    frame, so blocks (and channels) are independent and only the frames inside a block run in order: blocks with
+    the same frame count are encoded together, each step vectorised over block x predictor x shift."""
+    pieces = [np.asarray(p, dtype=np.int64) for p in pieces]
+    out = [None] * len(pieces)
+    nfs = [(len(p) + FRAME_SAMPLES - 1) // FRAME_SAMPLES for p in pieces]
+    ks, codes = np.meshgrid(np.arange(4), np.arange(13), indexing='ij')
+    ks, codes = ks.ravel(), codes.ravel()
+    c1, c2 = COEF1[ks][None, :], COEF2[ks][None, :]
+    step = np.left_shift(1, 20 - codes)[None, :]
+    by_nf = {}
+    for i, nf in enumerate(nfs):
+        by_nf.setdefault(nf, []).append(i)
+    for nf, idx in by_nf.items():
+        for b0 in range(0, len(idx), BATCH_ROWS):
+            rows = idx[b0:b0 + BATCH_ROWS]
+            g = len(rows)
+            x = np.zeros((g, max(nf, 1) * FRAME_SAMPLES), dtype=np.int64)
+            for r, i in enumerate(rows):
+                x[r, :len(pieces[i])] = pieces[i]
+            heads = [bytearray(b'\xEE' + struct.pack('>hh', 0, 0) + struct.pack(f'>{FRAME_SAMPLES}h', *x[r, :FRAME_SAMPLES].tolist()))
+                     for r in range(g)]
+            h1 = x[:, FRAME_SAMPLES - 1].copy()
+            h2 = x[:, FRAME_SAMPLES - 2].copy()
+            frames = []
+            for f in range(1, nf):
+                seg = x[:, f * FRAME_SAMPLES:(f + 1) * FRAME_SAMPLES]
+                a1 = np.repeat(h1[:, None], len(ks), axis=1)
+                a2 = np.repeat(h2[:, None], len(ks), axis=1)
+                err = np.zeros((g, len(ks)))
+                nibs = np.zeros((g, len(ks), FRAME_SAMPLES), dtype=np.int64)
+                for i in range(FRAME_SAMPLES):
+                    s = seg[:, i:i + 1]
+                    pred = c1 * a1 + c2 * a2
+                    q = np.clip(np.round((s * 256 - pred) / step), -8, 7).astype(np.int64)
+                    v = np.clip((q * step + pred) >> 8, -32768, 32767)
+                    err += (v - s) ** 2
+                    nibs[:, :, i] = q
+                    a2, a1 = a1, v
+                m = np.argmin(err, axis=1)
+                pick = np.arange(g)
+                q = nibs[pick, m] & 0x0F
+                head = (ks[m] << 4 | codes[m]).astype(np.uint8)
+                body = (q[:, 0::2] << 4 | q[:, 1::2]).astype(np.uint8)
+                frames.append(np.concatenate([head[:, None], body], axis=1))
+                h1, h2 = a1[pick, m], a2[pick, m]
+            tail = np.concatenate(frames, axis=1) if frames else np.zeros((g, 0), dtype=np.uint8)
+            for r, i in enumerate(rows):
+                b = heads[r] + tail[r].tobytes()
+                if len(b) % 2:
+                    b.append(0)
+                out[i] = bytes(b)
+    return out
+
+
 def replace_channel(data, ch, pcm):
     return replace_channels(data, {ch: pcm})
 
@@ -160,6 +219,14 @@ def replace_channels(data, new):
             p = np.asarray(pcm, dtype=np.int64)[:total]
             x[:len(p)] = p
             tracks[id(pcm)] = x
+    # every (block, track) area first, encoded in one batch
+    jobs, pos = [], 0
+    for tag, off, size in blocks(data):
+        if tag == b'SCDl':
+            ns = struct.unpack_from('>I', data, off + 8)[0]
+            jobs += [(pos, ns, key) for key in tracks]
+            pos += ns
+    encoded = dict(zip(jobs, encode_channel_areas([tracks[k][p:p + n] for p, n, k in jobs])))
     out = bytearray()
     pos = 0
     for tag, off, size in blocks(data):
@@ -167,11 +234,8 @@ def replace_channels(data, new):
             out += data[off:off + size]
             continue
         ns, areas = _split(data, off, size, nch)
-        done = {}
         for c, pcm in new.items():
-            if id(pcm) not in done:
-                done[id(pcm)] = encode_channel_area(tracks[id(pcm)][pos:pos + ns])
-            areas[c] = done[id(pcm)]
+            areas[c] = encoded[(pos, ns, id(pcm))]
         pos += ns
         offs, acc = [], 0
         for a in areas:

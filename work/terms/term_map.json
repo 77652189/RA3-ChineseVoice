@@ -1090,5 +1090,12 @@
   "scope": "global",
   "en": "Riot Shield",
   "why": "配音“防暴/镇暴盾牌”各1次，取大陆通行“防暴盾牌”；“镇暴”那句已列入 line_fixes"
+ },
+ {
+  "from": "超磁力卫星",
+  "to": "终极磁力卫星",
+  "scope": "global",
+  "en": "Ultra Magnetic Satellite",
+  "why": "播报“终极磁力卫星准备完毕”；官方“超磁力卫星”和二级“超级磁力卫星”只差一字，听不出区别"
  }
 ]

@@ -25,7 +25,8 @@ GAMES = {
     'ra3': r'C:\Program Files (x86)\Steam\steamapps\common\Command and Conquer Red Alert 3',
 }
 UNIT_RE = re.compile(r'^(?P<group>[AJIS]U[A-Za-z0-9]+?_)[Vv]oi(?P<cat>[A-Za-z0-9]*)$')   # digits too: Tanya's VoiAtkC4Ba
-EVA_RE = re.compile(r'^(?P<group>[ASI]eva_)', re.I)
+# EA misspelled a few adjutant files: Svea_UltraNagnticSatellteReady (the level-3 magnetic satellite), Svea_ / Ivea_RedAlertAct
+EVA_RE = re.compile(r'^(?P<group>[ASI]eva_|Svea_|Ivea_)', re.I)
 # spoken lines whose file name lacks the _Voi marker (found by walking the games' *Voice* audio events):
 # the Tesla Tank's select picks these two now and then
 UNNAMED_VOICE = {'sutesla_seltnka', 'sutesla_seltnkb'}
