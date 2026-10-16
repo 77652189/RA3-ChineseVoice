@@ -1,0 +1,3409 @@
+{
+"ALLOW_DISALLOW_ONE_BUILDING": {
+"kind": "ScriptAction",
+"ctype": 283,
+"args": [
+11,
+15,
+8
+],
+"uses": 2464
+},
+"ALLOW_DISALLOW_ONE_UPGRADE": {
+"kind": "ScriptAction",
+"ctype": 535,
+"args": [
+11,
+33,
+8
+],
+"uses": 32
+},
+"ATTACK_MOVE_NAMED_UNIT_TO": {
+"kind": "ScriptAction",
+"ctype": 415,
+"args": [
+14,
+7
+],
+"uses": 134
+},
+"ATTACK_MOVE_TEAM_TO": {
+"kind": "ScriptAction",
+"ctype": 413,
+"args": [
+3,
+7
+],
+"uses": 98
+},
+"ATTACK_MOVE_TEAM_TO_NAMED_OBJECT": {
+"kind": "ScriptAction",
+"ctype": 425,
+"args": [
+3,
+14
+],
+"uses": 13
+},
+"ATTACK_MOVE_TEAM_TO_NEAREST_OBJECT_OF_TYPE_OF_PLAYER": {
+"kind": "ScriptAction",
+"ctype": 426,
+"args": [
+3,
+61,
+11
+],
+"uses": 2
+},
+"AUDIO_POP_MUSIC": {
+"kind": "ScriptAction",
+"ctype": 344,
+"args": [
+8,
+8
+],
+"uses": 2
+},
+"BUILDING_GARRISONNED_BY_OBJECT_TYPE": {
+"kind": "Condition",
+"ctype": 142,
+"args": [
+14,
+61,
+11
+],
+"uses": 1
+},
+"BUILT_BY_PLAYER": {
+"kind": "Condition",
+"ctype": 19,
+"args": [
+61,
+11
+],
+"uses": 7
+},
+"CALL_SUBROUTINE": {
+"kind": "ScriptAction",
+"ctype": 10,
+"args": [
+13
+],
+"uses": 76
+},
+"CAMERA_BLOOM_EFFECT_BEGIN": {
+"kind": "ScriptAction",
+"ctype": 258,
+"args": [],
+"uses": 1
+},
+"CAMERA_ENTERED_AREA": {
+"kind": "Condition",
+"ctype": 94,
+"args": [
+9
+],
+"uses": 59
+},
+"CAMERA_FOLLOW_NAMED": {
+"kind": "ScriptAction",
+"ctype": 105,
+"args": [
+14,
+8,
+1
+],
+"uses": 3
+},
+"CAMERA_LETTERBOX_BEGIN": {
+"kind": "ScriptAction",
+"ctype": 101,
+"args": [],
+"uses": 64
+},
+"CAMERA_LETTERBOX_BEGIN_WITH_RADAR": {
+"kind": "ScriptAction",
+"ctype": 563,
+"args": [],
+"uses": 65
+},
+"CAMERA_LETTERBOX_END": {
+"kind": "ScriptAction",
+"ctype": 102,
+"args": [],
+"uses": 100
+},
+"CAMERA_STOP_FOLLOW": {
+"kind": "ScriptAction",
+"ctype": 113,
+"args": [],
+"uses": 3
+},
+"CAMERA_STOP_TETHER_NAMED": {
+"kind": "ScriptAction",
+"ctype": 139,
+"args": [],
+"uses": 2
+},
+"CAMPAIGN_CREATE_AUTO_SAVE": {
+"kind": "ScriptAction",
+"ctype": 554,
+"args": [
+25
+],
+"uses": 74
+},
+"CONDITION_TRUE": {
+"kind": "Condition",
+"ctype": 3,
+"args": [],
+"uses": 1993
+},
+"COUNTER": {
+"kind": "Condition",
+"ctype": 1,
+"args": [
+4,
+6,
+0
+],
+"uses": 313
+},
+"COUNTER_COUNTER": {
+"kind": "Condition",
+"ctype": 81,
+"args": [
+4,
+6,
+4
+],
+"uses": 36
+},
+"COUNTER_MATH_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 291,
+"args": [
+4,
+57,
+4
+],
+"uses": 18
+},
+"COUNTER_MATH_VALUE": {
+"kind": "ScriptAction",
+"ctype": 292,
+"args": [
+4,
+57,
+0
+],
+"uses": 8
+},
+"COUNTER_SECONDS": {
+"kind": "Condition",
+"ctype": 82,
+"args": [
+4,
+6,
+1
+],
+"uses": 129
+},
+"CREATE_NAMED_ON_TEAM_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 35,
+"args": [
+14,
+15,
+3,
+7
+],
+"uses": 152
+},
+"CREATE_NAMED_ON_TEAM_AT_WAYPOINT_WITH_ORIENTATION": {
+"kind": "ScriptAction",
+"ctype": 466,
+"args": [
+14,
+15,
+3,
+7,
+17
+],
+"uses": 314
+},
+"CREATE_REINFORCEMENT_TEAM": {
+"kind": "ScriptAction",
+"ctype": 30,
+"args": [
+3,
+7
+],
+"uses": 638
+},
+"CREATE_REINFORCEMENT_TEAM_AT_UNIT_POSITION": {
+"kind": "ScriptAction",
+"ctype": 337,
+"args": [
+3,
+14
+],
+"uses": 27
+},
+"CREATE_UNNAMED_ON_TEAM_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 36,
+"args": [
+15,
+3,
+7
+],
+"uses": 97
+},
+"CREATE_UNNAMED_ON_TEAM_AT_WAYPOINT_WITH_ORIENTATION": {
+"kind": "ScriptAction",
+"ctype": 467,
+"args": [
+15,
+3,
+7,
+17
+],
+"uses": 197
+},
+"CURRENT_PLATFORM": {
+"kind": "Condition",
+"ctype": 154,
+"args": [
+102
+],
+"uses": 24
+},
+"DAMAGE_MEMBERS_OF_TEAM": {
+"kind": "ScriptAction",
+"ctype": 12,
+"args": [
+3,
+1
+],
+"uses": 1
+},
+"DECREMENT_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 16,
+"args": [
+0,
+4
+],
+"uses": 35
+},
+"DESELECT": {
+"kind": "ScriptAction",
+"ctype": 382,
+"args": [],
+"uses": 15
+},
+"DISABLE_BORDER_SHROUD": {
+"kind": "ScriptAction",
+"ctype": 242,
+"args": [],
+"uses": 1
+},
+"DISABLE_COUNTDOWN_TIMER_DISPLAY": {
+"kind": "ScriptAction",
+"ctype": 133,
+"args": [],
+"uses": 3
+},
+"DISABLE_INPUT": {
+"kind": "ScriptAction",
+"ctype": 83,
+"args": [],
+"uses": 101
+},
+"DISABLE_JOYPAD_COMMANDBAR_BUTTON": {
+"kind": "ScriptAction",
+"ctype": 558,
+"args": [
+99,
+8
+],
+"uses": 11
+},
+"DISABLE_MOUSE_HUD_FIXED_ELEMENT": {
+"kind": "ScriptAction",
+"ctype": 482,
+"args": [
+84,
+8
+],
+"uses": 13
+},
+"DISABLE_SCRIPT": {
+"kind": "ScriptAction",
+"ctype": 9,
+"args": [
+2
+],
+"uses": 800
+},
+"DISPLAY_COUNTDOWN_TIMER": {
+"kind": "ScriptAction",
+"ctype": 130,
+"args": [
+4,
+25
+],
+"uses": 39
+},
+"DISPLAY_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 188,
+"args": [
+4,
+25
+],
+"uses": 21
+},
+"DISPLAY_TUTORIAL_TEXT": {
+"kind": "ScriptAction",
+"ctype": 474,
+"args": [
+25
+],
+"uses": 43
+},
+"ENABLE_COUNTDOWN_TIMER_DISPLAY": {
+"kind": "ScriptAction",
+"ctype": 132,
+"args": [],
+"uses": 1
+},
+"ENABLE_INPUT": {
+"kind": "ScriptAction",
+"ctype": 84,
+"args": [],
+"uses": 89
+},
+"ENABLE_SCRIPT": {
+"kind": "ScriptAction",
+"ctype": 8,
+"args": [
+2
+],
+"uses": 3948
+},
+"ENEMY_SIGHTED": {
+"kind": "Condition",
+"ctype": 45,
+"args": [
+14,
+19,
+11
+],
+"uses": 37
+},
+"ENEMY_SIGHTED_BY_TEAM": {
+"kind": "Condition",
+"ctype": 95,
+"args": [
+3,
+19,
+11
+],
+"uses": 45
+},
+"EVA_SET_ENABLED_DISABLED": {
+"kind": "ScriptAction",
+"ctype": 221,
+"args": [
+8
+],
+"uses": 115
+},
+"EXIT_SPECIFIC_BUILDING": {
+"kind": "ScriptAction",
+"ctype": 91,
+"args": [
+14
+],
+"uses": 4
+},
+"FADE_IN_FROM_BLACK": {
+"kind": "ScriptAction",
+"ctype": 511,
+"args": [
+1
+],
+"uses": 106
+},
+"FADE_OUT_TO_BLACK": {
+"kind": "ScriptAction",
+"ctype": 510,
+"args": [
+1
+],
+"uses": 106
+},
+"FIRE_SPECIAL_POWER_ON_NEAREST_OBJECTTYPE_BY_PLAYER": {
+"kind": "ScriptAction",
+"ctype": 339,
+"args": [
+11,
+31,
+61,
+3,
+11
+],
+"uses": 4
+},
+"FIRE_SPECIAL_POWER_ON_TEAM": {
+"kind": "ScriptAction",
+"ctype": 340,
+"args": [
+11,
+31,
+3
+],
+"uses": 2
+},
+"FLAG": {
+"kind": "Condition",
+"ctype": 2,
+"args": [
+5,
+8
+],
+"uses": 2917
+},
+"FLASH_JOYPAD_COMMANDBAR_BUTTON": {
+"kind": "ScriptAction",
+"ctype": 557,
+"args": [
+99,
+8
+],
+"uses": 11
+},
+"FLASH_JOYPAD_HUD_FIXED_ELEMENT": {
+"kind": "ScriptAction",
+"ctype": 559,
+"args": [
+100,
+8
+],
+"uses": 11
+},
+"FLASH_MOUSE_HUD_FIXED_ELEMENT": {
+"kind": "ScriptAction",
+"ctype": 476,
+"args": [
+84,
+8
+],
+"uses": 27
+},
+"FLASH_UI_BUILD_BUTTON": {
+"kind": "ScriptAction",
+"ctype": 479,
+"args": [
+15,
+8
+],
+"uses": 40
+},
+"FLASH_UI_PLAYER_POWER_BUTTON": {
+"kind": "ScriptAction",
+"ctype": 477,
+"args": [
+31,
+8
+],
+"uses": 2
+},
+"FLASH_UI_UNIT_ABILITY_BUTTON": {
+"kind": "ScriptAction",
+"ctype": 478,
+"args": [
+14,
+34,
+8
+],
+"uses": 44
+},
+"FREEZE_TIME": {
+"kind": "ScriptAction",
+"ctype": 114,
+"args": [],
+"uses": 1
+},
+"GIVE_PLAYER_UPGRADE": {
+"kind": "ScriptAction",
+"ctype": 314,
+"args": [
+11,
+33
+],
+"uses": 14
+},
+"HAS_FINISHED_AUDIO": {
+"kind": "Condition",
+"ctype": 43,
+"args": [
+12
+],
+"uses": 275
+},
+"HAS_FINISHED_VIDEO": {
+"kind": "Condition",
+"ctype": 41,
+"args": [
+23
+],
+"uses": 318
+},
+"HIDE_COUNTDOWN_TIMER": {
+"kind": "ScriptAction",
+"ctype": 131,
+"args": [
+4
+],
+"uses": 34
+},
+"HIDE_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 189,
+"args": [
+4
+],
+"uses": 23
+},
+"HIDE_TUTORIAL_TEXT": {
+"kind": "ScriptAction",
+"ctype": 475,
+"args": [],
+"uses": 21
+},
+"HIDE_UI": {
+"kind": "ScriptAction",
+"ctype": 263,
+"args": [],
+"uses": 4
+},
+"INCREMENT_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 15,
+"args": [
+0,
+4
+],
+"uses": 165
+},
+"LINK_MISSION_HOT_SPOT_TO_OBJECT": {
+"kind": "ScriptAction",
+"ctype": 506,
+"args": [
+90,
+14,
+8
+],
+"uses": 54
+},
+"LINK_MISSION_HOT_SPOT_TO_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 507,
+"args": [
+90,
+7,
+8
+],
+"uses": 34
+},
+"LINK_MISSION_OBJECTIVE_TO_OBJECT": {
+"kind": "ScriptAction",
+"ctype": 405,
+"args": [
+91,
+14,
+8
+],
+"uses": 654
+},
+"LINK_MISSION_OBJECTIVE_TO_OBJECT_WITH_CATEGORY": {
+"kind": "ScriptAction",
+"ctype": 553,
+"args": [
+91,
+14,
+8,
+97
+],
+"uses": 1
+},
+"LINK_MISSION_OBJECTIVE_TO_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 406,
+"args": [
+91,
+7,
+8
+],
+"uses": 112
+},
+"LINK_MISSION_OBJECTIVE_TO_WAYPOINT_WITH_CATEGORY": {
+"kind": "ScriptAction",
+"ctype": 552,
+"args": [
+91,
+7,
+8,
+97
+],
+"uses": 2
+},
+"MAP_REVEAL_ALL": {
+"kind": "ScriptAction",
+"ctype": 89,
+"args": [
+11
+],
+"uses": 3
+},
+"MAP_REVEAL_ALL_PERM": {
+"kind": "ScriptAction",
+"ctype": 183,
+"args": [
+11
+],
+"uses": 73
+},
+"MAP_REVEAL_ALL_UNDO_PERM": {
+"kind": "ScriptAction",
+"ctype": 184,
+"args": [
+11
+],
+"uses": 47
+},
+"MAP_REVEAL_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 81,
+"args": [
+7,
+1,
+11
+],
+"uses": 4
+},
+"MAP_REVEAL_PERMANENTLY_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 218,
+"args": [
+7,
+1,
+11,
+49
+],
+"uses": 97
+},
+"MAP_REVEAL_PERMANENTLY_IN_TRIGGER": {
+"kind": "ScriptAction",
+"ctype": 421,
+"args": [
+9,
+11,
+49
+],
+"uses": 20
+},
+"MAP_SHROUD_SET_RESHROUD_TIME": {
+"kind": "ScriptAction",
+"ctype": 513,
+"args": [
+1
+],
+"uses": 7
+},
+"MAP_SWITCH_BORDER": {
+"kind": "ScriptAction",
+"ctype": 163,
+"args": [
+35
+],
+"uses": 63
+},
+"MAP_UNDO_REVEAL_PERMANENTLY_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 219,
+"args": [
+49
+],
+"uses": 61
+},
+"MAP_UNDO_REVEAL_PERMANENTLY_IN_TRIGGER": {
+"kind": "ScriptAction",
+"ctype": 422,
+"args": [
+49
+],
+"uses": 13
+},
+"MARK_MISSION_OBJECTIVE_COMPLETED": {
+"kind": "ScriptAction",
+"ctype": 407,
+"args": [
+91
+],
+"uses": 14
+},
+"MARK_MISSION_OBJECTIVE_NOT_COMPLETED": {
+"kind": "ScriptAction",
+"ctype": 408,
+"args": [
+91
+],
+"uses": 1
+},
+"MISSION_HOT_SPOT_ACTIVE": {
+"kind": "Condition",
+"ctype": 144,
+"args": [
+90
+],
+"uses": 97
+},
+"MOVE_CAMERA_TO": {
+"kind": "ScriptAction",
+"ctype": 14,
+"args": [
+51,
+1,
+1,
+1,
+1
+],
+"uses": 163
+},
+"MOVE_CAMERA_TO_NAMED": {
+"kind": "ScriptAction",
+"ctype": 503,
+"args": [
+14,
+1,
+1,
+1,
+1
+],
+"uses": 11
+},
+"MOVE_NAMED_UNIT_TO": {
+"kind": "ScriptAction",
+"ctype": 33,
+"args": [
+14,
+7
+],
+"uses": 811
+},
+"MOVE_TEAM_TO": {
+"kind": "ScriptAction",
+"ctype": 13,
+"args": [
+3,
+7
+],
+"uses": 225
+},
+"MOVIE_PLAY_FULLSCREEN": {
+"kind": "ScriptAction",
+"ctype": 72,
+"args": [
+23,
+8
+],
+"uses": 14
+},
+"MOVIE_PLAY_RADAR": {
+"kind": "ScriptAction",
+"ctype": 73,
+"args": [
+23
+],
+"uses": 328
+},
+"MUSIC_SET_TRACK": {
+"kind": "ScriptAction",
+"ctype": 87,
+"args": [
+22,
+8,
+8
+],
+"uses": 1
+},
+"MUSIC_SET_VOLUME": {
+"kind": "ScriptAction",
+"ctype": 119,
+"args": [
+1
+],
+"uses": 1
+},
+"NAMED_ATTACKED_BY_OBJECTTYPE": {
+"kind": "Condition",
+"ctype": 15,
+"args": [
+14,
+61
+],
+"uses": 5
+},
+"NAMED_ATTACKED_BY_PLAYER": {
+"kind": "Condition",
+"ctype": 17,
+"args": [
+14,
+11
+],
+"uses": 127
+},
+"NAMED_ATTACK_AREA": {
+"kind": "ScriptAction",
+"ctype": 40,
+"args": [
+14,
+9
+],
+"uses": 4
+},
+"NAMED_ATTACK_FOLLOW_WAYPOINTS": {
+"kind": "ScriptAction",
+"ctype": 416,
+"args": [
+14,
+24
+],
+"uses": 37
+},
+"NAMED_ATTACK_NAMED": {
+"kind": "ScriptAction",
+"ctype": 34,
+"args": [
+14,
+14
+],
+"uses": 220
+},
+"NAMED_ATTACK_TEAM": {
+"kind": "ScriptAction",
+"ctype": 42,
+"args": [
+14,
+3
+],
+"uses": 12
+},
+"NAMED_BUILDING_IS_EMPTY": {
+"kind": "Condition",
+"ctype": 58,
+"args": [
+14
+],
+"uses": 9
+},
+"NAMED_CUSTOM_COLOR": {
+"kind": "ScriptAction",
+"ctype": 198,
+"args": [
+14,
+44
+],
+"uses": 40
+},
+"NAMED_DAMAGE": {
+"kind": "ScriptAction",
+"ctype": 63,
+"args": [
+14,
+0
+],
+"uses": 27
+},
+"NAMED_DELETE": {
+"kind": "ScriptAction",
+"ctype": 64,
+"args": [
+14
+],
+"uses": 502
+},
+"NAMED_DESTROYED": {
+"kind": "Condition",
+"ctype": 11,
+"args": [
+14
+],
+"uses": 741
+},
+"NAMED_DESTROYED_BY_OBJECTTYPE": {
+"kind": "Condition",
+"ctype": 92,
+"args": [
+14,
+61
+],
+"uses": 2
+},
+"NAMED_DISCOVERED": {
+"kind": "Condition",
+"ctype": 23,
+"args": [
+11,
+14
+],
+"uses": 98
+},
+"NAMED_DYING": {
+"kind": "Condition",
+"ctype": 47,
+"args": [
+14
+],
+"uses": 2
+},
+"NAMED_EXITED_AREA": {
+"kind": "Condition",
+"ctype": 32,
+"args": [
+14,
+9
+],
+"uses": 6
+},
+"NAMED_EXIT_BUILDING": {
+"kind": "ScriptAction",
+"ctype": 96,
+"args": [
+14
+],
+"uses": 5
+},
+"NAMED_FACE_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 231,
+"args": [
+14,
+7
+],
+"uses": 4
+},
+"NAMED_FIRE_SPECIAL_POWER_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 137,
+"args": [
+14,
+31,
+7
+],
+"uses": 3
+},
+"NAMED_FLASH": {
+"kind": "ScriptAction",
+"ctype": 70,
+"args": [
+14,
+0
+],
+"uses": 137
+},
+"NAMED_FLASH_WHITE": {
+"kind": "ScriptAction",
+"ctype": 194,
+"args": [
+14,
+0
+],
+"uses": 9
+},
+"NAMED_FOLLOW_WAYPOINTS": {
+"kind": "ScriptAction",
+"ctype": 49,
+"args": [
+14,
+24
+],
+"uses": 134
+},
+"NAMED_FOLLOW_WAYPOINTS_EXACT": {
+"kind": "ScriptAction",
+"ctype": 214,
+"args": [
+14,
+24
+],
+"uses": 31
+},
+"NAMED_FOLLOW_WAYPOINTS_STARTING_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 542,
+"args": [
+14,
+24,
+7
+],
+"uses": 29
+},
+"NAMED_FORCE_ATTACK_NAMED": {
+"kind": "ScriptAction",
+"ctype": 549,
+"args": [
+14,
+14
+],
+"uses": 33
+},
+"NAMED_FORCE_ATTACK_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 550,
+"args": [
+14,
+7
+],
+"uses": 52
+},
+"NAMED_GARRISON_SPECIFIC_BUILDING": {
+"kind": "ScriptAction",
+"ctype": 94,
+"args": [
+14,
+14
+],
+"uses": 14
+},
+"NAMED_GARRISON_SPECIFIC_BUILDING_INSTANTLY": {
+"kind": "ScriptAction",
+"ctype": 428,
+"args": [
+14,
+14
+],
+"uses": 37
+},
+"NAMED_HAS_KILLED_COMPARISON_UNIT_TYPE": {
+"kind": "Condition",
+"ctype": 149,
+"args": [
+14,
+6,
+0,
+61
+],
+"uses": 20
+},
+"NAMED_HUNT": {
+"kind": "ScriptAction",
+"ctype": 52,
+"args": [
+14
+],
+"uses": 30
+},
+"NAMED_INSIDE_AREA": {
+"kind": "Condition",
+"ctype": 9,
+"args": [
+14,
+9
+],
+"uses": 204
+},
+"NAMED_KILL": {
+"kind": "ScriptAction",
+"ctype": 67,
+"args": [
+14
+],
+"uses": 148
+},
+"NAMED_NOT_DESTROYED": {
+"kind": "Condition",
+"ctype": 12,
+"args": [
+14
+],
+"uses": 225
+},
+"NAMED_OUTLINE": {
+"kind": "ScriptAction",
+"ctype": 512,
+"args": [
+14,
+92
+],
+"uses": 74
+},
+"NAMED_OUTSIDE_AREA": {
+"kind": "Condition",
+"ctype": 10,
+"args": [
+14,
+9
+],
+"uses": 5
+},
+"NAMED_OWNED_BY_PLAYER": {
+"kind": "Condition",
+"ctype": 25,
+"args": [
+11,
+14
+],
+"uses": 316
+},
+"NAMED_RECEIVE_UPGRADE": {
+"kind": "ScriptAction",
+"ctype": 201,
+"args": [
+33,
+14
+],
+"uses": 34
+},
+"NAMED_REMOVE_INFOBOX": {
+"kind": "ScriptAction",
+"ctype": 539,
+"args": [
+14
+],
+"uses": 49
+},
+"NAMED_REMOVE_UPGRADE": {
+"kind": "ScriptAction",
+"ctype": 502,
+"args": [
+33,
+14
+],
+"uses": 6
+},
+"NAMED_SELECTED": {
+"kind": "Condition",
+"ctype": 30,
+"args": [
+14
+],
+"uses": 42
+},
+"NAMED_SET_DISABLED": {
+"kind": "ScriptAction",
+"ctype": 536,
+"args": [
+14,
+95,
+8
+],
+"uses": 20
+},
+"NAMED_SET_MAX_HEALTH": {
+"kind": "ScriptAction",
+"ctype": 551,
+"args": [
+14,
+0,
+8
+],
+"uses": 29
+},
+"NAMED_SET_SPECIAL_POWER_COUNTDOWN": {
+"kind": "ScriptAction",
+"ctype": 136,
+"args": [
+14,
+31,
+0
+],
+"uses": 8
+},
+"NAMED_SHOW_INFOBOX": {
+"kind": "ScriptAction",
+"ctype": 538,
+"args": [
+14,
+25,
+1,
+10
+],
+"uses": 118
+},
+"NAMED_STOP": {
+"kind": "ScriptAction",
+"ctype": 140,
+"args": [
+14
+],
+"uses": 74
+},
+"NAMED_TRANSFER_OWNERSHIP_PLAYER": {
+"kind": "ScriptAction",
+"ctype": 77,
+"args": [
+14,
+11
+],
+"uses": 162
+},
+"NAMED_USE_COMMANDBUTTON_ABILITY": {
+"kind": "ScriptAction",
+"ctype": 192,
+"args": [
+14,
+34
+],
+"uses": 335
+},
+"NAMED_USE_COMMANDBUTTON_ABILITY_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 162,
+"args": [
+14,
+34,
+7
+],
+"uses": 192
+},
+"NAMED_USE_COMMANDBUTTON_ABILITY_ON_NAMED": {
+"kind": "ScriptAction",
+"ctype": 161,
+"args": [
+14,
+34,
+14
+],
+"uses": 10
+},
+"NO_OP": {
+"kind": "ScriptAction",
+"ctype": 5,
+"args": [],
+"uses": 76
+},
+"OBJECTLIST_ADDOBJECTTYPE": {
+"kind": "ScriptAction",
+"ctype": 216,
+"args": [
+15,
+48
+],
+"uses": 196
+},
+"OBJECT_CREATE_RADAR_EVENT": {
+"kind": "ScriptAction",
+"ctype": 172,
+"args": [
+14,
+30
+],
+"uses": 206
+},
+"OPTIONS_SET_OCCLUSION_MODE": {
+"kind": "ScriptAction",
+"ctype": 222,
+"args": [
+8
+],
+"uses": 6
+},
+"PATH_MUSIC_ENABLE_DYNAMIC_SYSTEM": {
+"kind": "ScriptAction",
+"ctype": 545,
+"args": [],
+"uses": 5
+},
+"PATH_MUSIC_ENABLE_RESUME_SYSTEM": {
+"kind": "ScriptAction",
+"ctype": 556,
+"args": [],
+"uses": 1
+},
+"PATH_MUSIC_ENABLE_SPECIFIC_DYNAMIC_SYSTEM": {
+"kind": "ScriptAction",
+"ctype": 555,
+"args": [
+98
+],
+"uses": 37
+},
+"PATH_MUSIC_FADE_IN_MUSIC": {
+"kind": "ScriptAction",
+"ctype": 565,
+"args": [
+1
+],
+"uses": 3
+},
+"PATH_MUSIC_FADE_OUT_MUSIC": {
+"kind": "ScriptAction",
+"ctype": 564,
+"args": [
+1
+],
+"uses": 2
+},
+"PATH_MUSIC_PLAY_EVENT": {
+"kind": "ScriptAction",
+"ctype": 543,
+"args": [
+96
+],
+"uses": 111
+},
+"PATH_MUSIC_STOP_MUSIC": {
+"kind": "ScriptAction",
+"ctype": 546,
+"args": [],
+"uses": 2
+},
+"PITCH_CAMERA": {
+"kind": "ScriptAction",
+"ctype": 104,
+"args": [
+1,
+1,
+1,
+1
+],
+"uses": 1
+},
+"PLAYER_AI_CHANGEBASEBUILDER": {
+"kind": "ScriptAction",
+"ctype": 442,
+"args": [
+11,
+69
+],
+"uses": 1
+},
+"PLAYER_AI_CHANGESCIENCEUPGRADER": {
+"kind": "ScriptAction",
+"ctype": 448,
+"args": [
+11,
+69
+],
+"uses": 1
+},
+"PLAYER_AI_CHANGETEAMBUILDER": {
+"kind": "ScriptAction",
+"ctype": 444,
+"args": [
+11,
+69
+],
+"uses": 1
+},
+"PLAYER_AI_CHANGEUNITBUILDER": {
+"kind": "ScriptAction",
+"ctype": 443,
+"args": [
+11,
+69
+],
+"uses": 1
+},
+"PLAYER_AI_CHANGE_ECONOMY_MANAGER": {
+"kind": "ScriptAction",
+"ctype": 445,
+"args": [
+11,
+69
+],
+"uses": 1
+},
+"PLAYER_ALLOWED_TOBE_COOPAI": {
+"kind": "ScriptAction",
+"ctype": 567,
+"args": [
+11,
+8
+],
+"uses": 29
+},
+"PLAYER_ALLOW_AI_AUTOACQUIRE": {
+"kind": "ScriptAction",
+"ctype": 461,
+"args": [
+11,
+8
+],
+"uses": 18
+},
+"PLAYER_CAMERA_MOVE_TO": {
+"kind": "ScriptAction",
+"ctype": 531,
+"args": [
+11,
+51,
+1,
+1,
+1,
+1
+],
+"uses": 117
+},
+"PLAYER_CAMERA_MOVE_TO_NAMED": {
+"kind": "ScriptAction",
+"ctype": 532,
+"args": [
+11,
+14,
+1,
+1,
+1,
+1
+],
+"uses": 21
+},
+"PLAYER_CAMERA_TETHER_NAMED": {
+"kind": "ScriptAction",
+"ctype": 566,
+"args": [
+11,
+14,
+8,
+1
+],
+"uses": 2
+},
+"PLAYER_DESTROYED_N_BUILDINGS_PLAYER": {
+"kind": "Condition",
+"ctype": 54,
+"args": [
+11,
+0,
+11
+],
+"uses": 7
+},
+"PLAYER_DISABLE_BASE_CONSTRUCTION": {
+"kind": "ScriptAction",
+"ctype": 56,
+"args": [
+11
+],
+"uses": 16
+},
+"PLAYER_DISABLE_FACTORIES": {
+"kind": "ScriptAction",
+"ctype": 57,
+"args": [
+11,
+15
+],
+"uses": 2
+},
+"PLAYER_DISABLE_UNIT_CONSTRUCTION": {
+"kind": "ScriptAction",
+"ctype": 58,
+"args": [
+11
+],
+"uses": 9
+},
+"PLAYER_ENABLE_BASE_CONSTRUCTION": {
+"kind": "ScriptAction",
+"ctype": 59,
+"args": [
+11
+],
+"uses": 10
+},
+"PLAYER_ENABLE_UNIT_CONSTRUCTION": {
+"kind": "ScriptAction",
+"ctype": 61,
+"args": [
+11
+],
+"uses": 16
+},
+"PLAYER_EXCESS_POWER_COMPARE_VALUE": {
+"kind": "Condition",
+"ctype": 63,
+"args": [
+11,
+6,
+0
+],
+"uses": 5
+},
+"PLAYER_EXIT_ALL_BUILDINGS": {
+"kind": "ScriptAction",
+"ctype": 97,
+"args": [
+11
+],
+"uses": 1
+},
+"PLAYER_FIRE_SPECIAL_POWER_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 430,
+"args": [
+11,
+31,
+7
+],
+"uses": 101
+},
+"PLAYER_GIVE_MONEY": {
+"kind": "ScriptAction",
+"ctype": 129,
+"args": [
+11,
+0
+],
+"uses": 62
+},
+"PLAYER_GRANT_SPECIAL_POWER": {
+"kind": "ScriptAction",
+"ctype": 528,
+"args": [
+31,
+11
+],
+"uses": 12
+},
+"PLAYER_HAS_COMPARISON_POWER_POINTS": {
+"kind": "Condition",
+"ctype": 151,
+"args": [
+11,
+6,
+0
+],
+"uses": 7
+},
+"PLAYER_HAS_COMPARISON_UNIT_KIND": {
+"kind": "Condition",
+"ctype": 155,
+"args": [
+11,
+6,
+0,
+27
+],
+"uses": 1
+},
+"PLAYER_HAS_COMPARISON_UNIT_KIND_IN_TRIGGER_AREA": {
+"kind": "Condition",
+"ctype": 56,
+"args": [
+11,
+6,
+0,
+27,
+9
+],
+"uses": 28
+},
+"PLAYER_HAS_COMPARISON_UNIT_TYPE_IN_TRIGGER_AREA": {
+"kind": "Condition",
+"ctype": 55,
+"args": [
+11,
+6,
+0,
+61,
+9
+],
+"uses": 222
+},
+"PLAYER_HAS_COMPARISON_UNIT_TYPE_IN_TRIGGER_AREA_COMPLETELY_BUILT": {
+"kind": "Condition",
+"ctype": 128,
+"args": [
+11,
+6,
+0,
+61,
+9
+],
+"uses": 1
+},
+"PLAYER_HAS_CREDITS": {
+"kind": "Condition",
+"ctype": 22,
+"args": [
+11,
+6,
+0
+],
+"uses": 8
+},
+"PLAYER_HAS_KILLED_NAMED_UNIT": {
+"kind": "Condition",
+"ctype": 147,
+"args": [
+11,
+14
+],
+"uses": 24
+},
+"PLAYER_HAS_KILLED_TYPE_UNITS": {
+"kind": "Condition",
+"ctype": 91,
+"args": [
+11,
+0,
+61
+],
+"uses": 19
+},
+"PLAYER_HAS_NO_POWER": {
+"kind": "Condition",
+"ctype": 40,
+"args": [
+11
+],
+"uses": 6
+},
+"PLAYER_HAS_NUMBER_OBJECTS_WITH_MODELCONDITION": {
+"kind": "Condition",
+"ctype": 107,
+"args": [
+11,
+6,
+0,
+58
+],
+"uses": 2
+},
+"PLAYER_HAS_NUMBER_OBJECTS_WITH_OBJECT_STATUS": {
+"kind": "Condition",
+"ctype": 140,
+"args": [
+11,
+6,
+0,
+41
+],
+"uses": 4
+},
+"PLAYER_HAS_NUM_UNITS_WITH_UPGRADE": {
+"kind": "Condition",
+"ctype": 121,
+"args": [
+11,
+0,
+33
+],
+"uses": 1
+},
+"PLAYER_HAS_OBJECT_COMPARISON": {
+"kind": "Condition",
+"ctype": 49,
+"args": [
+11,
+6,
+0,
+61
+],
+"uses": 523
+},
+"PLAYER_HAS_PLAYER_TECH": {
+"kind": "Condition",
+"ctype": 153,
+"args": [
+11,
+94
+],
+"uses": 12
+},
+"PLAYER_HAS_POWER": {
+"kind": "Condition",
+"ctype": 27,
+"args": [
+11
+],
+"uses": 5
+},
+"PLAYER_IS_HUMAN_OR_AI_PERSONALITY": {
+"kind": "Condition",
+"ctype": 146,
+"args": [
+11,
+70
+],
+"uses": 470
+},
+"PLAYER_KILL": {
+"kind": "ScriptAction",
+"ctype": 69,
+"args": [
+11
+],
+"uses": 6
+},
+"PLAYER_LOCK_PLAYER_TECH": {
+"kind": "ScriptAction",
+"ctype": 534,
+"args": [
+11,
+94,
+8
+],
+"uses": 1569
+},
+"PLAYER_LOST_OBJECT_TYPE": {
+"kind": "Condition",
+"ctype": 76,
+"args": [
+11,
+61
+],
+"uses": 1
+},
+"PLAYER_RELATES_PLAYER": {
+"kind": "ScriptAction",
+"ctype": 78,
+"args": [
+11,
+11,
+19
+],
+"uses": 290
+},
+"PLAYER_SELL_EVERYTHING": {
+"kind": "ScriptAction",
+"ctype": 55,
+"args": [
+11
+],
+"uses": 5
+},
+"PLAYER_SET_ALL_UNITS_TO_FLEE": {
+"kind": "ScriptAction",
+"ctype": 562,
+"args": [
+11
+],
+"uses": 7
+},
+"PLAYER_SET_BASE_POWER": {
+"kind": "ScriptAction",
+"ctype": 487,
+"args": [
+11,
+0
+],
+"uses": 91
+},
+"PLAYER_SET_MAX_PLAYER_POWER_POINTS": {
+"kind": "ScriptAction",
+"ctype": 533,
+"args": [
+11,
+0
+],
+"uses": 155
+},
+"PLAYER_SET_MONEY": {
+"kind": "ScriptAction",
+"ctype": 128,
+"args": [
+11,
+0
+],
+"uses": 289
+},
+"PLAYER_SET_MONEY_CAP": {
+"kind": "ScriptAction",
+"ctype": 490,
+"args": [
+11,
+0
+],
+"uses": 22
+},
+"PLAYER_SET_OVERRIDE_RELATION_TO_TEAM": {
+"kind": "ScriptAction",
+"ctype": 150,
+"args": [
+11,
+3,
+19
+],
+"uses": 29
+},
+"PLAYER_SET_PLAYER_POWER_POINTS": {
+"kind": "ScriptAction",
+"ctype": 548,
+"args": [
+11,
+0
+],
+"uses": 71
+},
+"PLAYER_SET_SPECIAL_POWER_COUNTDOWN": {
+"kind": "ScriptAction",
+"ctype": 437,
+"args": [
+11,
+31,
+0
+],
+"uses": 41
+},
+"PLAYER_SPECIAL_POWER_AVAILABILITY": {
+"kind": "ScriptAction",
+"ctype": 470,
+"args": [
+11,
+31,
+81
+],
+"uses": 93
+},
+"PLAYER_TOGGLE_RESOURCE_SHARING": {
+"kind": "ScriptAction",
+"ctype": 540,
+"args": [
+11,
+69
+],
+"uses": 111
+},
+"PLAYER_TOGGLE_SKIRMISH_AI": {
+"kind": "ScriptAction",
+"ctype": 568,
+"args": [
+11,
+8
+],
+"uses": 8
+},
+"PLAYER_TRANSFER_OWNERSHIP_PLAYER": {
+"kind": "ScriptAction",
+"ctype": 76,
+"args": [
+11,
+11
+],
+"uses": 20
+},
+"PLAYER_TRIGGERED_SCRIPT_EVENT": {
+"kind": "Condition",
+"ctype": 141,
+"args": [
+11,
+86
+],
+"uses": 1
+},
+"PLAYER_TRIGGERED_SPECIAL_POWER": {
+"kind": "Condition",
+"ctype": 50,
+"args": [
+11,
+31
+],
+"uses": 9
+},
+"PLAYER_TRIGGERED_SPECIAL_POWER_FROM_NAMED": {
+"kind": "Condition",
+"ctype": 52,
+"args": [
+11,
+31,
+14
+],
+"uses": 5
+},
+"PLAYER_TRIGGERED_SPECIAL_POWER_IN_AREA": {
+"kind": "Condition",
+"ctype": 143,
+"args": [
+11,
+31,
+9
+],
+"uses": 4
+},
+"PLAYER_UNIT_TYPE_SPECIAL_POWER_IGNORE_REQUIREMENTS": {
+"kind": "ScriptAction",
+"ctype": 471,
+"args": [
+31,
+48,
+11,
+8
+],
+"uses": 1
+},
+"PLAY_SOUND_AS_AI_COCOMMANDER_DIALOG": {
+"kind": "ScriptAction",
+"ctype": 569,
+"args": [
+12
+],
+"uses": 109
+},
+"PLAY_SOUND_AS_AI_COCOMMANDER_DIALOG_WITH_SUBTITLE": {
+"kind": "ScriptAction",
+"ctype": 570,
+"args": [
+12,
+25,
+1
+],
+"uses": 24
+},
+"PLAY_SOUND_AS_IF_IT_WAS_AN_EVA_EVENT": {
+"kind": "ScriptAction",
+"ctype": 496,
+"args": [
+12
+],
+"uses": 488
+},
+"PLAY_SOUND_AS_IF_IT_WAS_AN_EVA_EVENT_WITH_SUBTITLE": {
+"kind": "ScriptAction",
+"ctype": 497,
+"args": [
+12,
+25,
+1
+],
+"uses": 264
+},
+"PLAY_SOUND_EFFECT": {
+"kind": "ScriptAction",
+"ctype": 7,
+"args": [
+12
+],
+"uses": 40
+},
+"PLAY_SOUND_EFFECT_AT": {
+"kind": "ScriptAction",
+"ctype": 11,
+"args": [
+12,
+7
+],
+"uses": 77
+},
+"RADAR_CREATE_EVENT": {
+"kind": "ScriptAction",
+"ctype": 80,
+"args": [
+16,
+30
+],
+"uses": 20
+},
+"REDALERT_DISABLE_THREAT_LEVEL_BONUS": {
+"kind": "ScriptAction",
+"ctype": 521,
+"args": [
+11
+],
+"uses": 20
+},
+"RESET_CAMERA": {
+"kind": "ScriptAction",
+"ctype": 19,
+"args": [
+7,
+1,
+1,
+1
+],
+"uses": 59
+},
+"RESTART_TIMER": {
+"kind": "ScriptAction",
+"ctype": 124,
+"args": [
+4
+],
+"uses": 2
+},
+"RESUME_BACKGROUND_SOUNDS": {
+"kind": "ScriptAction",
+"ctype": 25,
+"args": [],
+"uses": 1
+},
+"ROTATE_CAMERA": {
+"kind": "ScriptAction",
+"ctype": 18,
+"args": [
+1,
+1,
+1,
+1
+],
+"uses": 8
+},
+"SCREEN_SHAKE": {
+"kind": "ScriptAction",
+"ctype": 169,
+"args": [
+38
+],
+"uses": 2
+},
+"SELECT_OBJECT": {
+"kind": "ScriptAction",
+"ctype": 381,
+"args": [
+11,
+14
+],
+"uses": 1
+},
+"SELL_OBJECT": {
+"kind": "ScriptAction",
+"ctype": 54,
+"args": [
+14
+],
+"uses": 42
+},
+"SETUP_CAMERA": {
+"kind": "ScriptAction",
+"ctype": 100,
+"args": [
+7,
+1,
+1,
+7
+],
+"uses": 24
+},
+"SET_COOP_AI_COMMAND_UI_ENABLED": {
+"kind": "ScriptAction",
+"ctype": 522,
+"args": [
+8
+],
+"uses": 24
+},
+"SET_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 2,
+"args": [
+4,
+0
+],
+"uses": 104
+},
+"SET_COUNTER_TO_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 276,
+"args": [
+4,
+4
+],
+"uses": 6
+},
+"SET_FLAG": {
+"kind": "ScriptAction",
+"ctype": 1,
+"args": [
+5,
+8
+],
+"uses": 2977
+},
+"SET_MILLISECOND_TIMER": {
+"kind": "ScriptAction",
+"ctype": 21,
+"args": [
+4,
+1
+],
+"uses": 3019
+},
+"SET_MISSION_HOT_SPOT_ACTIVENESS": {
+"kind": "ScriptAction",
+"ctype": 514,
+"args": [
+90,
+8
+],
+"uses": 61
+},
+"SET_MISSION_HOT_SPOT_VISIBILITY": {
+"kind": "ScriptAction",
+"ctype": 508,
+"args": [
+90,
+8
+],
+"uses": 287
+},
+"SET_MISSION_OBJECTIVE_STATUS": {
+"kind": "ScriptAction",
+"ctype": 492,
+"args": [
+91,
+87
+],
+"uses": 514
+},
+"SET_PLAYER_KILLS_OF_TYPE_TO_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 315,
+"args": [
+11,
+61,
+4
+],
+"uses": 8
+},
+"SET_PLAYER_MONEY_TO_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 300,
+"args": [
+11,
+4
+],
+"uses": 2
+},
+"SET_PLAYER_OWNERSHIP_OF_TYPE_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 317,
+"args": [
+61,
+11,
+4
+],
+"uses": 18
+},
+"SET_PLAYER_OWNERSHIP_OF_TYPE_COUNTER_INCLUDE_DEAD": {
+"kind": "ScriptAction",
+"ctype": 394,
+"args": [
+61,
+11,
+4
+],
+"uses": 4
+},
+"SET_RANDOM_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 275,
+"args": [
+4,
+0,
+0
+],
+"uses": 31
+},
+"SET_RANDOM_MSEC_TIMER": {
+"kind": "ScriptAction",
+"ctype": 122,
+"args": [
+4,
+1,
+1
+],
+"uses": 64
+},
+"SET_RANDOM_TIMER": {
+"kind": "ScriptAction",
+"ctype": 121,
+"args": [
+4,
+0,
+0
+],
+"uses": 2
+},
+"SET_REF_TO_NEREST_TEAM_OF_TYPE_OWNED_BY_PLAYER": {
+"kind": "ScriptAction",
+"ctype": 370,
+"args": [
+61,
+11,
+3,
+54
+],
+"uses": 67
+},
+"SET_REF_TO_NEREST_TEAM_OF_UNNAMED_TYPE_OWNED_BY_PLAYER": {
+"kind": "ScriptAction",
+"ctype": 371,
+"args": [
+61,
+11,
+3,
+54
+],
+"uses": 72
+},
+"SET_TIMER": {
+"kind": "ScriptAction",
+"ctype": 6,
+"args": [
+4,
+0
+],
+"uses": 89
+},
+"SET_UNIT_HEALTH_PERCENTAGE_TO_COUNTER": {
+"kind": "ScriptAction",
+"ctype": 489,
+"args": [
+14,
+4
+],
+"uses": 12
+},
+"SHOW_MILITARY_CAPTION": {
+"kind": "ScriptAction",
+"ctype": 116,
+"args": [
+25,
+1
+],
+"uses": 40
+},
+"SHOW_MISSION_OBJECTIVE": {
+"kind": "ScriptAction",
+"ctype": 403,
+"args": [
+91
+],
+"uses": 2
+},
+"SKIRMISH_AI_CLEAR_ALL_ENEMY_PLAYERS_PRIORITIES": {
+"kind": "ScriptAction",
+"ctype": 518,
+"args": [
+11
+],
+"uses": 4
+},
+"SKIRMISH_AI_CLEAR_ENEMY_PLAYER_PRIORITY": {
+"kind": "ScriptAction",
+"ctype": 516,
+"args": [
+11,
+11
+],
+"uses": 3
+},
+"SKIRMISH_AI_CONSIDER_ALL_ENEMIES_WHEN_BUILDING": {
+"kind": "ScriptAction",
+"ctype": 525,
+"args": [
+11
+],
+"uses": 10
+},
+"SKIRMISH_AI_MAKE_BASE": {
+"kind": "ScriptAction",
+"ctype": 472,
+"args": [
+11,
+7
+],
+"uses": 76
+},
+"SKIRMISH_AI_SET_ALL_ENEMY_PLAYERS_PRIORITIES": {
+"kind": "ScriptAction",
+"ctype": 517,
+"args": [
+11,
+0
+],
+"uses": 12
+},
+"SKIRMISH_AI_SET_ENEMY_PLAYER_PRIORITY": {
+"kind": "ScriptAction",
+"ctype": 515,
+"args": [
+11,
+11,
+0
+],
+"uses": 321
+},
+"SKIRMISH_AI_SET_FAVORED_ENEMY": {
+"kind": "ScriptAction",
+"ctype": 459,
+"args": [
+11,
+11
+],
+"uses": 25
+},
+"SKIRMISH_AI_START": {
+"kind": "ScriptAction",
+"ctype": 530,
+"args": [
+11
+],
+"uses": 6
+},
+"SKIRMISH_AI_TRANSFER_ALL": {
+"kind": "ScriptAction",
+"ctype": 529,
+"args": [
+11,
+69
+],
+"uses": 28
+},
+"SKIRMISH_AI_USE_AUTOMATIC_ENEMY_PLAYER_PRIORITY_SCHEME": {
+"kind": "ScriptAction",
+"ctype": 519,
+"args": [
+11,
+93
+],
+"uses": 2
+},
+"SKIRMISH_AI_USE_REBUILD_SYSTEM": {
+"kind": "ScriptAction",
+"ctype": 460,
+"args": [
+11,
+8
+],
+"uses": 53
+},
+"SKIRMISH_AI_USE_REPAIRS": {
+"kind": "ScriptAction",
+"ctype": 481,
+"args": [
+11,
+8
+],
+"uses": 68
+},
+"SKIRMISH_FIRE_SPECIAL_POWER_AT_MOST_COST": {
+"kind": "ScriptAction",
+"ctype": 200,
+"args": [
+11,
+31
+],
+"uses": 4
+},
+"SKIRMISH_PLAYER_HAS_BEEN_ATTACKED_BY_PLAYER": {
+"kind": "Condition",
+"ctype": 73,
+"args": [
+11,
+11
+],
+"uses": 32
+},
+"SKIRMISH_PLAYER_HAS_COMPARISON_GARRISONED": {
+"kind": "Condition",
+"ctype": 71,
+"args": [
+11,
+6,
+0
+],
+"uses": 8
+},
+"SKIRMISH_PLAYER_HAS_UNITS_IN_AREA": {
+"kind": "Condition",
+"ctype": 72,
+"args": [
+11,
+9
+],
+"uses": 240
+},
+"SKIRMISH_SPECIAL_POWER_READY": {
+"kind": "Condition",
+"ctype": 64,
+"args": [
+11,
+31
+],
+"uses": 13
+},
+"SOUND_AMBIENT_PAUSE": {
+"kind": "ScriptAction",
+"ctype": 85,
+"args": [],
+"uses": 1
+},
+"SOUND_AMBIENT_RESUME": {
+"kind": "ScriptAction",
+"ctype": 86,
+"args": [],
+"uses": 1
+},
+"SOUND_DISABLE_TYPE": {
+"kind": "ScriptAction",
+"ctype": 175,
+"args": [
+59
+],
+"uses": 20
+},
+"SOUND_ENABLE_ALL": {
+"kind": "ScriptAction",
+"ctype": 177,
+"args": [],
+"uses": 1
+},
+"SOUND_ENABLE_TYPE": {
+"kind": "ScriptAction",
+"ctype": 176,
+"args": [
+59
+],
+"uses": 8
+},
+"SOUND_PLAY_NAMED": {
+"kind": "ScriptAction",
+"ctype": 74,
+"args": [
+12,
+14
+],
+"uses": 41
+},
+"STOP_TIMER": {
+"kind": "ScriptAction",
+"ctype": 123,
+"args": [
+4
+],
+"uses": 19
+},
+"SUB_FROM_MSEC_TIMER": {
+"kind": "ScriptAction",
+"ctype": 126,
+"args": [
+1,
+4
+],
+"uses": 9
+},
+"SUSPEND_BACKGROUND_SOUNDS": {
+"kind": "ScriptAction",
+"ctype": 24,
+"args": [],
+"uses": 1
+},
+"TEAM_AFFECT_OBJECT_PANEL_FLAGS": {
+"kind": "ScriptAction",
+"ctype": 227,
+"args": [
+3,
+46,
+8
+],
+"uses": 87
+},
+"TEAM_AI_TRANSFER": {
+"kind": "ScriptAction",
+"ctype": 450,
+"args": [
+3,
+69
+],
+"uses": 112
+},
+"TEAM_ALLOW_AI_AUTOACQUIRE": {
+"kind": "ScriptAction",
+"ctype": 462,
+"args": [
+3,
+8
+],
+"uses": 88
+},
+"TEAM_ALL_HAS_OBJECT_STATUS": {
+"kind": "Condition",
+"ctype": 60,
+"args": [
+3,
+41
+],
+"uses": 9
+},
+"TEAM_ATTACKED_BY_OBJECTTYPE": {
+"kind": "Condition",
+"ctype": 16,
+"args": [
+3,
+61
+],
+"uses": 7
+},
+"TEAM_ATTACKED_BY_PLAYER": {
+"kind": "Condition",
+"ctype": 18,
+"args": [
+3,
+11
+],
+"uses": 52
+},
+"TEAM_ATTACK_MOVE_FOLLOW_WAYPOINTS": {
+"kind": "ScriptAction",
+"ctype": 414,
+"args": [
+3,
+24,
+8,
+8
+],
+"uses": 121
+},
+"TEAM_ATTACK_MOVE_TOWARDS_NEAREST_OBJECT_TYPE": {
+"kind": "ScriptAction",
+"ctype": 418,
+"args": [
+3,
+15
+],
+"uses": 1
+},
+"TEAM_ATTACK_NAMED": {
+"kind": "ScriptAction",
+"ctype": 43,
+"args": [
+3,
+14
+],
+"uses": 62
+},
+"TEAM_ATTACK_TEAM": {
+"kind": "ScriptAction",
+"ctype": 29,
+"args": [
+3,
+3
+],
+"uses": 19
+},
+"TEAM_CAN_PATH_TO_WAYPOINT": {
+"kind": "Condition",
+"ctype": 101,
+"args": [
+3,
+7
+],
+"uses": 4
+},
+"TEAM_CHANGE_OBJECT_STATUS": {
+"kind": "ScriptAction",
+"ctype": 412,
+"args": [
+3,
+41,
+8
+],
+"uses": 34
+},
+"TEAM_COMPARE_NUM_MEMBERS": {
+"kind": "Condition",
+"ctype": 148,
+"args": [
+3,
+6,
+0
+],
+"uses": 5
+},
+"TEAM_CONTEXT_SENSITIVE_ATTACK": {
+"kind": "ScriptAction",
+"ctype": 488,
+"args": [
+3,
+14
+],
+"uses": 4
+},
+"TEAM_CREATED": {
+"kind": "Condition",
+"ctype": 21,
+"args": [
+3
+],
+"uses": 20
+},
+"TEAM_CREATE_RADAR_EVENT": {
+"kind": "ScriptAction",
+"ctype": 173,
+"args": [
+3,
+30
+],
+"uses": 83
+},
+"TEAM_DELETE": {
+"kind": "ScriptAction",
+"ctype": 65,
+"args": [
+3
+],
+"uses": 88
+},
+"TEAM_DESTROYED": {
+"kind": "Condition",
+"ctype": 6,
+"args": [
+3
+],
+"uses": 29
+},
+"TEAM_DISCOVERED": {
+"kind": "Condition",
+"ctype": 24,
+"args": [
+11,
+3
+],
+"uses": 11
+},
+"TEAM_ENABLE_HOUSE_COLOR": {
+"kind": "ScriptAction",
+"ctype": 389,
+"args": [
+3,
+8
+],
+"uses": 4
+},
+"TEAM_ENTERED_AREA_PARTIALLY": {
+"kind": "Condition",
+"ctype": 34,
+"args": [
+3,
+9,
+37
+],
+"uses": 1
+},
+"TEAM_ENTER_NAMED": {
+"kind": "ScriptAction",
+"ctype": 46,
+"args": [
+3,
+14
+],
+"uses": 1
+},
+"TEAM_EXECUTE_SEQUENTIAL_SCRIPT": {
+"kind": "ScriptAction",
+"ctype": 154,
+"args": [
+3,
+2
+],
+"uses": 4
+},
+"TEAM_EXIT_ALL_BUILDINGS": {
+"kind": "ScriptAction",
+"ctype": 93,
+"args": [
+3
+],
+"uses": 7
+},
+"TEAM_FACE_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 233,
+"args": [
+3,
+7
+],
+"uses": 2
+},
+"TEAM_FLASH": {
+"kind": "ScriptAction",
+"ctype": 71,
+"args": [
+3,
+0
+],
+"uses": 47
+},
+"TEAM_FOLLOW_WAYPOINTS": {
+"kind": "ScriptAction",
+"ctype": 32,
+"args": [
+3,
+24,
+8,
+8
+],
+"uses": 51
+},
+"TEAM_FOLLOW_WAYPOINTS_EXACT": {
+"kind": "ScriptAction",
+"ctype": 213,
+"args": [
+3,
+24,
+8
+],
+"uses": 17
+},
+"TEAM_FOLLOW_WAYPOINTS_STARTING_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 541,
+"args": [
+3,
+24,
+8,
+8,
+7
+],
+"uses": 3
+},
+"TEAM_GARRISON_NEAREST_BUILDING": {
+"kind": "ScriptAction",
+"ctype": 92,
+"args": [
+3
+],
+"uses": 1
+},
+"TEAM_GARRISON_SPECIFIC_BUILDING": {
+"kind": "ScriptAction",
+"ctype": 90,
+"args": [
+3,
+14
+],
+"uses": 9
+},
+"TEAM_GARRISON_SPECIFIC_BUILDING_INSTANTLY": {
+"kind": "ScriptAction",
+"ctype": 429,
+"args": [
+3,
+14
+],
+"uses": 134
+},
+"TEAM_GARRISON_TEAM_INSTANTLY": {
+"kind": "ScriptAction",
+"ctype": 432,
+"args": [
+3,
+3
+],
+"uses": 52
+},
+"TEAM_GUARD_AREA": {
+"kind": "ScriptAction",
+"ctype": 166,
+"args": [
+3,
+9
+],
+"uses": 2
+},
+"TEAM_GUARD_AREA_FROM_POSITION": {
+"kind": "ScriptAction",
+"ctype": 368,
+"args": [
+3,
+9,
+7
+],
+"uses": 14
+},
+"TEAM_GUARD_FOR_SECONDS": {
+"kind": "ScriptAction",
+"ctype": 308,
+"args": [
+3,
+0
+],
+"uses": 2
+},
+"TEAM_GUARD_OBJECT": {
+"kind": "ScriptAction",
+"ctype": 165,
+"args": [
+3,
+14
+],
+"uses": 2
+},
+"TEAM_HAS_FEWER_THAN_X_UNITS_WITH_KINDOF": {
+"kind": "Condition",
+"ctype": 115,
+"args": [
+3,
+0,
+27
+],
+"uses": 3
+},
+"TEAM_HAS_UNITS": {
+"kind": "Condition",
+"ctype": 8,
+"args": [
+3
+],
+"uses": 29
+},
+"TEAM_HUNT": {
+"kind": "ScriptAction",
+"ctype": 53,
+"args": [
+3
+],
+"uses": 130
+},
+"TEAM_IDLE_FOR_FRAMECOUNT": {
+"kind": "ScriptAction",
+"ctype": 160,
+"args": [
+3,
+0
+],
+"uses": 6
+},
+"TEAM_IDLE_FOR_SECONDS": {
+"kind": "ScriptAction",
+"ctype": 309,
+"args": [
+3,
+0
+],
+"uses": 96
+},
+"TEAM_INSIDE_AREA_ENTIRELY": {
+"kind": "Condition",
+"ctype": 13,
+"args": [
+3,
+9,
+37
+],
+"uses": 12
+},
+"TEAM_INSIDE_AREA_PARTIALLY": {
+"kind": "Condition",
+"ctype": 5,
+"args": [
+3,
+9,
+37
+],
+"uses": 65
+},
+"TEAM_IS_ATTACKED_AND_CANNOT_RETALIATE_ANY": {
+"kind": "Condition",
+"ctype": 111,
+"args": [
+3
+],
+"uses": 2
+},
+"TEAM_KILL": {
+"kind": "ScriptAction",
+"ctype": 68,
+"args": [
+3
+],
+"uses": 28
+},
+"TEAM_MERGE_INTO_TEAM": {
+"kind": "ScriptAction",
+"ctype": 82,
+"args": [
+3,
+3
+],
+"uses": 63
+},
+"TEAM_MOVE_TO_NEAREST_OBJECT_OF_TYPE": {
+"kind": "ScriptAction",
+"ctype": 289,
+"args": [
+3,
+61
+],
+"uses": 14
+},
+"TEAM_OUTSIDE_AREA_ENTIRELY": {
+"kind": "Condition",
+"ctype": 14,
+"args": [
+3,
+9,
+37
+],
+"uses": 2
+},
+"TEAM_PARTIAL_USE_COMMANDBUTTON": {
+"kind": "ScriptAction",
+"ctype": 210,
+"args": [
+1,
+3,
+42
+],
+"uses": 2
+},
+"TEAM_REMOVE_ALL_OVERRIDE_RELATIONS": {
+"kind": "ScriptAction",
+"ctype": 147,
+"args": [
+3
+],
+"uses": 1
+},
+"TEAM_SET_EXPERIENCE_POINTS": {
+"kind": "ScriptAction",
+"ctype": 267,
+"args": [
+3,
+0
+],
+"uses": 1
+},
+"TEAM_SET_HEALTH": {
+"kind": "ScriptAction",
+"ctype": 318,
+"args": [
+3,
+1
+],
+"uses": 3
+},
+"TEAM_SET_MODELCONDITION": {
+"kind": "ScriptAction",
+"ctype": 249,
+"args": [
+3,
+0,
+8
+],
+"uses": 2
+},
+"TEAM_SET_MODELCONDITION_FOR_DURATION": {
+"kind": "ScriptAction",
+"ctype": 329,
+"args": [
+3,
+58,
+1,
+52
+],
+"uses": 1
+},
+"TEAM_SET_OVERRIDE_RELATION_TO_PLAYER": {
+"kind": "ScriptAction",
+"ctype": 149,
+"args": [
+3,
+11,
+19
+],
+"uses": 64
+},
+"TEAM_SET_OVERRIDE_RELATION_TO_TEAM": {
+"kind": "ScriptAction",
+"ctype": 145,
+"args": [
+3,
+3,
+19
+],
+"uses": 32
+},
+"TEAM_SET_PLAYERS_NEAREST_UNIT_OF_TYPE_TO_REFERENCE": {
+"kind": "ScriptAction",
+"ctype": 352,
+"args": [
+61,
+3,
+54
+],
+"uses": 14
+},
+"TEAM_SET_STANCE": {
+"kind": "ScriptAction",
+"ctype": 537,
+"args": [
+3,
+68
+],
+"uses": 21
+},
+"TEAM_SOME_HAVE_OBJECT_STATUS": {
+"kind": "Condition",
+"ctype": 61,
+"args": [
+3,
+41
+],
+"uses": 9
+},
+"TEAM_STOP": {
+"kind": "ScriptAction",
+"ctype": 141,
+"args": [
+3
+],
+"uses": 16
+},
+"TEAM_STOP_SEQUENTIAL_SCRIPT": {
+"kind": "ScriptAction",
+"ctype": 156,
+"args": [
+3
+],
+"uses": 3
+},
+"TEAM_TELEPORT_TO_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 379,
+"args": [
+3,
+7
+],
+"uses": 12
+},
+"TEAM_TRANSFER_TO_PLAYER": {
+"kind": "ScriptAction",
+"ctype": 127,
+"args": [
+3,
+11
+],
+"uses": 176
+},
+"TEAM_UPGRADE": {
+"kind": "ScriptAction",
+"ctype": 299,
+"args": [
+3,
+33
+],
+"uses": 14
+},
+"TEAM_USE_COMMANDBUTTON_ABILITY": {
+"kind": "ScriptAction",
+"ctype": 193,
+"args": [
+3,
+42
+],
+"uses": 128
+},
+"TEAM_USE_COMMANDBUTTON_ABILITY_AT_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 191,
+"args": [
+3,
+42,
+7
+],
+"uses": 42
+},
+"TECHTREE_MODIFY_BUILDABILITY_OBJECT": {
+"kind": "ScriptAction",
+"ctype": 170,
+"args": [
+15,
+36
+],
+"uses": 21
+},
+"TIMER_EXPIRED": {
+"kind": "Condition",
+"ctype": 4,
+"args": [
+4
+],
+"uses": 2899
+},
+"TYPE_SELECTED": {
+"kind": "Condition",
+"ctype": 135,
+"args": [
+61
+],
+"uses": 5
+},
+"TYPE_SIGHTED": {
+"kind": "Condition",
+"ctype": 57,
+"args": [
+14,
+61,
+11
+],
+"uses": 3
+},
+"UNFREEZE_TIME": {
+"kind": "ScriptAction",
+"ctype": 115,
+"args": [],
+"uses": 1
+},
+"UNIT_AFFECT_OBJECT_PANEL_FLAGS": {
+"kind": "ScriptAction",
+"ctype": 226,
+"args": [
+14,
+46,
+8
+],
+"uses": 205
+},
+"UNIT_AI_TRANSFER": {
+"kind": "ScriptAction",
+"ctype": 451,
+"args": [
+14,
+69
+],
+"uses": 118
+},
+"UNIT_AI_TRANSFER_ALL": {
+"kind": "ScriptAction",
+"ctype": 452,
+"args": [
+11,
+69
+],
+"uses": 113
+},
+"UNIT_ALLOW_AI_AUTOACQUIRE": {
+"kind": "ScriptAction",
+"ctype": 463,
+"args": [
+14,
+8
+],
+"uses": 25
+},
+"UNIT_CHANGE_OBJECT_STATUS": {
+"kind": "ScriptAction",
+"ctype": 411,
+"args": [
+14,
+41,
+8
+],
+"uses": 356
+},
+"UNIT_CLEAR_MODELCONDITION": {
+"kind": "ScriptAction",
+"ctype": 328,
+"args": [
+14,
+58
+],
+"uses": 11
+},
+"UNIT_CONTEXT_SENSITIVE_ATTACK": {
+"kind": "ScriptAction",
+"ctype": 458,
+"args": [
+14,
+14
+],
+"uses": 34
+},
+"UNIT_ENABLE_HOUSE_COLOR": {
+"kind": "ScriptAction",
+"ctype": 388,
+"args": [
+14,
+8
+],
+"uses": 6
+},
+"UNIT_EXECUTE_SEQUENTIAL_SCRIPT": {
+"kind": "ScriptAction",
+"ctype": 151,
+"args": [
+14,
+2
+],
+"uses": 31
+},
+"UNIT_GIVE_EXPERIENCE_POINTS": {
+"kind": "ScriptAction",
+"ctype": 269,
+"args": [
+14,
+0
+],
+"uses": 1
+},
+"UNIT_GUARD_AREA": {
+"kind": "ScriptAction",
+"ctype": 347,
+"args": [
+14,
+9
+],
+"uses": 2
+},
+"UNIT_HAS_MODELCONDITION": {
+"kind": "Condition",
+"ctype": 150,
+"args": [
+14,
+58
+],
+"uses": 22
+},
+"UNIT_HAS_OBJECT_STATUS": {
+"kind": "Condition",
+"ctype": 59,
+"args": [
+14,
+41
+],
+"uses": 30
+},
+"UNIT_HEALTH": {
+"kind": "Condition",
+"ctype": 46,
+"args": [
+14,
+6,
+0
+],
+"uses": 111
+},
+"UNIT_IDLE_FOR_FRAMECOUNT": {
+"kind": "ScriptAction",
+"ctype": 158,
+"args": [
+14,
+0
+],
+"uses": 186
+},
+"UNIT_IDLE_FOR_SECONDS": {
+"kind": "ScriptAction",
+"ctype": 307,
+"args": [
+14,
+0
+],
+"uses": 157
+},
+"UNIT_KILL_ALL_IN_AREA": {
+"kind": "ScriptAction",
+"ctype": 500,
+"args": [
+11,
+9
+],
+"uses": 30
+},
+"UNIT_SET_HEALTH": {
+"kind": "ScriptAction",
+"ctype": 486,
+"args": [
+14,
+1
+],
+"uses": 15
+},
+"UNIT_SET_MODELCONDITION": {
+"kind": "ScriptAction",
+"ctype": 248,
+"args": [
+14,
+0,
+8
+],
+"uses": 25
+},
+"UNIT_SET_MODELCONDITION_FOR_DURATION": {
+"kind": "ScriptAction",
+"ctype": 327,
+"args": [
+14,
+58,
+1,
+52
+],
+"uses": 16
+},
+"UNIT_SET_MODELCONDITION_GENERIC": {
+"kind": "ScriptAction",
+"ctype": 547,
+"args": [
+14,
+58,
+1
+],
+"uses": 31
+},
+"UNIT_SET_STANCE": {
+"kind": "ScriptAction",
+"ctype": 473,
+"args": [
+14,
+68
+],
+"uses": 56
+},
+"UNIT_SET_TEAM": {
+"kind": "ScriptAction",
+"ctype": 375,
+"args": [
+14,
+3
+],
+"uses": 29
+},
+"UNIT_SPAWN_NAMED_OBJECT_ON_TEAM_AT_NAMED_OBJECT_LOCATION": {
+"kind": "ScriptAction",
+"ctype": 527,
+"args": [
+14,
+15,
+3,
+14
+],
+"uses": 3
+},
+"UNIT_STOP_SEQUENTIAL_SCRIPT": {
+"kind": "ScriptAction",
+"ctype": 153,
+"args": [
+14
+],
+"uses": 8
+},
+"UNIT_TELEPORT_TO_WAYPOINT": {
+"kind": "ScriptAction",
+"ctype": 378,
+"args": [
+14,
+7
+],
+"uses": 102
+},
+"ZOOM_CAMERA": {
+"kind": "ScriptAction",
+"ctype": 103,
+"args": [
+1,
+1,
+1,
+1
+],
+"uses": 9
+}
+}
