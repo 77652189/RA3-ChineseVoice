@@ -136,25 +136,28 @@ class MapFile:
         for _, n in self.walk():
             if n.name not in CONTENT or self.key(struct.unpack_from('<I', n.head, 4)[0]) != content_name:
                 continue
-            d = n.head
-            ctype, key, cnt = struct.unpack_from('<III', d, 0)
-            out, p, hit = bytearray(d[:12]), 12, False
-            for _ in range(cnt):
-                t = struct.unpack_from('<I', d, p)[0]
-                if t == COORD3D:
-                    out += d[p:p + 16]
-                    p += 16
-                    continue
-                i, f, ln = struct.unpack_from('<ifH', d, p + 4)
-                s = d[p + 14:p + 14 + ln]
-                if s.decode('latin-1') == old:
-                    s, hit = new.encode('latin-1'), True
-                out += struct.pack('<IifH', t, i, f, len(s)) + s
-                p += 14 + ln
-            if hit:
-                n.head = bytes(out + d[p:])
+            head = _replace_arg(n.head, old, new)
+            if head is not None:
+                n.head = head
                 changed += 1
         return changed
+
+    def duplicate_contents(self, old, new):
+        """Every action with a string argument `old` (e.g. a unit name) gets a copy right after it with that
+        argument set to `new` -- a new unit is moved, handed over, deleted ... wherever the old one is. Conditions
+        are left alone (a copy inside an OR group would AND it in). Returns the count."""
+        added = 0
+        for _, n in list(self.walk()):
+            kids = []
+            for k in n.kids:
+                kids.append(k)
+                if k.name in ('ScriptAction', 'ScriptActionFalse'):
+                    head = _replace_arg(k.head, old, new)
+                    if head is not None:
+                        kids.append(Node(k.name, k.ver, head, []))
+                        added += 1
+            n.kids = kids
+        return added
 
     @staticmethod
     def string(d, p):
@@ -312,6 +315,25 @@ class MapFile:
             elif n.name == 'OrCondition' and depth:
                 lines.append(f'{pad}OR')
         return '\n'.join(lines)
+
+
+def _replace_arg(d, old, new):
+    """Content node bytes with string argument `old` replaced by `new`, or None when no argument matches."""
+    ctype, key, cnt = struct.unpack_from('<III', d, 0)
+    out, p, hit = bytearray(d[:12]), 12, False
+    for _ in range(cnt):
+        t = struct.unpack_from('<I', d, p)[0]
+        if t == COORD3D:
+            out += d[p:p + 16]
+            p += 16
+            continue
+        i, f, ln = struct.unpack_from('<ifH', d, p + 4)
+        s = d[p + 14:p + 14 + ln]
+        if s.decode('latin-1') == old:
+            s, hit = new.encode('latin-1'), True
+        out += struct.pack('<IifH', t, i, f, len(s)) + s
+        p += 14 + ln
+    return bytes(out + d[p:]) if hit else None
 
 
 def _pstr(s):

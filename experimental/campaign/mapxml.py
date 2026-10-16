@@ -113,6 +113,45 @@ def objects(m):
     return out
 
 
+def encode_props(m, props):
+    """Inverse of _typed_props: {key: (type, value)} -> bytes (keys go through the CkMp name table)."""
+    out = struct.pack('<H', len(props))
+    for k, (t, v) in props.items():
+        out += bytes([t]) + (m.name_id(k)).to_bytes(3, 'little')
+        if t == 0:
+            out += bytes([v])
+        elif t in (1, 2):
+            out += struct.pack('<i' if t == 1 else '<f', v)
+        elif t == 4:
+            out += struct.pack('<H', len(v)) + v.encode('utf-16-le')
+        else:
+            raw = v.encode('latin-1')
+            out += struct.pack('<H', len(raw)) + raw
+    return out
+
+
+def place_object(m, like, template, x, y, z=None, angle=None, name='', **props):
+    """Add an Object to the ObjectsList, copied from the placed object whose objectName is `like` (owner, team,
+    flags, health ...), with another template, position and name; uniqueID is made unique. Returns the node."""
+    from mapscript import Node
+    olist = next(n for _, n in m.walk() if n.name == 'ObjectsList')
+    src = next(k for k in olist.kids if _props(m, k.head, 22 + struct.unpack_from('<H', k.head, 20)[0])
+               .get('objectName') == like)
+    ox, oy, oz, oangle, flags = struct.unpack_from('<ffffI', src.head, 0)
+    ln = struct.unpack_from('<H', src.head, 20)[0]
+    pr = _typed_props(m, src.head, 22 + ln)
+    pr['objectName'] = (3, name)
+    pr['uniqueID'] = (3, f'{template} {len(olist.kids)}')
+    for k, v in props.items():
+        pr[k] = (pr[k][0], v)
+    raw = template.encode('latin-1')
+    head = (struct.pack('<ffffI', x, y, oz if z is None else z, oangle if angle is None else angle, flags)
+            + struct.pack('<H', len(raw)) + raw + encode_props(m, pr))
+    node = Node('Object', src.ver, head, [])
+    olist.kids.append(node)
+    return node
+
+
 def object_templates(m):
     return [o['template'] for o in objects(m)]
 
@@ -208,10 +247,12 @@ def game_map(m, gid, index):
     return f'\t<GameMap id="{_q(gid)}">\n' + '\n'.join(rows) + '\n\t</GameMap>\n'
 
 
-def map_xml(m, gid):
+def map_xml(m, gid, extra=None):
     """(map.xml text, [templates without a SageXML definition]): Includes of the object XMLs the map places that
-    the static streams lack (reference includes resolve everything else against the retail streams) + GameMap."""
-    index, static = sage_index(), stream_names()
+    the static streams lack (reference includes resolve everything else against the retail streams) + GameMap.
+    `extra`: our own templates, {id: {'file': 'DATA:<path under the SDK's Mods folder>', 'EditorSorting': ...}}."""
+    index, static = dict(sage_index()), stream_names()
+    index.update({k.lower(): v for k, v in (extra or {}).items()})
     used = sorted(set(object_templates(m)), key=str.lower)
     need = [t for t in used if 'gameobject:' + t.lower() not in static]
     files = sorted({index[t.lower()]['file'] for t in need if t.lower() in index}, key=str.lower)

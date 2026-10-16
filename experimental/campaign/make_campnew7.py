@@ -30,10 +30,11 @@ GAME_MAP_ID = 'CAMP_A03_Heidelberg_Smith'      # same id as the retail stream ha
 
 _edited = c4.c2.map_files       # make_campnew6's edited_map_files
 SDK_OBJECTS = False             # make_campnew12 sets it
+EXTRA_TEMPLATES = {}            # our own GameObjects (make_campnew13)
 
 
 def compile_map(m):
-    text, unknown = mapxml.map_xml(m, GAME_MAP_ID)
+    text, unknown = mapxml.map_xml(m, GAME_MAP_ID, EXTRA_TEMPLATES)
     print('map.xml:', text.count('type="instance"'), 'object files; no definition (roads, waypoints):', unknown)
     rel = os.path.join('data', 'maps', 'official', c2.NEW_STEM)
     src = os.path.join(c2.SDK, 'Mods', MAP_MOD, rel)
@@ -64,6 +65,11 @@ def map_files():
     # the base map's own instances besides GameMap / script lists come along: its atlas and its campaign
     # overrides of static objects (AlliedMCV ...), which no reference from the GameMap would pull in
     own += [x for x in base.values() if not x.name.startswith((b'GameMap:', b'GameScriptList:'))]
+    # assets only BAB has (our own templates and what they bring along) come from BAB's output
+    new = {(e[0], e[1]): mapxml.Inst(list(e), c, mapxml.sa.refs(bB, e), mapxml.sa.cstr(bB[2], e[6]),
+                                     mapxml.sa.cstr(bB[3], e[7]), 'sdk')
+           for e, c in zip(bE, bC) if (e[0], e[1]) not in library}
+    library.update({k: v for k, v in new.items() if not v.name.startswith(b'GameMap:')})
     if SDK_OBJECTS:     # test: BAB's own GameObjects (SDK layout) in place of the retail 1.12 ones
         sdk = {(e[0], e[1]): mapxml.Inst(list(e), c, mapxml.sa.refs(bB, e), mapxml.sa.cstr(bB[2], e[6]),
                                          mapxml.sa.cstr(bB[3], e[7]), 'sdk')
