@@ -94,7 +94,8 @@ class MapFile:
         return self.names_blob + b''.join(self._write(n) for n in self.nodes)
 
     def map_file(self):
-        """The .map the game reads: RefPack('EAR\\0' + u32 size + RefPack(chunk file)), stored (not compressed).
+        """The .map the game reads: RefPack('EAR\\0' + u32 size + RefPack(chunk file)), the inner layer really
+        compressed (refpack_lz; LightAll, 27 relit maps: 154 MB -> 19 MB, loads in game), the outer one stored.
         The size is that of the uncompressed chunk file (retail: 0x51d5c6 for Heidelberg's 5363142 bytes); with the
         compressed length there instead the game hangs at ~60 % of the loading screen."""
         import refpack_lz       # real compression (11-15 % of the chunk file, a few seconds per map)
