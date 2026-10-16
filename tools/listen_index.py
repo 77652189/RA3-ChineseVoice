@@ -170,7 +170,7 @@ def entries(game, stream, comp_big):
                 entry = 'data\\movies\\' + r['movie'] + '.snd'
                 if not r['zh'].strip() or entry not in inside or game not in r['games'].split('+'):
                     continue
-                start = float(r['start']) + float(shift.get(r['asset'], 0))
+                start = max(0.0, float(r['start']) + float(shift.get(r['asset'], 0)))
                 slot = max(float(r['dur']), float(r['slot'] or r['dur']))
                 cat, grp = movie_group(r['movie'], r['asset'])
                 out.append([cat, grp, r['zh'], r['en'], game, comp_big.format('movie'), entry, 'm', 0, 0,

@@ -152,7 +152,9 @@ def movie_jobs(game, voices_dir):
     for r in rows:
         wav = os.path.join(voices_dir, MOVIE, r['asset'] + '.wav')
         if os.path.exists(wav):
-            by_movie.setdefault(r['movie'], []).append((float(r['start']) + shift.get(r['asset'], 0.0), float(r['dur']), wav))
+            # a line that opens the movie can measure a little before 0
+            by_movie.setdefault(r['movie'], []).append((max(0.0, float(r['start']) + shift.get(r['asset'], 0.0)),
+                                                        float(r['dur']), wav))
     pack = os.path.join(GAMES[game], 'Data', 'EnglishMovieAudio.big')
     sep = os.path.join(ROOT, 'work', 'sep', game)
     jobs = [(pack, 'data\\movies\\' + m + '.snd', sorted(v), os.path.join(sep, m + '.npy'))
