@@ -2,9 +2,13 @@
 # Starts the test bench copy of RA3 (make_bench.ps1) windowed, saves a frame at each of -Shots seconds through the
 # capture shim (shots\NN.bmp -> .png), closes only the game process it started, prints the shim log.
 # Like the Corona launcher, it starts Data\RA3_1.13.game directly with the bench's Chinese SkuDef.
+# By default the window is parked off the desktop and the game's own audio sessions are muted (-Visible / -Sound
+# keep them); the game's "Game crash" box ends the run with its text instead of staying on the user's screen.
 param([string]$Mod, [string]$Shots = '20,40', [int]$Seconds = 60, [string]$Res = '1280x720', [string]$Extra = '',
       [string]$Clicks = '',     # 'sec:x,y;sec:x,y' left clicks posted to the game window (client coordinates)
       [string]$Keys = '',       # 'sec:vk;sec:vk' key presses posted to the game window (virtual-key code, e.g. 27 = Esc)
+      [switch]$Visible,         # leave the window on screen (default: parked off the desktop, still rendering)
+      [switch]$Sound,           # leave the game's audio on (default: its own audio sessions muted)
       [string]$Bench = (Join-Path $PSScriptRoot '..\..\work\testbench\RA3'))
 $ErrorActionPreference = 'Stop'
 $shotAt = @($Shots.Split(',') | ForEach-Object { [int]$_ })   # a string: pwsh -File does not parse arrays
@@ -43,6 +47,62 @@ public static class Bench {
         PostMessage(h, 0x0100, (IntPtr)vk, (IntPtr)(sc | 1)); System.Threading.Thread.Sleep(80);
         PostMessage(h, 0x0101, (IntPtr)vk, (IntPtr)unchecked((int)(0xC0000001 | (uint)sc)));
     }
+    // out of sight, not minimized (a minimized D3D9 window stops presenting): parked off the desktop, no activation
+    [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int cx, int cy, uint f);
+    public static void Park(IntPtr h) { SetWindowPos(h, IntPtr.Zero, -4000, -4000, 0, 0, 0x0001 | 0x0004 | 0x0010); }
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, StringBuilder s, int n);
+    [DllImport("user32.dll")] static extern bool EnumChildWindows(IntPtr h, EnumProc f, IntPtr l);
+    // the game's own fatal-error box ("Game crash", e.g. a type hash mismatch): its text, or null
+    public static string CrashBox(uint pid) {
+        string text = null;
+        EnumWindows((h, l) => {
+            uint p; GetWindowThreadProcessId(h, out p); var sb = new StringBuilder(256); GetWindowText(h, sb, 256);
+            if (p == pid && sb.ToString() == "Game crash") {
+                var all = new StringBuilder();
+                EnumChildWindows(h, (c, l2) => { var t = new StringBuilder(2048); GetWindowText(c, t, 2048); all.Append(t).Append(" | "); return true; }, IntPtr.Zero);
+                text = all.ToString(); return false;
+            }
+            return true;
+        }, IntPtr.Zero);
+        return text;
+    }
+}
+// mute only the bench game's audio sessions (Core Audio per-process session volume; the system volume is untouched)
+[ComImport, Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")] class MMDeviceEnumeratorCo { }
+[ComImport, Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IMMDeviceEnumerator { int EnumAudioEndpoints(int flow, int mask, out IMMDeviceCollection c); }
+[ComImport, Guid("0BD7A1BE-7A1A-44DB-8397-CC5392387B5E"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IMMDeviceCollection { int GetCount(out int n); int Item(int i, out IMMDevice d); }
+[ComImport, Guid("D666063F-1587-4E43-81F1-B948E807363F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IMMDevice { int Activate(ref Guid iid, int ctx, IntPtr p, [MarshalAs(UnmanagedType.IUnknown)] out object o); }
+[ComImport, Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAudioSessionManager2 { int GetAudioSessionControl(IntPtr a, int b, out IntPtr c); int GetSimpleAudioVolume(IntPtr a, int b, out IntPtr c);
+    int GetSessionEnumerator(out IAudioSessionEnumerator e); }
+[ComImport, Guid("E2F5BB11-0570-40CA-ACDD-3AA01277DEE8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAudioSessionEnumerator { int GetCount(out int n); int GetSession(int i, out IAudioSessionControl2 s); }
+[ComImport, Guid("bfb7ff88-7239-4fc9-8fa2-07c950be9c6d"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAudioSessionControl2 { int GetState(out int s); int GetDisplayName(out IntPtr n); int SetDisplayName(string n, ref Guid g);
+    int GetIconPath(out IntPtr p); int SetIconPath(string p, ref Guid g); int GetGroupingParam(out Guid g); int SetGroupingParam(ref Guid g, ref Guid c);
+    int RegisterAudioSessionNotification(IntPtr n); int UnregisterAudioSessionNotification(IntPtr n);
+    int GetSessionIdentifier(out IntPtr s); int GetSessionInstanceIdentifier(out IntPtr s); int GetProcessId(out uint pid); }
+[ComImport, Guid("87CE5498-68D6-44E5-9215-6DA47EF883D8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface ISimpleAudioVolume { int SetMasterVolume(float v, ref Guid g); int GetMasterVolume(out float v); int SetMute(bool m, ref Guid g); int GetMute(out bool m); }
+public static class BenchAudio {
+    // returns how many of the process's sessions are muted now (sessions appear once the game opens audio)
+    public static int Mute(uint pid) {
+        int muted = 0; var none = Guid.Empty; var iid = new Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F");
+        var en = (IMMDeviceEnumerator)new MMDeviceEnumeratorCo(); IMMDeviceCollection devs; en.EnumAudioEndpoints(0, 1, out devs);
+        int nd; devs.GetCount(out nd);
+        for (int d = 0; d < nd; d++) {
+            IMMDevice dev; devs.Item(d, out dev); object o; dev.Activate(ref iid, 23, IntPtr.Zero, out o);
+            IAudioSessionEnumerator se; ((IAudioSessionManager2)o).GetSessionEnumerator(out se); int ns; se.GetCount(out ns);
+            for (int s = 0; s < ns; s++) {
+                IAudioSessionControl2 c; se.GetSession(s, out c); uint p; c.GetProcessId(out p);
+                if (p == pid) { ((ISimpleAudioVolume)c).SetMute(true, ref none); muted++; }
+            }
+        }
+        return muted;
+    }
 }
 '@
 Add-Type -AssemblyName System.Drawing
@@ -60,9 +120,18 @@ $psi = [Diagnostics.ProcessStartInfo]::new("$Bench\Data\RA3_1.13.game", ($gameAr
 $psi.UseShellExecute = $false
 $psi.WorkingDirectory = $Bench
 $p = [Diagnostics.Process]::Start($psi)
-$crash = $null
+$crash = $null; $box = $null; $parked = $false; $muted = 0
 foreach ($s in 1..$Seconds) {
     Start-Sleep 1
+    if (-not $Visible -and -not $parked) {
+        $hw = [Bench]::MainWindow([uint32]$p.Id)
+        if ($hw -ne [IntPtr]::Zero) { [Bench]::Park($hw); $parked = $true; "PARKED window $hw off screen at $s s" }
+    }
+    if (-not $Sound -and ($muted -eq 0 -or $s % 5 -eq 0)) {
+        try { $n = [BenchAudio]::Mute([uint32]$p.Id); if ($n -gt $muted) { "MUTED $n audio session(s) at $s s" }; $muted = [Math]::Max($muted, $n) } catch { }
+    }
+    $box = [Bench]::CrashBox([uint32]$p.Id)
+    if ($box) { break }
     if ($clickAt.ContainsKey($s)) {
         $hw = [Bench]::MainWindow([uint32]$p.Id); $x, $y = $clickAt[$s].Split(',')
         "CLICK at $s s: ($x,$y) window $hw"; if ($hw -ne [IntPtr]::Zero) { [Bench]::Click($hw, [int]$x, [int]$y) }
@@ -78,7 +147,7 @@ foreach ($s in 1..$Seconds) {
              Where-Object { $_.Message -match 'RA3_1\.1\d\.game' } | Select-Object -First 1
     if ($crash -or $p.HasExited) { break }
 }
-$state = if ($crash) { 'CRASH' } elseif ($p.HasExited) { "EXITED code $($p.ExitCode)" } else { "alive $Seconds s" }
+$state = if ($box) { "CRASH BOX: $box" } elseif ($crash) { 'CRASH' } elseif ($p.HasExited) { "EXITED code $($p.ExitCode)" } else { "alive $Seconds s" }
 if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force }
 Start-Sleep 1
 Get-ChildItem $shotDir -Filter *.bmp | ForEach-Object {
