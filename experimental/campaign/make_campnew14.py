@@ -54,6 +54,9 @@ def edit(m):
             if tex:
                 cells[tex].append((ii, jj))
     print('painted', {t: tiles.paint(c, t) for t, c in cells.items()})
+    if os.environ.get('CNV_BLEND', '1') != '0':     # soft edges: grass into the sand ring, sand into the sea floor
+        box = [(ii, jj) for jj in range(j - r - 2, j + r + 3) for ii in range(i - r - 2, i + r + 3)]
+        print('blended', {t: tiles.autoblend(t, box) for _, t in bands})
     tiles.store()
 
 

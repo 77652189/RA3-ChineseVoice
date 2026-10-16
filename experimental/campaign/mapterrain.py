@@ -11,6 +11,7 @@ import math
 import struct
 
 CELL = 10.0
+MAGIC = b'\xff\xff\xff\xff\x00\x00\xda\x7a'      # the end of every blend description
 SCALE = 16.0
 
 
@@ -72,36 +73,99 @@ class Tiles:
         self.width = width
         self.arrays = [list(struct.unpack_from(f'<{self.n}H', d, 4 + 2 * self.n * k)) for k in range(4)]
         self.rest_at = 4 + 8 * self.n
-        self.textures = self._textures(d)
+        self.tex_at, self.textures, tex_end = self._textures(d, self.rest_at)
+        # counts before the texture list: texture cells, blends (descriptions + 1), cliff infos, textures
+        self.counts = list(struct.unpack_from('<4I', d, self.tex_at - 16))
+        # after it 8 bytes, then the blend descriptions: u32 secondary tile, 4 direction bytes, u8 flags,
+        # u8 two-sided, u32 (0xFFFFFFFF nearly always), u32 0x7ADA0000; a cell's blend value is 1 + description index
+        self.desc_at = tex_end + 8
+        self.descs = [d[self.desc_at + 18 * k:self.desc_at + 18 * (k + 1)] for k in range(self.counts[1] - 1)]
+        assert all(x[14:] == MAGIC[4:] for x in self.descs), 'blend description layout'     # Havana: 2 with another u32 before it
+        self.after_descs = self.desc_at + 18 * len(self.descs)
+        self._known = {x: k + 1 for k, x in enumerate(self.descs)}
 
     @staticmethod
-    def _textures(d):
-        import re
-        first = re.search(rb'\x12\x00Grass_|[\x04-\x40]\x00[A-Z][a-z]+_[A-Za-z]', d[4:])     # the first name
-        p = 4 + first.start() - 16
-        while True:         # walk back to the texture count: entries are 16 bytes + u16-prefixed name
-            count = struct.unpack_from('<I', d, p - 4)[0]
-            if 0 < count < 256:
-                break
-            p -= 4
-        out, q = {}, p
-        for _ in range(count):
-            start, cells, size, _ = struct.unpack_from('<4I', d, q)
-            ln = struct.unpack_from('<H', d, q + 16)[0]
-            out[d[q + 18:q + 18 + ln].decode('latin-1')] = (start, cells, size)
-            q += 18 + ln
-        return out
+    def _textures(d, start_at):
+        """(offset of the first texture entry, {name: (cell start, cell count, cell size)}, end of the list).
+        Found by scanning after the per-cell arrays for counts (cells, blends, cliffs, textures) followed by
+        entries that start at cell 0, follow on from each other and add up to the cell count."""
+        for x in range(start_at, len(d) - 40):        # bit arrays before it: not 4-aligned
+            cells, _, _, count = struct.unpack_from('<4I', d, x)
+            if not 0 < count < 256 or not 0 < cells < 65536 or struct.unpack_from('<I', d, x + 16)[0] != 0:
+                continue
+            out, q, nxt = {}, x + 16, 0
+            try:
+                for _ in range(count):
+                    start, n, size, _ = struct.unpack_from('<4I', d, q)
+                    ln = struct.unpack_from('<H', d, q + 16)[0]
+                    name = d[q + 18:q + 18 + ln]
+                    if start != nxt or not 0 < size <= 16 or not 0 < ln < 80 or not name.isascii():
+                        raise ValueError
+                    out[name.decode('ascii')] = (start, n, size)
+                    nxt, q = start + n, q + 18 + ln
+            except (ValueError, struct.error):
+                continue
+            if nxt == cells:
+                return x + 16, out, q
+        raise ValueError('BlendTileData: texture list not found')
+
+    def tile_of(self, texture, i, j):
+        start, _, size = self.textures[texture]
+        return 4 * (start + (i // 2) % size + ((j // 2) % size) * size) + i % 2 + 2 * (j % 2)
+
+    def blend(self, i, j, texture, direction, flags=0, two_sided=0):
+        """Blend `texture` over cell (i, j) (whose own tile stays) with a description of that direction
+        (4 bytes) and flags; returns the blend value set."""
+        x = (struct.pack('<I', self.tile_of(texture, i, j)) + bytes(direction) + bytes([flags, two_sided])
+             + MAGIC)
+        if x not in self._known:
+            self.descs.append(x)
+            self._known[x] = len(self.descs)
+        self.arrays[1][j * self.width + i] = self._known[x]
+        return self._known[x]
 
     def paint(self, cells, texture):
-        start, _, size = self.textures[texture]
         tile, blend, three, _ = self.arrays
         for i, j in cells:
-            c = start + (i // 2) % size + ((j // 2) % size) * size
             k = j * self.width + i
-            tile[k] = 4 * c + i % 2 + 2 * (j % 2)
+            tile[k] = self.tile_of(texture, i, j)
             blend[k] = three[k] = 0
         return len(cells)
 
+    def texture_at(self, i, j):
+        c = self.arrays[0][j * self.width + i] // 4
+        return next((n for n, (s, cnt, _) in self.textures.items() if s <= c < s + cnt), None)
+
+    # blend direction (byte set, flags, two-sided) by where the blended-in texture lies, j growing = north;
+    # inferred from retail maps (for each blended cell, which neighbour has the secondary texture): byte 0 =
+    # east (flag 1: west), byte 1 = north (south), byte 2 = north-east corner (south-east), byte 3 = north-west
+    # (south-west); two-sided byte 2 / 3 = the inner corner of both sides (N+E, S+E, N+W, S+W)
+    SIDES = [(('N', 'E'), (2, 0, 1)), (('S', 'E'), (2, 1, 1)), (('N', 'W'), (3, 0, 1)), (('S', 'W'), (3, 1, 1)),
+             (('E',), (0, 0, 0)), (('W',), (0, 1, 0)), (('N',), (1, 0, 0)), (('S',), (1, 1, 0)),
+             (('NE',), (2, 0, 0)), (('SE',), (2, 1, 0)), (('NW',), (3, 0, 0)), (('SW',), (3, 1, 0))]
+    STEP = {'E': (1, 0), 'W': (-1, 0), 'N': (0, 1), 'S': (0, -1),
+            'NE': (1, 1), 'SE': (1, -1), 'NW': (-1, 1), 'SW': (-1, -1)}
+
+    def autoblend(self, texture, cells):
+        """Soften the edge of `texture` around the given cells: each of them that is not `texture` but touches
+        it gets `texture` blended in from that side, the way retail maps do. Returns the cells blended."""
+        done = 0
+        for i, j in cells:
+            if self.texture_at(i, j) == texture:
+                continue
+            near = {d for d, (di, dj) in self.STEP.items() if self.texture_at(i + di, j + dj) == texture}
+            for need, (byte, flags, two) in self.SIDES:
+                if set(need) <= near:
+                    direction = [0, 0, 0, 0]
+                    direction[byte] = 1
+                    self.blend(i, j, texture, direction, flags, two)
+                    done += 1
+                    break
+        return done
+
     def store(self):
         d = self.node.head
-        self.node.head = (d[:4] + b''.join(struct.pack(f'<{self.n}H', *a) for a in self.arrays) + d[self.rest_at:])
+        self.counts[1] = len(self.descs) + 1
+        self.node.head = (d[:4] + b''.join(struct.pack(f'<{self.n}H', *a) for a in self.arrays)
+                          + d[self.rest_at:self.tex_at - 16] + struct.pack('<4I', *self.counts)
+                          + d[self.tex_at:self.desc_at] + b''.join(self.descs) + d[self.after_descs:])
