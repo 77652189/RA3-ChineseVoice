@@ -50,6 +50,13 @@
 - 实测：什么都没变 1 分 41 秒；只动一个过场约 5 分钟（长过场的 Python EA-XA 编码本身要 4 分钟）；首次/编码代码变了约 12 分钟（以前 110 分钟）。
 - `ra3cv.py build --movies afs07 a07th08`：只重建这些过场到现有 dist，其余直接取缓存，build.json 标 partial；release 和 patch 会拒绝 partial 或 test 构建，发版前跑一次完整 `build`。
 
+## 战役扩展与测试台（2026-10-15/16 探索会话，实验代码，不随配音包发布）
+- 测试台 `experimental/testbench/`：`make_bench.ps1` 建 Steam 目录的硬链接副本（`work/testbench/RA3`，游戏会写的小文件复制；不能往硬链接文件里写），`capture_shim.cpp` 截帧 / 钩输入 / 挡前台，`run_bench.ps1 -Mod -Clicks -Keys -Shots` 后台全自动跑（Esc 能跳过场：先发激活消息）。到关卡约 70 秒。菜单坐标见脚本调用示例和记忆。
+- 已证实（全部在测试台上看到）：改原版关卡、新增关卡和改关卡数（`splice_assets.py`，新实例要放进最上层 static.12 及 _l/_m.12）、新地图文件夹（`mapcache.py` 往原版地图清单追加登记，否则加载即崩；文件夹要带编译好的 map.* 流，否则缺地形贴图和建筑）、中文新字符串（mod 里放 `gamestrings.csf`；`mod.str` 按 Latin-1 读）。最小完整新关卡：`make_campnew4.py`。
+- 自研地图工具 `mapscript.py`：27 张原版战役地图逐字节往返，脚本导出成可读文本，改字符串参数；`make_campnew5.py` 把开局通话换成 S01TH01，游戏里生效。写回 .map 时 EAR 后的大小必须是解压后的块文件大小，否则加载卡在约 60%。
+- 走不通的：SDK 编的 `data\additionalmaps\mapmetadata_mod` 流（军械库的做法）启动约 3 秒就崩，原因未明；SDK 的 AllTypesHash（177706643）和 1.12（1424942948）不同。
+- 下一步候选：脚本编辑扩展到增删脚本 / 条件 / 动作、改任务目标；把新地图的 map.* 流跟着 .map 一起重编（目前是复制原版海德堡的）；第四阵营战役入口（界面 APT）。
+
 ## 改一句台词的流程
 1. 改 `lines/<mission|movie|...>_zh_*.json` 里对应 asset 的 zh → `python -I -X utf8 tools/merge_zh.py <批次>`
 2. 删掉 `candidates/<批次>/<asset>_*.wav` → `third_party/index-tts/.venv/Scripts/python.exe -I -X utf8 tools/dub.py <批次> --takes 10 --only <asset>`
