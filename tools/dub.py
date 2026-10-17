@@ -37,13 +37,17 @@ def longest_clip(src_dir, prefix, spoken):
 PRONOUNCE = os.path.join(ROOT, 'work', 'terms', 'pronounce.json')
 
 
-def tts_text(text):
-    """The text IndexTTS2 reads: polyphones the model gets wrong are swapped for an unambiguous homophone (work/terms/pronounce.json,
-    e.g. 中弹 -> 中蛋, a homophone with one reading; players heard zhong4 tan2). Subtitles and the QC keep the plain text."""
+def tts_text(text, asset=None):
+    """The text IndexTTS2 reads: polyphones the model gets wrong are spelled out (work/terms/pronounce.json): either an
+    unambiguous homophone (中弹 -> 中蛋) or the toned pinyin, which IndexTTS2 has as tokens (戛纳 -> JIA2纳). A rule with
+    "assets" applies to those lines only (就落那儿 -> 就LUO4那儿, where 落 alone cannot be ruled). Subtitles and the QC
+    keep the plain text."""
     import re
     if not os.path.exists(PRONOUNCE):
         return text
     for rule in json.load(open(PRONOUNCE, encoding='utf-8')):
+        if 'assets' in rule and asset not in rule['assets']:
+            continue
         text = re.sub(rule['pattern'], rule['to'], text)
     return text
 
@@ -111,7 +115,7 @@ def main():
                 spk = speaker_ref(src, prefix, r['asset'], fallback, min_ref, same_actor, override)
                 emo = os.path.join(src, r['asset'] + '.wav')
                 with throttle.work():
-                    tts.infer(spk_audio_prompt=spk, text=tts_text(r['zh']), output_path=dst,
+                    tts.infer(spk_audio_prompt=spk, text=tts_text(r['zh'], r['asset']), output_path=dst,
                               emo_audio_prompt=emo if os.path.exists(emo) else spk, emo_alpha=args.emo_alpha)
                 made += 1
             except Exception as e:  # one bad line must not stop a multi-hour batch

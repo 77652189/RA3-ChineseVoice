@@ -3,5 +3,44 @@
   "pattern": "(?<!动)弹(?!性)",
   "to": "蛋",
   "why": "评论区：世纪轰炸机、维和步兵的「中弹」念成 zhong4 tan2；识别也听成「中谈」「一探」。配音时写成同音的「蛋」（只读 dan4），字幕不变；弹性 / 动弹 除外"
+ },
+ {
+  "pattern": "戛",
+  "to": "颊",
+  "why": "多音字筛查（tools/polyphone_score.py + 试听页，2026-10-17 用户确认念错）：戛纳读成 ga；拼音写法无效，改同音字后用户试听确认"
+ },
+ {
+  "pattern": "崴",
+  "to": "WEI1",
+  "why": "多音字筛查（tools/polyphone_score.py + 试听页，2026-10-17 用户确认念错）：海参崴读成 wai"
+ },
+ {
+  "pattern": "落空",
+  "to": "洛空",
+  "why": "多音字筛查（tools/polyphone_score.py + 试听页，2026-10-17 用户确认念错）：落空读成 lao；拼音写法无效，改同音字后用户试听确认"
+ },
+ {
+  "pattern": "落",
+  "to": "LUO4",
+  "assets": [
+   "SUReape_voiAttSpeca"
+  ],
+  "why": "多音字筛查（tools/polyphone_score.py + 试听页，2026-10-17 用户确认念错）：就落那儿读成 lao"
+ },
+ {
+  "pattern": "重",
+  "to": "ZHONG4",
+  "assets": [
+   "AUMirag_VoiSelUndFira"
+  ],
+  "why": "多音字筛查（tools/polyphone_score.py + 试听页，2026-10-17 用户确认念错）：伤得多重读成 chong"
+ },
+ {
+  "pattern": "朝步兵",
+  "to": "CHAO2步兵",
+  "assets": [
+   "MSIn_Desolator1"
+  ],
+  "why": "多音字筛查（tools/polyphone_score.py + 试听页，2026-10-17 用户确认念错）：朝读成 zhao"
  }
 ]
