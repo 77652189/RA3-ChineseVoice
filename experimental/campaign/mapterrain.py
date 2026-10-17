@@ -74,6 +74,13 @@ class Tiles:
         self.arrays = [list(struct.unpack_from(f'<{self.n}H', d, 4 + 2 * self.n * k)) for k in range(4)]
         self.rest_at = 4 + 8 * self.n
         self.tex_at, self.textures, tex_end = self._textures(d, self.rest_at)
+        # between the u16 arrays and the counts: 8 bit fields of ceil(width / 8) bytes per row, then one byte per
+        # cell (length height * (width + width rounded up to 8) on all 27 campaign maps). Field 0 is set on steep
+        # dry cells (impassability), field 4 on ~94 % of Heidelberg, field 5 on ~2 %; the byte array is all zero.
+        self.extra = bytearray(d[self.rest_at:self.tex_at - 16])
+        self.height = self.n // width
+        self.row_bytes = (width + 7) // 8
+        assert len(self.extra) == self.height * (width + 8 * self.row_bytes), 'per-cell data layout'
         # counts before the texture list: texture cells, blends (descriptions + 1), cliff infos, textures
         self.counts = list(struct.unpack_from('<4I', d, self.tex_at - 16))
         # after it 8 bytes, then the blend descriptions: u32 secondary tile, 4 direction bytes, u8 flags,
@@ -132,6 +139,17 @@ class Tiles:
             blend[k] = three[k] = 0
         return len(cells)
 
+    def set_bit(self, field, i, j, on):
+        k = field * self.row_bytes * self.height + j * self.row_bytes + i // 8
+        if on:
+            self.extra[k] |= 1 << (i % 8)
+        else:
+            self.extra[k] &= ~(1 << (i % 8)) & 0xFF
+
+    def fill_field(self, field, on):
+        size = self.row_bytes * self.height
+        self.extra[field * size:(field + 1) * size] = bytes([0xFF if on else 0]) * size
+
     def texture_at(self, i, j):
         c = self.arrays[0][j * self.width + i] // 4
         return next((n for n, (s, cnt, _) in self.textures.items() if s <= c < s + cnt), None)
@@ -167,5 +185,5 @@ class Tiles:
         d = self.node.head
         self.counts[1] = len(self.descs) + 1
         self.node.head = (d[:4] + b''.join(struct.pack(f'<{self.n}H', *a) for a in self.arrays)
-                          + d[self.rest_at:self.tex_at - 16] + struct.pack('<4I', *self.counts)
+                          + bytes(self.extra) + struct.pack('<4I', *self.counts)
                           + d[self.tex_at:self.desc_at] + b''.join(self.descs) + d[self.after_descs:])
