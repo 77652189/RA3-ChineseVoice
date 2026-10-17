@@ -88,10 +88,14 @@ def main():
     if os.path.exists(doubt):
         page.append('<h2>还拿不准的几句（音高和声纹都不像演员，自动方法修不了）：请听一下配音是不是这个角色</h2>'
                     '<table><tr><th>台词</th><th>演员原声</th><th>现在的配音</th></tr>')
+        ms = rows('mission')
         for a in json.load(open(doubt, encoding='utf-8')):
-            ref = mp3(f'{a}_ref.mp3', os.path.join(ROOT, 'original', 'movie_clean', a + '.wav'))
-            cur = mp3(f'{a}_cur.mp3', os.path.join(ROOT, 'voices', 'movie', a + '.wav'))
-            page.append(f'<tr><td>{html.escape(mv[a]["zh"])}<div class=en>{html.escape(mv[a]["en"])} · {a}</div></td>'
+            movie_line = a[:2] in ('R_', 'U_')     # movie lines: the onset-cut reference; missions: the studio clip
+            src = os.path.join(ROOT, 'original', 'movie_clean' if movie_line else 'mission', a + '.wav')
+            ref = mp3(f'{a}_ref.mp3', src)
+            cur = mp3(f'{a}_cur.mp3', os.path.join(ROOT, 'voices', 'movie' if movie_line else 'mission', a + '.wav'))
+            row = (mv if movie_line else ms)[a]
+            page.append(f'<tr><td>{html.escape(row["zh"])}<div class=en>{html.escape(row["en"])} · {a}</div></td>'
                         f'{cell(ref)}{cell(cur)}</tr>')
         page.append('</table>')
     open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write('\n'.join(page))

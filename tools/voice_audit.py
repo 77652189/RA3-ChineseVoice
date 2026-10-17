@@ -34,6 +34,22 @@ def to16(x, sr):
     return resample_poly(np.asarray(x, dtype=np.float32), 16000 // q, sr // q).astype(np.float32)
 
 
+def verified_movie_refs():
+    """{asset: 16 kHz reference} for movie lines whose reference (original/movie_clean, cut from the measured
+    onset by clean_refs.py) was heard by Whisper to hold at least half of the line's own words
+    (tools/check_refs.py -> work/voice_audit/ref_text_all.csv)."""
+    path = os.path.join(ROOT, 'work', 'voice_audit', 'ref_text_all.csv')
+    ok = {r['asset'] for r in csv.DictReader(open(path, encoding='utf-8-sig')) if float(r['match']) >= 0.5}
+    rows = list(csv.DictReader(open(os.path.join(ROOT, 'lines', 'movie.csv'), encoding='utf-8-sig')))
+    out, group = {}, {}
+    for r in rows:
+        p = os.path.join(ROOT, 'original', 'movie_clean', r['asset'] + '.wav')
+        if r['asset'] in ok and os.path.exists(p):
+            out[r['asset']] = audio_io.load_mono(p, 16000).astype(np.float32)
+            group[r['asset']] = (r['games'], r['movie'])
+    return out, group
+
+
 def movie_refs():
     """{asset: 16 kHz clip of the actor's own English line} from the separated vocals and measured onsets."""
     rep = {r['asset']: r for r in csv.DictReader(open(os.path.join(ROOT, 'work', 'align', 'report.csv'), encoding='utf-8-sig'))}
@@ -64,7 +80,8 @@ def movie_refs():
 def main():
     os.makedirs(OUT, exist_ok=True)
     fp = Fingerprint()
-    refs, group = movie_refs()
+    verified = os.path.exists(os.path.join(ROOT, 'work', 'voice_audit', 'ref_text_all.csv'))
+    refs, group = verified_movie_refs() if verified else movie_refs()
     with open(os.path.join(ROOT, 'lines', 'mission.csv'), encoding='utf-8-sig') as f:
         for r in csv.DictReader(f):
             p = os.path.join(ROOT, 'original', 'mission', r['asset'] + '.wav')

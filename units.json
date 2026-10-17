@@ -363,7 +363,8 @@
       "Seva_",
       "Seve_"
     ],
-    "fx": {}
+    "fx": {},
+    "ref_override": "work/speakers/ref_override_mission.json"
   },
   "movie": {
     "name_zh": "过场视频",
