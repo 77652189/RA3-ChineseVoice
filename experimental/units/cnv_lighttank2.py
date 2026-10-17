@@ -146,6 +146,7 @@ def main():
     color = base.bake(parts, sc)
     base.textured_materials(color)
     base.previews(sc)
+    base.icon(sc)
     base.export(parts)
 
 

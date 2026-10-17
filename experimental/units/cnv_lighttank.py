@@ -420,6 +420,23 @@ def previews(sc):
         bpy.ops.render.render(write_still=True)
 
 
+def icon(sc, name='icon.png', az=-30, el=40, dist=110):
+    """Transparent render for the production button (button_icon.py compose): front-left from above, nose to the
+    lower left like the retail Guardian button. Call after previews() (uses its camera, sun and world)."""
+    cam = sc.camera
+    a, e = math.radians(az), math.radians(el)
+    target = Vector((2, 0, 6))
+    cam.location = target + Vector((dist * math.cos(e) * math.cos(a), -dist * math.cos(e) * math.sin(a),
+                                    dist * math.sin(e)))
+    cam.rotation_euler = (target - cam.location).to_track_quat('-Z', 'Y').to_euler()
+    sc.render.film_transparent = True
+    sc.render.resolution_x = sc.render.resolution_y = 512
+    sc.render.image_settings.color_mode = 'RGBA'
+    sc.render.filepath = os.path.join(OUT, name)
+    bpy.ops.render.render(write_still=True)
+    sc.render.film_transparent = False
+
+
 def export(parts):
     """parts.json: geometry per part in its bone's space (hull and treads on BODY, turret, barrel on pitch)."""
     out = {}
