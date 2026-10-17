@@ -6,7 +6,8 @@
 Per line, against the actor's own reference (original/movie_clean, cut from the measured onset): CAMPPlus
 similarity and median pitch of the old dub and of the new one. The new take stays when it is not less like
 the actor (within SLACK) and its pitch is in range, or when the old pitch was off (wrong voice) and the new is
-not. Otherwise the old voice, clean file and QC row come back. Writes work/voice_audit/keep_better.csv.
+not, and it does not misread a line the old take read right (QC cer > 0.2). Otherwise the old voice, clean
+file and QC row come back. Writes work/voice_audit/keep_better.csv.
 """
 import csv
 import json
@@ -26,6 +27,8 @@ SLACK = 0.02
 
 def main(targets_path, backup):
     targets = json.load(open(targets_path, encoding='utf-8'))
+    old_cer = {q['asset']: float(q['cer'] or 0) for q in csv.DictReader(open(os.path.join(backup, 'movie_qc.csv'), encoding='utf-8-sig'))}
+    new_cer = {q['asset']: float(q['cer'] or 0) for q in csv.DictReader(open(os.path.join(ROOT, 'lines', 'movie_qc.csv'), encoding='utf-8-sig'))}
     fp = Fingerprint()
     report, reverted = [], []
     for a in targets:
@@ -40,6 +43,8 @@ def main(targets_path, backup):
         f0r, f0o, f0n = median_f0(r), median_f0(o), median_f0(n)
         ok = lambda f: not (f0r > 0 and f > 0) or F0_LO <= f / f0r <= F0_HI   # noqa: E731
         keep_new = (sn >= so - SLACK and ok(f0n)) or (not ok(f0o) and ok(f0n))
+        if new_cer.get(a, 0) > 0.2 >= old_cer.get(a, 0):    # the new take misreads where the old one did not
+            keep_new = False
         if not keep_new:
             reverted.append(a)
         report.append({'asset': a, 'old_sim': round(so, 3), 'new_sim': round(sn, 3), 'ref_f0': round(f0r),

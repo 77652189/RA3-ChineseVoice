@@ -25,6 +25,7 @@
 !/work/terms/term_map.json
 !/work/terms/term_map_add.json
 !/work/terms/untranslated_zh.json
+!/work/terms/pronounce.json
 !/work/speakers/
 /work/speakers/*
 !/work/speakers/ref_override.json

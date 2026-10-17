@@ -68,6 +68,7 @@ def main():
     ap.add_argument('cmd', choices=['audition', 'apply'])
     ap.add_argument('unit')
     ap.add_argument('preset', nargs='?')
+    ap.add_argument('--only', nargs='+', help='apply: just these lines (the rest of voices/ stays as released)')
     a = ap.parse_args()
     presets = json.load(open(os.path.join(ROOT, 'fx_presets.json'), encoding='utf-8'))
     units = json.load(open(os.path.join(ROOT, 'units.json'), encoding='utf-8'))
@@ -84,6 +85,9 @@ def main():
         # preset per voice group: CLI preset for all, else units.json "fx": {prefix: preset}
         chosen = units[a.unit].get('fx', {})
         names = sorted(n[:-4] for n in os.listdir(os.path.join(ROOT, 'clean', a.unit)) if n.endswith('.wav'))
+        if a.only:
+            want = {n.lower() for n in a.only}
+            names = [n for n in names if n.lower() in want]
         for n in names:
             prefix = next(p for p in prefixes if n.lower().startswith(p.lower()))
             pid = a.preset or chosen.get(prefix, 'P0')

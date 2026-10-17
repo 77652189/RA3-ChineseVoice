@@ -34,6 +34,20 @@ def longest_clip(src_dir, prefix, spoken):
     return max(paths, key=duration) if paths else None
 
 
+PRONOUNCE = os.path.join(ROOT, 'work', 'terms', 'pronounce.json')
+
+
+def tts_text(text):
+    """The text IndexTTS2 reads: polyphones the model gets wrong are swapped for an unambiguous homophone (work/terms/pronounce.json,
+    e.g. 中弹 -> 中蛋, a homophone with one reading; players heard zhong4 tan2). Subtitles and the QC keep the plain text."""
+    import re
+    if not os.path.exists(PRONOUNCE):
+        return text
+    for rule in json.load(open(PRONOUNCE, encoding='utf-8')):
+        text = re.sub(rule['pattern'], rule['to'], text)
+    return text
+
+
 def speaker_ref(src_dir, prefix, asset, fallback, min_ref=MIN_REF_SECONDS, same_actor=None, override=None):
     """A hand-picked same-actor line (override map: the own clip is drowned by other voices) first; else the own
     clip; if too short, the same actor's line (same_actor map, by speaker fingerprint), else the group's
@@ -97,7 +111,7 @@ def main():
                 spk = speaker_ref(src, prefix, r['asset'], fallback, min_ref, same_actor, override)
                 emo = os.path.join(src, r['asset'] + '.wav')
                 with throttle.work():
-                    tts.infer(spk_audio_prompt=spk, text=r['zh'], output_path=dst,
+                    tts.infer(spk_audio_prompt=spk, text=tts_text(r['zh']), output_path=dst,
                               emo_audio_prompt=emo if os.path.exists(emo) else spk, emo_alpha=args.emo_alpha)
                 made += 1
             except Exception as e:  # one bad line must not stop a multi-hour batch
