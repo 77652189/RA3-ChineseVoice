@@ -32,7 +32,15 @@
 - 过场 14 句已用 work/speakers/ref_override.json 修好；停顿压缩不采用。
 - 下一步（需用户确认）：推送 GitHub、建 v1.0 Release（空 manifest.json）。
 
-## 1.0.2 之后已改、未发布（2026-10-16）
+## v1.1（2026-10-17 已发布）
+- GitHub Release v1.1（latest）：三个完整包 RA3-CNVoice-v1.1-{full,ra3,uprising}.zip + SHA256SUMS.txt + 补丁 `patches/20261017-0012/` 全部 142 个文件（含 manifest.json、patch.json）。线上 latest manifest 已核对与本地一致。
+- 完整包是**新 base**：build 20261017-0012（`ra3cv.py release`，不带 --from-patch），索引 `releases/20261017-0012.json`。补丁 20261017-0012 是对 base 20261013-1101 的累积补丁，给装 1.0 / 1.0.1 / 1.0.2 的玩家；两者 build 号相同，安装器按 base 选补丁，无冲突。
+- 内容 = 下面「1.0.2 之后已改」全部 + 安装器按长度和 sha256 复用缓存里的同名文件（不再重复下载）+ 安装器 2026-10-14 那批修复 + 试听索引偏移。TEMP_ 占位语音用户决定不配。
+- **下一个补丁要发两份**：`--base 20261017-0012`（1.1 玩家，小）和 `--base 20261013-1101`（老玩家，累积），manifest 里两条都放。注意：现在 `cmd_patch` 只写一条 manifest，且两份补丁的 .big 文件名相同，放进同一个 Release 会撞名——发之前先改 cmd_patch（文件名带 base 或分目录，manifest 合并两条）。
+- `releases/` 里两个已发布的索引（1101、0012）已进仓库；`patches/` 含音频不进仓库，但**必须留在本地**：cmd_patch 要读同一 base 下以前补丁的 .big（earlier_patch_entries）。
+- 待用户：网盘（夸克、百度）和 N 网文件换成 1.1 包（release/ 和 release/gh_v1.1/）；B 站 / 小黑盒公告等用户点头再发。
+
+## 1.0.2 之后已改（2026-10-16，已随 v1.1 发布）
 - 副官补配 5 句（EA 拼错前缀，原来是英文）：Svea_UltraNagnticSatellteReady「终极磁力卫星准备完毕！」（界面名也由“超磁力卫星”改为“终极磁力卫星”）、Svea_MagnticSingularityReady、Svea_ / Ivea_RedAlertAct、Ieve_SecurityPointGranted。全量英文排查（tools/english_audit.py，work/english_audit/）只找到这些；其余是 Whisper 幻觉、惨叫、背景广播和 TEMP_ 占位。
 - 「弹」读音：work/terms/pronounce.json，配音时 弹→蛋（弹性/动弹除外），字幕不变；23 句高风险（中弹/装弹/补弹/一弹/弹舱…）已重配，单位里普通“炸弹/导弹”没重配。
 - 过场参考音改为从实测开口截取（clean_refs.py）；545 句（被前一人声音污染的 414 + speakers.py 新查出的）重配，keep_better 择优：395 句换新（86 句旧版音高明显不对）、150 句留旧。串人确认的 4 句（达莎、宾汉姆、切尔登科、库可夫）已修。
@@ -44,7 +52,7 @@
 - 发布前要定：这些改动的过场补丁仍约数百 MB（补丁累积 + 旧安装器不复用下载），建议和“安装器按校验值复用下载”一起出完整包。
 
 ## v1.0.2（2026-10-16 已发布）
-- GitHub Release v1.0.2（latest）= `patches/20261016-0023/` 全部 136 个文件；base 仍是 20261013-1101，所以下一个补丁照样 `--base 20261013-1101`。只发了补丁，没有新完整包（新玩家装 1.0.1 完整包后检查更新）；安装器修复（151eb34）和试听索引的偏移仍要等下一次完整包。
+- GitHub Release v1.0.2 = `patches/20261016-0023/` 全部 136 个文件；base 仍是 20261013-1101，所以下一个补丁照样 `--base 20261013-1101`。只发了补丁，没有新完整包（新玩家装 1.0.1 完整包后检查更新）；安装器修复（151eb34）和试听索引的偏移仍要等下一次完整包。
 - 内容：1054 句过场按演员开口对齐（work/movie_offsets.json，字幕保持原版时间）、谭雅 R_afs07_08 重配、停顿处漏掉的英文、被压太小声的中文。
 - B 站：动态 https://t.bilibili.com/1259701847713644552 + 置顶评论（rpid 320645749168）下回复。内置浏览器的 B 站登录会丢（蓝屏后要用户重新扫码）。
 - 感情试点（work/pilot/afs07，tools/pilot_emotion.py）：A/B/C 用户盲听都不理想（还原度、连续性、口型）。根因：过场参考音是从混音里分离的、逐句独立生成、中文比英文长。待用户在「暂停 / 针对根因再试 / 先调研新模型」中选。
