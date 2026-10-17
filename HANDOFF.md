@@ -38,7 +38,7 @@
 - 内容 = 下面「1.0.2 之后已改」全部 + 安装器按长度和 sha256 复用缓存里的同名文件（不再重复下载）+ 安装器 2026-10-14 那批修复 + 试听索引偏移。TEMP_ 占位语音用户决定不配。
 - **下一个补丁要发两份**：`--base 20261017-0012`（1.1 玩家，小）和 `--base 20261013-1101`（老玩家，累积），manifest 里两条都放。注意：现在 `cmd_patch` 只写一条 manifest，且两份补丁的 .big 文件名相同，放进同一个 Release 会撞名——发之前先改 cmd_patch（文件名带 base 或分目录，manifest 合并两条）。
 - `releases/` 里两个已发布的索引（1101、0012）已进仓库；`patches/` 含音频不进仓库，但**必须留在本地**：cmd_patch 要读同一 base 下以前补丁的 .big（earlier_patch_entries）。
-- 待用户：网盘（夸克、百度）和 N 网文件换成 1.1 包（release/ 和 release/gh_v1.1/）；B 站 / 小黑盒公告等用户点头再发。
+- 网盘已由用户换成 1.1（N 网待确认）。B 站：动态 https://t.bilibili.com/1260086427628077077 + 置顶评论（320645749168）下回复 rpid 320989712512；小黑盒按用户意见不发。文案 docs/publish/v1.1公告.txt。
 
 ## 1.0.2 之后已改（2026-10-16，已随 v1.1 发布）
 - 副官补配 5 句（EA 拼错前缀，原来是英文）：Svea_UltraNagnticSatellteReady「终极磁力卫星准备完毕！」（界面名也由“超磁力卫星”改为“终极磁力卫星”）、Svea_MagnticSingularityReady、Svea_ / Ivea_RedAlertAct、Ieve_SecurityPointGranted。全量英文排查（tools/english_audit.py，work/english_audit/）只找到这些；其余是 Whisper 幻觉、惨叫、背景广播和 TEMP_ 占位。
