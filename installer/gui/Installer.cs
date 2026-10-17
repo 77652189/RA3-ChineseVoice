@@ -769,22 +769,40 @@ namespace CNVoiceInstaller
             System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12;
             var asset = f.Item1.Substring(f.Item1.IndexOf('/') + 1);   // 缓存按 <build>/ 分目录，托管处是扁平文件名
             Exception last = null;
-            bool ok = false;
-            foreach (var url in Candidates(baseUrl + asset).ToList())
+            // resume: a .part left by a broken download (this run, a mirror, or an earlier check) is continued with a
+            // Range request; a server that answers 200 instead of 206 sends the whole file again
+            bool ok = File.Exists(tmp) && new FileInfo(tmp).Length == f.Item2;   // finished but not yet moved
+            if (File.Exists(tmp) && new FileInfo(tmp).Length > f.Item2) File.Delete(tmp);
+            if (ok) progress(f.Item2);
+            foreach (var url in ok ? new List<string>() : Candidates(baseUrl + asset).ToList())
             {
-                long got = 0;
+                long counted = 0;   // bytes reported to progress in this attempt (taken back if it fails)
                 try
                 {
-                    using (var resp = Request(url).GetResponse()) using (var src = resp.GetResponseStream()) using (var dst = File.Create(tmp))
+                    long have = File.Exists(tmp) ? new FileInfo(tmp).Length : 0;
+                    if (have > f.Item2) { File.Delete(tmp); have = 0; }
+                    var req = Request(url);
+                    if (have > 0) req.AddRange(have);
+                    using (var resp = (System.Net.HttpWebResponse)req.GetResponse())
                     {
-                        var buf = new byte[1 << 16];
-                        int n;
-                        while ((n = src.Read(buf, 0, buf.Length)) > 0) { dst.Write(buf, 0, n); got += n; progress(n); }
+                        var range = resp.Headers["Content-Range"];
+                        bool append = have > 0 && resp.StatusCode == System.Net.HttpStatusCode.PartialContent
+                                      && range != null && range.StartsWith("bytes " + have + "-");
+                        if (have > 0 && resp.StatusCode == System.Net.HttpStatusCode.PartialContent && !append)
+                            throw new Exception("服务器返回的续传位置不对：" + range);
+                        if (append) { progress(have); counted += have; }
+                        using (var src = resp.GetResponseStream()) using (var dst = new FileStream(tmp, append ? FileMode.Append : FileMode.Create))
+                        {
+                            var buf = new byte[1 << 16];
+                            int n;
+                            while ((n = src.Read(buf, 0, buf.Length)) > 0) { dst.Write(buf, 0, n); counted += n; progress(n); }
+                        }
                     }
+                    if (new FileInfo(tmp).Length != f.Item2) throw new Exception("下载不完整");
                     ok = true;
                     break;
                 }
-                catch (Exception e) { last = e; progress(-got); }
+                catch (Exception e) { last = e; progress(-counted); }   // the .part stays for the next attempt
             }
             if (!ok) throw new Exception("下载失败：" + asset + "（" + (last == null ? "" : last.Message) + "）");
             if (Sha256(tmp) != f.Item3) { File.Delete(tmp); throw new Exception("下载的文件校验失败：" + f.Item1 + "，请稍后重试。"); }

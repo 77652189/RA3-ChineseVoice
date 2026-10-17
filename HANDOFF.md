@@ -108,6 +108,7 @@
   补丁对各自的 base 累积，manifest 每个 base 只放最新一条；安装器装新补丁前会先清掉旧补丁。
 - 备用下载地址（加速前缀）写在 `UPDATE_MIRRORS`，会随 manifest 下发。
 - 本地验证：`scratchpad/guitest/update_test.py`（假服务器 + 假游戏目录，含直连失败走备用地址、旧补丁清理）。
+- 断点续传（2026-10-17，**还没进已发的安装包**，随下一次完整包发出）：下载中断留下的 `.part` 下次用 Range 接着下（服务器回 200 就从头下，续传位置不对就报错重试，校验失败删掉重下）。验证：`scratchpad/guitest/resume_test.py <exe>`（第一次下到 40% 断开）；多 base 清单：`multibase_test.py <exe>`。
 
 ## 硬约束（原文）
 - 停任务只能按 PID 或完整命令行：先停 pipeline，再停 dub 子进程，删掉写了一半的 wav。
