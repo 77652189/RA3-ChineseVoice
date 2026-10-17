@@ -27,6 +27,7 @@ AI_SRC = os.path.join(os.path.dirname(os.path.dirname(HERE)), 'work', 'units', '
 c7.EXTRA_TEMPLATES[AI_UNIT] = {'file': 'DATA:CNVUnits/Data/' + AI_UNIT + '.xml', 'EditorSorting': 'UNIT'}
 c4.c3.STRINGS['Name:' + AI_UNIT] = 'CNV 轻型坦克（AI）'
 AI_AT = (c23.TANK_AT[0], c23.TANK_AT[1] - 45)          # just south of the parametric tank
+AI_PARTS = {'HULL': 'BODY', 'TURRET': 'Bone_Turret'}
 
 
 def ai_pivots():
@@ -70,7 +71,7 @@ def unit_xml(unit, model):
 def generate(m):
     c23._generate(m)
     print('model', c23.MODEL, to_w3x.convert(c23.SRC, c23.MODEL, c23.PIVOTS, c23.PARTS, scale=c23.SCALE), 'triangles')
-    print('model', AI_MODEL, to_w3x.convert(AI_SRC, AI_MODEL, ai_pivots(), {'HULL': 'BODY', 'TURRET': 'Bone_Turret'},
+    print('model', AI_MODEL, to_w3x.convert(AI_SRC, AI_MODEL, ai_pivots(), AI_PARTS,
                                             src_name='CNTankL', scale=c23.SCALE), 'triangles')
     unit_xml(c23.UNIT, c23.MODEL)
     unit_xml(AI_UNIT, AI_MODEL)
