@@ -66,9 +66,30 @@ def concept(seeds):
         print('concept', path, flush=True)
 
 
+def dino_keys(sd):
+    """Hunyuan3D's checkpoint has DINOv2 weights in the transformers 4 layout; transformers 5 renamed them and
+    split the SwiGLU input (same mapping as transformers' conversion_mapping.py 'Dinov2Model')."""
+    out = {}
+    for k, v in sd.items():
+        for a, b in (('attention.attention.query', 'attention.q_proj'), ('attention.attention.key', 'attention.k_proj'),
+                     ('attention.attention.value', 'attention.v_proj'), ('attention.output.dense', 'attention.o_proj'),
+                     ('mlp.weights_out', 'mlp.down_proj')):
+            k = k.replace(a, b)
+        if 'mlp.weights_in.' in k:
+            gate, up = v.chunk(2, dim=0)
+            out[k.replace('weights_in', 'gate_proj')] = gate
+            out[k.replace('weights_in', 'up_proj')] = up
+        else:
+            out[k] = v
+    return out
+
+
 def shape(image_path, seed=0):
     from PIL import Image
     from hy3dgen.rembg import BackgroundRemover
+    from hy3dgen.shapegen.models import SingleImageEncoder
+    load = SingleImageEncoder.load_state_dict
+    SingleImageEncoder.load_state_dict = lambda self, sd, *a, **k: load(self, dino_keys(sd), *a, **k)
     from hy3dgen.shapegen import Hunyuan3DDiTFlowMatchingPipeline, FaceReducer, FloaterRemover, \
         DegenerateFaceRemover
     image = Image.open(image_path).convert('RGB')

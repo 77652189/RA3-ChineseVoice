@@ -27,7 +27,9 @@ sys.argv = [sys.argv[0], '--', OUT_DIR]            # cnv_lighttank reads its OUT
 import cnv_lighttank as base                       # noqa: E402
 
 WIDTH = float(OPT.get('width', 23.0))
-TRIS = int(OPT.get('tris', 3600))
+TRIS = int(OPT.get('tris', 5000))                # the parametric tank's budget
+VOXEL = float(OPT.get('voxel', 0.25))              # remesh size: closes the AI surface's cracks and dents
+SMOOTH = int(OPT.get('smooth', 3))
 TURRET = float(OPT.get('turret', 0.62))            # cut height as a fraction of the hull-and-turret height
 SHARP = math.radians(float(OPT.get('sharp', 32)))
 
@@ -68,7 +70,24 @@ def load():
     return ob
 
 
+def clean(ob):
+    """AI meshes come out dented and cracked (marching cubes on a noisy field): voxel remesh, then Laplacian smooth."""
+    if VOXEL > 0:
+        mod = ob.modifiers.new('remesh', 'REMESH')
+        mod.mode = 'VOXEL'
+        mod.voxel_size = VOXEL
+        bpy.ops.object.modifier_apply(modifier=mod.name)
+    if SMOOTH:
+        mod = ob.modifiers.new('smooth', 'LAPLACIANSMOOTH')
+        mod.iterations = SMOOTH
+        mod.lambda_factor = 0.5
+        bpy.ops.object.modifier_apply(modifier=mod.name)
+    print('CNV AI clean:', len(ob.data.polygons), 'faces after remesh', VOXEL, 'smooth', SMOOTH, flush=True)
+
+
 def decimate(ob):
+    mod = ob.modifiers.new('tri', 'TRIANGULATE')          # the remesh makes quads; the budget counts triangles
+    bpy.ops.object.modifier_apply(modifier=mod.name)
     faces = len(ob.data.polygons)
     if faces > TRIS:
         mod = ob.modifiers.new('dec', 'DECIMATE')
@@ -118,8 +137,11 @@ def split(ob, mats):
     return parts, h
 
 
-def paint(parts, h):
-    """Material slots: 0 steel, 1 dark (tracks: low faces on the outer sides), 2 team (turret side band)."""
+def paint(parts, h, mats):
+    """Material slots: 0 steel, 1 dark (tracks: low faces on the outer sides), 3 turret (steel with a per-pixel team
+    stripe on its sides, cnv_lighttank.bake 'band')."""
+    ht = h - parts['TURRET'].location.z
+    mats[3]['band'] = (0.2 * ht, 0.5 * ht)          # turret-local z
     half = 0.5 * WIDTH
     for name, ob in parts.items():
         off = ob.location
@@ -128,8 +150,8 @@ def paint(parts, h):
             n = p.normal
             if name == 'HULL' and c.z < 0.33 * h and abs(c.y) > 0.62 * half:
                 p.material_index = 1
-            elif name == 'TURRET' and abs(n.y) > 0.6 and 0.25 < (c.z - off.z) / max(1e-3, h - off.z) < 0.55:
-                p.material_index = 2
+            elif name == 'TURRET':
+                p.material_index = 3
             else:
                 p.material_index = 0
 
@@ -144,11 +166,12 @@ def sharpen(parts):
 def main():
     sc = base.reset()
     mats = [base.material('steel', base.STEEL), base.material('dark', base.DARK),
-            base.material('team', base.STEEL, team=1.0)]
+            base.material('team', base.STEEL, team=1.0), base.material('turret', base.STEEL)]
     ob = load()
+    clean(ob)
     decimate(ob)
     parts, h = split(ob, mats)
-    paint(parts, h)
+    paint(parts, h, mats)
     sharpen(parts)
     color = base.bake(parts, sc)
     base.textured_materials(color)

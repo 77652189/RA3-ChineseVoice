@@ -229,7 +229,37 @@ def bake(parts, sc):
             out = nt.nodes.new('ShaderNodeOutputMaterial')
             em = nt.nodes.new('ShaderNodeEmission')
             nt.links.new(em.outputs[0], out.inputs[0])
-            if kind == 'mask':
+            if kind == 'mask' and 'band' in m:
+                # per-pixel stripe (ai_lighttank_blend.py): object-space z inside m['band'] on side-facing surfaces,
+                # so the edge follows the texture, not the (lumpy, decimated) triangles
+                lo, hi = m['band']
+                coord = nt.nodes.new('ShaderNodeTexCoord')
+                geo = nt.nodes.new('ShaderNodeNewGeometry')
+                xyz = nt.nodes.new('ShaderNodeSeparateXYZ')
+                nt.links.new(coord.outputs['Object'], xyz.inputs['Vector'])
+                nrm = nt.nodes.new('ShaderNodeSeparateXYZ')
+                nt.links.new(geo.outputs['Normal'], nrm.inputs['Vector'])
+                prev = None
+                for src, op, val in ((xyz.outputs['Z'], 'GREATER_THAN', lo), (xyz.outputs['Z'], 'LESS_THAN', hi),
+                                     (nrm.outputs['Y'], 'ABS_GT', 0.5)):
+                    if op == 'ABS_GT':
+                        ab = nt.nodes.new('ShaderNodeMath')
+                        ab.operation = 'ABSOLUTE'
+                        nt.links.new(src, ab.inputs[0])
+                        src, op = ab.outputs[0], 'GREATER_THAN'
+                    t = nt.nodes.new('ShaderNodeMath')
+                    t.operation = op
+                    t.inputs[1].default_value = val
+                    nt.links.new(src, t.inputs[0])
+                    if prev is not None:
+                        mm = nt.nodes.new('ShaderNodeMath')
+                        mm.operation = 'MULTIPLY'
+                        nt.links.new(prev, mm.inputs[0])
+                        nt.links.new(t.outputs[0], mm.inputs[1])
+                        t = mm
+                    prev = t.outputs[0]
+                nt.links.new(prev, em.inputs['Color'])
+            elif kind == 'mask':
                 v = float(m['team'])
                 em.inputs['Color'].default_value = (v, v, v, 1)
             else:
