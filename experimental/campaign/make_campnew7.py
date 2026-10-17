@@ -36,10 +36,11 @@ OWN_ATLAS = os.environ.get('CNV_OWN_ATLAS') == '1'     # compile the terrain atl
 # at run time (a GameObject's CommandSet and ButtonImage, a LogicCommandSet's commands), so the reference walk from
 # the GameMap never reaches them (make_campnew26: production button, build command, factory command set)
 EXTRA_OWN = []
+EXTRA_ALL = []                  # our XML files nothing references, included type="all" (make_campnew27 button UI)
 
 
 def compile_map(m):
-    text, unknown = mapxml.map_xml(m, GAME_MAP_ID, EXTRA_TEMPLATES, atlas=OWN_ATLAS)
+    text, unknown = mapxml.map_xml(m, GAME_MAP_ID, EXTRA_TEMPLATES, atlas=OWN_ATLAS, also=EXTRA_ALL)
     print('map.xml:', text.count('type="instance"'), 'object files; no definition (roads, waypoints):', unknown)
     rel = os.path.join('data', 'maps', 'official', c2.NEW_STEM)
     src = os.path.join(c2.SDK, 'Mods', MAP_MOD, rel)

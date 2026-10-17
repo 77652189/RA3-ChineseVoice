@@ -283,10 +283,12 @@ def atlas_xml(m, gid):
             + '\n'.join(rows) + '\n\t</TerrainTextureAtlas>\n')
 
 
-def map_xml(m, gid, extra=None, atlas=False):
+def map_xml(m, gid, extra=None, atlas=False, also=()):
     """(map.xml text, [templates without a SageXML definition]): Includes of the object XMLs the map places that
     the static streams lack (reference includes resolve everything else against the retail streams) + GameMap.
-    `extra`: our own templates, {id: {'file': 'DATA:<path under the SDK's Mods folder>', 'EditorSorting': ...}}."""
+    `extra`: our own templates, {id: {'file': 'DATA:<path under the SDK's Mods folder>', 'EditorSorting': ...}}.
+    `also`: more of our XML files, included type="all" -- assets nothing references (a UnitAbilityButtonTemplate
+    points at its LogicCommand, not the other way round), which type="instance" leaves out of the stream."""
     index, static = dict(sage_index()), stream_names()
     index.update({k.lower(): v for k, v in (extra or {}).items()})
     used = sorted(set(object_templates(m)), key=str.lower)
@@ -297,6 +299,7 @@ def map_xml(m, gid, extra=None, atlas=False):
            '\t\t<Include type="reference" source="DATA:global.xml"/>',
            '\t\t<Include type="reference" source="DATA:audio.xml"/>']
     inc += [f'\t\t<Include type="instance" source="{s}"/>' for s in files]
+    inc += [f'\t\t<Include type="all" source="{s}"/>' for s in also]
     text = ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'
             '\t<Tags/>\n\t<Includes>\n' + '\n'.join(inc) + '\n\t</Includes>\n' + game_map(m, gid, index)
