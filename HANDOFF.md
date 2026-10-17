@@ -40,11 +40,15 @@
 - `releases/` 里两个已发布的索引（1101、0012）已进仓库；`patches/` 含音频不进仓库，但**必须留在本地**：cmd_patch 要读同一 base 下以前补丁的 .big（earlier_patch_entries）。
 - 网盘已由用户换成 1.1（N 网待确认）。B 站：动态 https://t.bilibili.com/1260086427628077077 + 置顶评论（320645749168）下回复 rpid 320989712512；小黑盒按用户意见不发。文案 docs/publish/v1.1公告.txt。
 
-## 1.1 之后已改、未发布（2026-10-17）
+## v1.1.1（2026-10-17 已发布，补丁）
+- GitHub Release v1.1.1（latest）= `patches/20261017-0329/` 全部 150 个文件，一份清单两条：build 20261017-0329（base 20261017-0012，1.1 玩家，约 41 MB）和 20261017-0329.20261013-1101（base 1101，老玩家累积约 1 GB）。线上清单已核对；GitHub 下载支持 Range（206）。
+- 只发补丁，没出完整包：安装器的断点续传仍要等下一次完整包。下一个补丁照样 `--base 20261017-0012 20261013-1101`。
+
+## 1.1.1 的改动（2026-10-17）
 - 多音字筛查：`tools/polyphone_audit.py`（全部台词的多音字 + Whisper 听写对照）→ `tools/polyphone_score.py`（把字换成各读音的同音字，让 Whisper 按声音打分；只比声母韵母，声调分不出；按组校准去掉系统偏差）→ `tools/polyphone_page.py` 试听页。63 句候选里用户确认念错 9 处，加上同词的地名共 18 句重配：戛纳 5、海参崴 7、落空 2、就落那儿、伤得多重、朝步兵、一模一样（三种写法都不行，改说法「本是一体！」，字幕同步）。
 - `work/terms/pronounce.json` 支持 `assets`（只对指定台词生效）。经验：IndexTTS2 认带声调拼音（`WEI1`、`ZHONG4`、`CHAO2`、`LUO4` 有效），但「戛纳」「落空」写拼音无效，改同音字（颊、洛空）才对；改完必须听，不能只看打分。
 - 旧录音在 `archive/polyphone_redub/`，落选候选在 `archive/choose_rejected/`。与 v1.1 比：单位/任务 7 句、过场 7 个、起义字幕文件有变，其余不变。
-- 安装器断点续传（见「发补丁」）。下一步：出 1.1.1 补丁（`--base 20261017-0012 20261013-1101`）。
+- 安装器断点续传（见「发补丁」），未进已发安装包。
 
 ## 1.0.2 之后已改（2026-10-16，已随 v1.1 发布）
 - 副官补配 5 句（EA 拼错前缀，原来是英文）：Svea_UltraNagnticSatellteReady「终极磁力卫星准备完毕！」（界面名也由“超磁力卫星”改为“终极磁力卫星”）、Svea_MagnticSingularityReady、Svea_ / Ivea_RedAlertAct、Ieve_SecurityPointGranted。全量英文排查（tools/english_audit.py，work/english_audit/）只找到这些；其余是 Whisper 幻觉、惨叫、背景广播和 TEMP_ 占位。
