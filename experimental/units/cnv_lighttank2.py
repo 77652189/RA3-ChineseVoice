@@ -8,7 +8,7 @@ built by hand-written geometry, because AI meshes come out soft and dented. Conc
 wedge nose between two track fenders reaching forward, cyan light bars on the fender fronts, exposed wide tracks
 with six road wheels and cyan hubs, vent grilles on the rear flanks, a low faceted turret with a dark visor slit,
 a sensor pod and an antenna on top, a long barrel with sleeve and muzzle brake. Team colour (not in the concept)
-on fender flanks and turret sides. Darker steel than v1 (v1 read too white next to retail units in game).
+in retail-sized areas: fender top panels and flank stripes, turret side panels and a turret top stripe. Darker steel than v1 (v1 read too white next to retail units in game).
 
 Bake, previews and parts.json come from cnv_lighttank.py, so both versions share one look and one exporter.
 """
@@ -68,6 +68,7 @@ def build(mats):
         box(bm, 18.0, y0 + 0.6, 6.7, 18.75, y1 - 0.6, 7.8, mat=3)                                   # light bar
         out = y1 if s > 0 else y0
         box(bm, -5.0, out - 0.35, 7.0, 11.0, out + 0.35, 8.0, mat=2)                                # team stripe
+        box(bm, -13.0, y0 + 1.0, 9.35, 12.5, y1 - 1.0, 9.6, mat=2)                                  # team top panel
         for k in range(4):                                                                          # flank grille
             box(bm, -15.0 + 1.5 * k, out - 0.3, 7.0, -14.2 + 1.5 * k, out + 0.3, 8.7, mat=1)
         box(bm, -2.0, 4.6 * s - 1.2, 9.6, 3.5, 4.6 * s + 1.2, 10.4, mat=0)                          # deck box
@@ -108,10 +109,11 @@ def build(mats):
     box(bm, -12.2, -4.2, 0.4, -9.4, 4.2, 2.9, mat=0, taper_top=0.6)                                 # bustle
     box(bm, 4.9, -2.4, 1.2, 6.5, 2.4, 1.9, mat=1)                                                    # visor slit
     for s in (-1, 1):
-        box(bm, -6.5, 6.1 * s - 0.35, 0.7, 0.5, 6.1 * s + 0.35, 1.9, mat=2)                          # team panel
+        box(bm, -7.6, 6.0 * s - 0.45, 0.4, 1.6, 6.0 * s + 0.45, 2.6, mat=2)                          # team panel
     cylinder(bm, 'x', (-1.6, -2.4, 4.4), 1.0, 3.2, segments=8, mat=0)                              # sensor pod
     cylinder(bm, 'x', (0.1, -2.4, 4.4), 0.65, 0.3, segments=8, mat=3)                               # lens
     box(bm, -4.6, 1.6, 3.3, -2.2, 3.6, 4.2, mat=0)                                                   # top box
+    box(bm, -7.0, -1.1, 3.3, 3.4, 1.1, 3.55, mat=2)                                                  # team top stripe
     box(bm, -7.4, 3.9, 3.3, -7.0, 4.3, 9.5, mat=1)                                                  # antenna
     ob = base.obj_from_bm('TURRET', bm, mats)
     base.bevel_and_finish(ob, width=0.45)
