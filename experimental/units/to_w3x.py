@@ -18,13 +18,31 @@ import w3x                                      # noqa: E402
 from PIL import Image                           # noqa: E402
 
 
-def convert(src, model, pivots, part_bones, src_name='CNTankL', spec=0.45, scale=1.0, level=72):
+# retail Allied diffuse colour by brightness (AUAntiVehicleVehicleTech1, mean of r g b): (mean, B/R, G/R) -- darker is
+# bluer, highlights near neutral. grade=True recolours every non-glow pixel to this curve at its own brightness.
+RETAIL_TINT = [(40, 1.33, 1.10), (85, 1.28, 1.09), (145, 1.13, 1.07), (210, 1.02, 1.01)]
+
+
+def tint(m):
+    pts = RETAIL_TINT
+    if m <= pts[0][0]:
+        return pts[0][1:]
+    for (m0, b0, g0), (m1, b1, g1) in zip(pts, pts[1:]):
+        if m <= m1:
+            t = (m - m0) / (m1 - m0)
+            return b0 + t * (b1 - b0), g0 + t * (g1 - g0)
+    return pts[-1][1:]
+
+
+def convert(src, model, pivots, part_bones, src_name='CNTankL', spec=0.45, scale=1.0, level=72, grade=True):
     """spec: specular (SPM red) as a fraction of the diffuse luminance -- retail Allied SPM red averages ~21;
     a flat 110 made the whole tank mirror the warm environment map (tan / pink in game, CampNew23 first run).
     scale: uniform size factor for vertices and pivots (the first in-game run read ~0.6 of a Guardian).
     level: median diffuse luminance to scale to (retail Allied vehicle diffuse medians are 62..80; our bakes came
     out at 107..143 and read white in game, CampNew25). Cyan light pixels keep their colour and go into SPM green
-    (glow), as on retail units. None keeps the bake as is."""
+    (glow), as on retail units. None keeps the bake as is.
+    grade: recolour to the retail cool-silver curve (RETAIL_TINT); our bakes came out near neutral (B/R ~1.07) and
+    read warm under the game's sun."""
     with open(os.path.join(src, 'parts.json'), encoding='utf-8') as f:
         parts = json.load(f)
     index = {name: k + 1 for k, (name, _, _) in enumerate(pivots)}          # ROOTTRANSFORM is 0
@@ -55,7 +73,15 @@ def convert(src, model, pivots, part_bones, src_name='CNTankL', spec=0.45, scale
         r, g, b, _ = dp[x, y]
         if debug and r == g == b == 0:
             return 255, 0, 255, 255
-        return (r, g, b, 255) if glow(r, g, b) else (int(r * k), int(g * k), int(b * k), 255)
+        if glow(r, g, b):
+            return r, g, b, 255
+        r, g, b = r * k, g * k, b * k
+        if grade:
+            m = (r + g + b) / 3
+            br, gr = tint(m)
+            r = 3 * m / (1 + gr + br)
+            r, g, b = r, r * gr, r * br
+        return min(255, int(r)), min(255, int(g)), min(255, int(b)), 255
     w3x.write_texture(model, w, h, diffuse_px)
 
     def spm(x, y):

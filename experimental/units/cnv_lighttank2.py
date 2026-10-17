@@ -23,8 +23,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import cnv_lighttank as base                       # noqa: E402
 
-STEEL = (0.50, 0.53, 0.57)
-DARK = (0.14, 0.15, 0.17)
+# cool silver: retail Allied vehicle diffuse mid-tones run B/R 1.15..1.23, G/R 1.03..1.08 (work/reference); display
+# colour (0.70, 0.75, 0.84) in linear for the bake. Absolute brightness is levelled later (to_w3x level=).
+STEEL = tuple(round(((c + 0.055) / 1.055) ** 2.4, 3) for c in (0.70, 0.75, 0.84))
+DARK = (0.13, 0.145, 0.17)
 GLOW = (0.20, 0.90, 1.00)
 box, cylinder = base.box, base.cylinder
 
