@@ -749,6 +749,22 @@ namespace CNVoiceInstaller
             var local = Path.Combine(Cache, f.Item1.Replace('/', '\\'));
             if (File.Exists(local) && Sha256(local) == f.Item3) { progress(f.Item2); return local; }
             Directory.CreateDirectory(Path.GetDirectoryName(local));
+            // the same file may already sit in an earlier update's folder (patches are cumulative, so an unchanged
+            // component archive comes again under the new build): copy it instead of downloading it again
+            if (Directory.Exists(Cache))
+            {
+                var name = Path.GetFileName(local);
+                foreach (var old in Directory.GetFiles(Cache, name, SearchOption.AllDirectories))
+                {
+                    if (string.Equals(old, local, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (new FileInfo(old).Length == f.Item2 && Sha256(old) == f.Item3)
+                    {
+                        File.Copy(old, local, true);
+                        progress(f.Item2);
+                        return local;
+                    }
+                }
+            }
             var tmp = local + ".part";
             System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12;
             var asset = f.Item1.Substring(f.Item1.IndexOf('/') + 1);   // 缓存按 <build>/ 分目录，托管处是扁平文件名

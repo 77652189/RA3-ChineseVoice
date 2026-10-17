@@ -48,7 +48,7 @@ def core_name(combo):
 def combos(comps):
     from itertools import combinations
     return [set(c) for r in range(1, len(comps) + 1) for c in combinations(comps, r)]
-MOD_VERSION = '1.0'
+MOD_VERSION = '1.1'
 RELEASE_NAME = f'红警3中文配音MOD_v{MOD_VERSION}'
 SETUP_EXE = '红警3中文配音安装器.exe'
 # hosted update manifest (manifest.json + patch folders); empty = the installer hides the update button
