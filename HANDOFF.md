@@ -32,6 +32,14 @@
 - 过场 14 句已用 work/speakers/ref_override.json 修好；停顿压缩不采用。
 - 下一步（需用户确认）：推送 GitHub、建 v1.0 Release（空 manifest.json）。
 
+## 1.0.2 之后已改、未发布（2026-10-16）
+- 副官补配 5 句（EA 拼错前缀，原来是英文）：Svea_UltraNagnticSatellteReady「终极磁力卫星准备完毕！」（界面名也由“超磁力卫星”改为“终极磁力卫星”）、Svea_MagnticSingularityReady、Svea_ / Ivea_RedAlertAct、Ieve_SecurityPointGranted。全量英文排查（tools/english_audit.py，work/english_audit/）只找到这些；其余是 Whisper 幻觉、惨叫、背景广播和 TEMP_ 占位。
+- 「弹」读音：work/terms/pronounce.json，配音时 弹→蛋（弹性/动弹除外），字幕不变；23 句高风险（中弹/装弹/补弹/一弹/弹舱…）已重配，单位里普通“炸弹/导弹”没重配。
+- 过场参考音改为从实测开口截取（clean_refs.py）；545 句（被前一人声音污染的 414 + speakers.py 新查出的）重配，keep_better 择优：395 句换新（86 句旧版音高明显不对）、150 句留旧。串人确认的 4 句（达莎、宾汉姆、切尔登科、库可夫）已修。
+- fx.py：P0 改为原样复制；voices/movie 已按 archive/voices_movie_0430 还原并同步 clean（之前 fix14 留下的不一致曾让 fx 回退已发布台词）。
+- 验证：重建后与 v1.0.2 比，原版 74 / 起义 21 个过场有变，正好是含换新句子的那些；语音包只重编码改动的句子。试听：work/review/index.html（tools/review_page.py）。
+- 发布前要定：这些改动的过场补丁仍约数百 MB（补丁累积 + 旧安装器不复用下载），建议和“安装器按校验值复用下载”一起出完整包。
+
 ## v1.0.2（2026-10-16 已发布）
 - GitHub Release v1.0.2（latest）= `patches/20261016-0023/` 全部 136 个文件；base 仍是 20261013-1101，所以下一个补丁照样 `--base 20261013-1101`。只发了补丁，没有新完整包（新玩家装 1.0.1 完整包后检查更新）；安装器修复（151eb34）和试听索引的偏移仍要等下一次完整包。
 - 内容：1054 句过场按演员开口对齐（work/movie_offsets.json，字幕保持原版时间）、谭雅 R_afs07_08 重配、停顿处漏掉的英文、被压太小声的中文。
