@@ -1,4 +1,5 @@
 # run_bench.ps1 [-Mod <skudef>] [-Shots 15,30,45] [-Seconds 60] [-Res 1280x720] [-Extra '<more args>']
+#   [-Actions "sec:click:x,y;sec:drag:x1,y1,x2,y2;sec:rclick:x,y;sec:key:vk"]
 # Starts the test bench copy of RA3 (make_bench.ps1) windowed, saves a frame at each of -Shots seconds through the
 # capture shim (shots\NN.bmp -> .png), closes only the game process it started, prints the shim log.
 # Like the Corona launcher, it starts Data\RA3_1.13.game directly with the bench's Chinese SkuDef.
@@ -7,6 +8,8 @@
 param([string]$Mod, [string]$Shots = '20,40', [int]$Seconds = 60, [string]$Res = '1280x720', [string]$Extra = '',
       [string]$Clicks = '',     # 'sec:x,y;sec:x,y' left clicks posted to the game window (client coordinates)
       [string]$Keys = '',       # 'sec:vk;sec:vk' key presses posted to the game window (virtual-key code, e.g. 27 = Esc)
+      [string]$Actions = '',    # 'sec:kind:args;...' in order, several per second allowed: click:x,y  rclick:x,y
+                                #   drag:x1,y1,x2,y2 (box select)  key:vk
       [switch]$Visible,         # leave the window on screen (default: parked off the desktop, still rendering)
       [switch]$Sound,           # leave the game's audio on (default: its own audio sessions muted)
       [string]$Bench = (Join-Path $PSScriptRoot '..\..\work\testbench\RA3'))
@@ -16,6 +19,12 @@ $clickAt = @{}
 foreach ($c in ($Clicks.Split(';') | Where-Object { $_ })) { $t, $xy = $c.Split(':'); $clickAt[[int]$t] = $xy }
 $keyAt = @{}
 foreach ($c in ($Keys.Split(';') | Where-Object { $_ })) { $t, $vk = $c.Split(':'); $keyAt[[int]$t] = [int]$vk }
+$actAt = @{}
+foreach ($c in ($Actions.Split(';') | Where-Object { $_ })) {
+    $t, $kind, $arg = $c.Split(':'); $t = [int]$t
+    if (-not $actAt.ContainsKey($t)) { $actAt[$t] = [Collections.Generic.List[object]]::new() }
+    $actAt[$t].Add(@($kind, $arg))
+}
 Add-Type @'
 using System; using System.Runtime.InteropServices; using System.Text;
 public static class Bench {
@@ -35,6 +44,23 @@ public static class Bench {
         PostMessage(h, 0x0200, IntPtr.Zero, pos); System.Threading.Thread.Sleep(60);
         PostMessage(h, 0x0201, (IntPtr)1, pos); System.Threading.Thread.Sleep(60);
         PostMessage(h, 0x0202, IntPtr.Zero, pos);
+    }
+    public static void RClick(IntPtr h, int x, int y) {
+        IntPtr pos = (IntPtr)((y << 16) | (x & 0xFFFF));
+        PostMessage(h, 0x0200, IntPtr.Zero, pos); System.Threading.Thread.Sleep(60);
+        PostMessage(h, 0x0204, (IntPtr)2, pos); System.Threading.Thread.Sleep(60);
+        PostMessage(h, 0x0205, IntPtr.Zero, pos);
+    }
+    // box selection: button down at (x1, y1), mouse moves with MK_LBUTTON held to (x2, y2), button up there
+    public static void Drag(IntPtr h, int x1, int y1, int x2, int y2) {
+        IntPtr a = (IntPtr)((y1 << 16) | (x1 & 0xFFFF));
+        PostMessage(h, 0x0200, IntPtr.Zero, a); System.Threading.Thread.Sleep(60);
+        PostMessage(h, 0x0201, (IntPtr)1, a); System.Threading.Thread.Sleep(60);
+        for (int k = 1; k <= 8; k++) {
+            int x = x1 + (x2 - x1) * k / 8, y = y1 + (y2 - y1) * k / 8;
+            PostMessage(h, 0x0200, (IntPtr)1, (IntPtr)((y << 16) | (x & 0xFFFF))); System.Threading.Thread.Sleep(40);
+        }
+        PostMessage(h, 0x0202, IntPtr.Zero, (IntPtr)((y2 << 16) | (x2 & 0xFFFF)));
     }
     [DllImport("user32.dll")] static extern uint MapVirtualKey(uint code, uint type);
     public static void Key(IntPtr h, int vk) {     // WM_KEYDOWN / WM_KEYUP with the scan code in lParam bits 16-23
@@ -141,6 +167,20 @@ foreach ($s in 1..$Seconds) {
         if ($hw -ne [IntPtr]::Zero) { [Bench]::Key($hw, $keyAt[$s]) }
         # the game polls the keyboard (GetAsyncKeyState): the capture shim makes the key read as held for 300 ms
         Set-Content (Join-Path $shotDir 'key.req') $keyAt[$s] -Encoding ascii
+    }
+    if ($actAt.ContainsKey($s)) {
+        $hw = [Bench]::MainWindow([uint32]$p.Id)
+        foreach ($a in $actAt[$s]) {
+            $kind, $arg = $a; $v = @($arg.Split(',') | ForEach-Object { [int]$_ }); "ACT at $s s: $kind $arg"
+            if ($hw -eq [IntPtr]::Zero) { continue }
+            switch ($kind) {
+                'click'  { [Bench]::Click($hw, $v[0], $v[1]) }
+                'rclick' { [Bench]::RClick($hw, $v[0], $v[1]) }
+                'drag'   { [Bench]::Drag($hw, $v[0], $v[1], $v[2], $v[3]) }
+                'key'    { [Bench]::Key($hw, $v[0]); Set-Content (Join-Path $shotDir 'key.req') $v[0] -Encoding ascii }
+            }
+            Start-Sleep -Milliseconds 250
+        }
     }
     if ($shotAt -contains $s) { "REQ shot at $s s"; Set-Content (Join-Path $shotDir 'shot.req') ('{0:D3}s' -f $s) -Encoding ascii }
     $crash = Get-WinEvent -FilterHashtable @{LogName = 'Application'; Id = 1000; StartTime = $t0} -ErrorAction SilentlyContinue |
