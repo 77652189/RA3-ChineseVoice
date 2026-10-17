@@ -6,8 +6,10 @@
                    is the "clears frozen enemies" behaviour. The game cannot rank targets by status
                    (TargetingCompareList has distance / combat chain / turret arc only).
   fast retarget    turret 900 deg/s (360), pitch 360 (180), AcceptableAimDelta 30d (20d)
-  sees the frozen  ObjectVisionRange 250 for UNDER_FROZEN infantry / vehicles in its turret's target chooser, so
-                   frozen units are picked up from farther than its 150 range
+  (no frozen vision) an ObjectVisionRange for UNDER_FROZEN units was tried and dropped (CampNew28 runs): its Range
+                   is a percentage of vision (a bare "250" read as 250% = 500: the tanks chased Hammers 460 away
+                   before any order), and its Filter ignores StatusBitFlags (Rule ANY and ALL alike: unfrozen ore
+                   collectors 230 away were attacked; without the rule they were left alone)
   speed            LocomotorSet 125 (Guardian 80, Multigunner 120; shrunk enemies run at 200%)
   crushing         CrusherLevel stays 20: crushes shrunk vehicles (CrushableLevel 1 under SHRINK_EFFECT, BaseVehicle)
                    and infantry, not normal tanks (20); CrushDecelerationPercent 20% (80%) keeps its speed
@@ -183,11 +185,6 @@ def kite_weapon():
     assert f'id="{KITE}"' in out and 'MinimumAttackRange="100.0"' in out
     return out
 
-FROZEN_VISION = '''CanAcquireDynamicIfAssignedOutOfRange="true">
-							<ObjectVisionRange id="ObjectVisionRange_Frozen" Range="250">
-								<Filter Rule="ANY" Include="INFANTRY VEHICLE" StatusBitFlags="UNDER_FROZEN"/>
-							</ObjectVisionRange>
-						</TurretAITargetChooserData>'''
 
 
 def sub1(x, old, new):
@@ -206,7 +203,6 @@ def patch_unit():
     x = sub1(x, 'Template="AlliedAntiVehicleVehicleTech1Cannon"', f'Template="{CANNON}"')
     x = sub1(x, 'TurretTurnRate="360"', 'TurretTurnRate="900"')
     x = sub1(x, 'TurretPitchRate="180"', 'TurretPitchRate="360"')
-    x = sub1(x, 'CanAcquireDynamicIfAssignedOutOfRange="true" />', FROZEN_VISION)
     x = sub1(x, 'CommandSet="AlliedAntiVehicleVehicleTech1CommandSet"', f'CommandSet="{COMMANDS}"')
     x = re.sub(r'(<LocomotorSet\b[^>]*Condition="NORMAL"[^>]*Speed=")80\.0(")', r'\g<1>125.0\2', x)
     assert 'Speed="125.0"' in x
