@@ -86,6 +86,8 @@ class Tiles:
         # after it 8 bytes, then the blend descriptions: u32 secondary tile, 4 direction bytes, u8 flags,
         # u8 two-sided, u32 (0xFFFFFFFF nearly always), u32 0x7ADA0000; a cell's blend value is 1 + description index
         self.desc_at = tex_end + 8
+        self.tex_end = tex_end
+        self.added = b''                    # texture entries appended by add_texture
         self.descs = [d[self.desc_at + 18 * k:self.desc_at + 18 * (k + 1)] for k in range(self.counts[1] - 1)]
         assert all(x[14:] == MAGIC[4:] for x in self.descs), 'blend description layout'     # Havana: 2 with another u32 before it
         self.after_descs = self.desc_at + 18 * len(self.descs)
@@ -150,6 +152,19 @@ class Tiles:
         size = self.row_bytes * self.height
         self.extra[field * size:(field + 1) * size] = bytes([0xFF if on else 0]) * size
 
+    def add_texture(self, name, cells=16, size=4):
+        """Append a ground texture to the map's list (after the existing cells; 256 x 256 sources such as
+        Grass_Heidelberg01 and Snow_Solvang01 use 16 cells of size 4). It must exist in SDK v3's Terrain.xml and
+        needs our own atlas (make_campnew7 CNV_OWN_ATLAS) -- a retail atlas has no such tile."""
+        if name in self.textures:
+            return
+        start = self.counts[0]
+        raw = name.encode('ascii')
+        self.added += struct.pack('<4I', start, cells, size, 0) + struct.pack('<H', len(raw)) + raw
+        self.textures[name] = (start, cells, size)
+        self.counts[0] += cells
+        self.counts[3] += 1
+
     def texture_at(self, i, j):
         c = self.arrays[0][j * self.width + i] // 4
         return next((n for n, (s, cnt, _) in self.textures.items() if s <= c < s + cnt), None)
@@ -186,4 +201,5 @@ class Tiles:
         self.counts[1] = len(self.descs) + 1
         self.node.head = (d[:4] + b''.join(struct.pack(f'<{self.n}H', *a) for a in self.arrays)
                           + bytes(self.extra) + struct.pack('<4I', *self.counts)
-                          + d[self.tex_at:self.desc_at] + b''.join(self.descs) + d[self.after_descs:])
+                          + d[self.tex_at:self.tex_end] + self.added + d[self.tex_end:self.desc_at]
+                          + b''.join(self.descs) + d[self.after_descs:])

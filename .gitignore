@@ -45,3 +45,9 @@ __pycache__/
 /experimental/**/*.obj
 /experimental/**/*.lib
 /experimental/**/*.exp
+
+# release indexes: per-file hashes of each published base (future patches diff against them); test builds stay out
+!/releases/
+/releases/*
+!/releases/20261013-1101.json
+!/releases/20261017-0012.json

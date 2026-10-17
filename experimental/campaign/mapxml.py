@@ -249,7 +249,41 @@ def game_map(m, gid, index):
     return f'\t<GameMap id="{_q(gid)}">\n' + '\n'.join(rows) + '\n\t</GameMap>\n'
 
 
-def map_xml(m, gid, extra=None):
+def terrain_assets():
+    """Terrain texture id -> (texture file, bump file) from SageXML/Terrain/Terrain.xml (SDK v3)."""
+    text = open(os.path.join(SAGE, 'Terrain', 'Terrain.xml'), encoding='utf-8', errors='replace').read()
+    out = {}
+    for block in re.findall(r'<TerrainAsset\b(.*?)/>', text, re.S):
+        a = dict(re.findall(r'(\w+)="([^"]*)"', block))
+        if 'id' in a and 'Texture' in a:
+            out[a['id'].lower()] = (a['Texture'], a.get('BumpTexture', ''))
+    return out
+
+
+def atlas_xml(m, gid):
+    """TerrainTextureAtlas for the ground textures the .map lists (BlendTileData), as the SDK's 360_DLC_TestMap
+    writes it: one Tile per texture with BaseTexture / NormalTexture under ART:Terrain and TextureID =
+    FastHash(lower-case texture id). Needs SDK v3 (the 1.10-era SDK has no ART:Terrain sources)."""
+    import mapterrain
+    import sagehash
+    hm = mapterrain.HeightMap(m)
+    names = list(mapterrain.Tiles(m, hm.width).textures)
+    assets = terrain_assets()
+    ids = sagehash.fast_hash_many([n.lower() for n in names])
+    rows, missing = [], []
+    for n in names:
+        if n.lower() not in assets:
+            missing.append(n)
+            continue
+        tex, bump = assets[n.lower()]
+        rows.append(f'\t\t<Tile BaseTexture="ART:Terrain/{tex}" NormalTexture="ART:Terrain/{bump}" '
+                    f'TextureID="{ids[n.lower()]}" />')
+    assert not missing, f'no Terrain.xml entry for {missing}'
+    return (f'\t<TerrainTextureAtlas id="{_q(gid)}" AtlasSize="2048" AllowLossyCompression="true">\n'
+            + '\n'.join(rows) + '\n\t</TerrainTextureAtlas>\n')
+
+
+def map_xml(m, gid, extra=None, atlas=False):
     """(map.xml text, [templates without a SageXML definition]): Includes of the object XMLs the map places that
     the static streams lack (reference includes resolve everything else against the retail streams) + GameMap.
     `extra`: our own templates, {id: {'file': 'DATA:<path under the SDK's Mods folder>', 'EditorSorting': ...}}."""
@@ -266,6 +300,7 @@ def map_xml(m, gid, extra=None):
     text = ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'
             '\t<Tags/>\n\t<Includes>\n' + '\n'.join(inc) + '\n\t</Includes>\n' + game_map(m, gid, index)
+            + (atlas_xml(m, gid) if atlas else '')
             + '</AssetDeclaration>\n')
     return text, unknown
 
