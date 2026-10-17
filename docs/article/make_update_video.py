@@ -41,7 +41,7 @@ def clip(seg, movie, start, length, ver, what, headline=None, until=None):
     """A piece of a ra3 movie with the 1.0 or 1.1 dub; Chinese subtitles (game timing) in both. headline: the point
     of the clip in a bar over the picture (whole clip, or until `until` s), so no silent title card is needed."""
     wav = movie_wav(movie, ver)
-    lines = [l for l in md.movie_lines(movie, 'zh') if start - 0.5 < l[0] < start + length]
+    lines = [l for l in md.movie_lines(movie, 'zh') if l[0] + l[1] > start + 0.3 and l[0] < start + length]
     ass = md.subs_file(lines, start, f'{seg}.ass')
     ch = int(subprocess.run([md.FF.replace('ffmpeg.exe', 'ffprobe.exe'), '-v', 'error', '-show_entries',
                              'stream=channels', '-of', 'csv=p=0', wav], capture_output=True, text=True).stdout.split()[0])
@@ -51,19 +51,12 @@ def clip(seg, movie, start, length, ver, what, headline=None, until=None):
     tag = ('1.0（旧）' if ver == '1.0' else '1.1（新）') + ' · ' + what
     md.ff(['-i', video, '-i', wav, '-filter_complex',
            f"[0:v]trim=start={start}:end={end},setpts=PTS-STARTPTS,scale={md.W}:{md.H}:flags=lanczos,setsar=1,"
-           f"subtitles={ass}:fontsdir=.,{md.label(tag)},{head_bar(headline, length if until is None else until)}"
+           f"subtitles={ass}:fontsdir=.,{md.label(tag)},{md.head_bar(headline, length if until is None else until)}"
            f"fade=t=in:st=0:d=0.3,fade=t=out:st={length - 0.3}:d=0.3[v];"
            f"[1:a]atrim=start={start}:end={end},asetpts=PTS-STARTPTS,{mix},{md.LOUD},"
            f"afade=t=in:st=0:d=0.2,afade=t=out:st={length - 0.3}:d=0.3[a]",
            '-map', '[v]', '-map', '[a]', '-t', f'{length}'] + md.ENC + [f'{seg}.mp4'])
     return f'{seg}.mp4'
-
-
-def head_bar(text, until):
-    if not text:
-        return ''
-    return draw(text, 64, '(w-text_w)/2', 150, color='0xFFE08A',
-                extra=f":box=1:boxcolor=black@0.62:boxborderw=22:enable='lt(t,{until:.2f})'") + ','
 
 
 def ab_card(seg, title, sub, items):
