@@ -36,7 +36,7 @@
 - GitHub Release v1.1（latest）：三个完整包 RA3-CNVoice-v1.1-{full,ra3,uprising}.zip + SHA256SUMS.txt + 补丁 `patches/20261017-0012/` 全部 142 个文件（含 manifest.json、patch.json）。线上 latest manifest 已核对与本地一致。
 - 完整包是**新 base**：build 20261017-0012（`ra3cv.py release`，不带 --from-patch），索引 `releases/20261017-0012.json`。补丁 20261017-0012 是对 base 20261013-1101 的累积补丁，给装 1.0 / 1.0.1 / 1.0.2 的玩家；两者 build 号相同，安装器按 base 选补丁，无冲突。
 - 内容 = 下面「1.0.2 之后已改」全部 + 安装器按长度和 sha256 复用缓存里的同名文件（不再重复下载）+ 安装器 2026-10-14 那批修复 + 试听索引偏移。TEMP_ 占位语音用户决定不配。
-- **下一个补丁要发两份**：`--base 20261017-0012`（1.1 玩家，小）和 `--base 20261013-1101`（老玩家，累积），manifest 里两条都放。注意：现在 `cmd_patch` 只写一条 manifest，且两份补丁的 .big 文件名相同，放进同一个 Release 会撞名——发之前先改 cmd_patch（文件名带 base 或分目录，manifest 合并两条）。
+- **下一个补丁一次带两份（2026-10-17 已支持）**：`ra3cv.py patch --base 20261017-0012 20261013-1101 --version 1.1.x --notes "…"`。一个 `patches/<build>/` 里每个 base 一条 manifest 条目：组件包文件名带 base（`ra3_<base>_CNVoice_patch_X.big`），语音长度表两条共用；第二条的 build 是 `<build>.<base>`（安装器按 build 分缓存目录，且任何更晚的时间戳都排在它后面）。已验证：真实 dist 空跑时老玩家那份与已发布 1.1 补丁逐字节一致、1.1 那份为空；v1.0 时期和当前安装器在本地假服务器上都只取自己 base 的那条（scratchpad/guitest/multibase_test.py）。补丁文件夹不再写 patch.json，`earlier_patch_entries` / `release --from-patch` 改读各文件夹的 manifest.json。
 - `releases/` 里两个已发布的索引（1101、0012）已进仓库；`patches/` 含音频不进仓库，但**必须留在本地**：cmd_patch 要读同一 base 下以前补丁的 .big（earlier_patch_entries）。
 - 网盘已由用户换成 1.1（N 网待确认）。B 站：动态 https://t.bilibili.com/1260086427628077077 + 置顶评论（320645749168）下回复 rpid 320989712512；小黑盒按用户意见不发。文案 docs/publish/v1.1公告.txt。
 
@@ -103,9 +103,9 @@
   发 v1.0 时同时建一个 Release，附件里放 `{"patches": [], "mirrors": []}` 的 manifest.json，否则“检查更新”会报 404。
 - 前提：正式版 `ra3cv.py release` 时 `UPDATE_URL`（环境变量 `CNVOICE_UPDATE_URL`）已指向
   `https://github.com/<owner>/<repo>/releases/latest/download/manifest.json`，且留着 `releases/<build>.json`。
-- 改完台词照上面 1–3 步、`ra3cv.py build` 后：`python -I -X utf8 ra3cv.py patch --base <正式版 build> --version 1.0.x --notes "改了什么"`
+- 改完台词照上面 1–3 步、`ra3cv.py build` 后：`python -I -X utf8 ra3cv.py patch --base <玩家可能装着的每个正式版 build，新的在前> --version 1.x --notes "改了什么"`
 - 把 `patches/<新 build>/` 里**所有文件**（扁平命名，含 manifest.json）作为一个新的 GitHub Release 附件上传，标为 latest。
-  补丁对正式版累积，manifest 只放最新一个；安装器装新补丁前会先清掉旧补丁。
+  补丁对各自的 base 累积，manifest 每个 base 只放最新一条；安装器装新补丁前会先清掉旧补丁。
 - 备用下载地址（加速前缀）写在 `UPDATE_MIRRORS`，会随 manifest 下发。
 - 本地验证：`scratchpad/guitest/update_test.py`（假服务器 + 假游戏目录，含直连失败走备用地址、旧补丁清理）。
 

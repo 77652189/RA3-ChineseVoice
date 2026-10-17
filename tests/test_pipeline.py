@@ -346,7 +346,7 @@ def test_patch_redelivers_what_an_earlier_patch_changed():
         big.write(eva, [('a', b'1'), ('b', b'3'), ('c', b'1')])          # a reverted, b changed
         m.cmd_patch(args)
         p2 = [x for x in os.listdir(m.PATCH_DIR) if x != 'p1'][0]
-        patch = json.load(open(os.path.join(m.PATCH_DIR, p2, 'patch.json'), encoding='utf-8'))
+        (patch,) = json.load(open(os.path.join(m.PATCH_DIR, p2, 'manifest.json'), encoding='utf-8'))['patches']
         (f,) = patch['games']['g']['files']
         assert sorted(n for n, _, _ in big.read_index(os.path.join(m.PATCH_DIR, p2, f['path']))) == ['a', 'b']
         big.write(eva, [('a', b'1'), ('b', b'3')])                        # c gone
@@ -367,7 +367,7 @@ def test_full_package_check_sees_changes_outside_the_patch():
         big.write(eva, [('a', b'2'), ('b', b'1'), ('c', b'1')])
         m.cmd_patch(argparse.Namespace(base='B', version='x', notes=''))
         p = os.listdir(m.PATCH_DIR)[0]
-        patch = json.load(open(os.path.join(m.PATCH_DIR, p, 'patch.json'), encoding='utf-8'))
+        (patch,) = json.load(open(os.path.join(m.PATCH_DIR, p, 'manifest.json'), encoding='utf-8'))['patches']
         m.verify_dist_matches_patch(patch)                                 # dist == base + patch: fine
         big.write(eva, [('a', b'2'), ('b', b'9'), ('c', b'1')])          # a change the patch does not carry
         try:
@@ -375,6 +375,38 @@ def test_full_package_check_sees_changes_outside_the_patch():
             raise AssertionError('an unpatched change must be caught')
         except SystemExit as e:
             assert 'not in patch' in str(e)
+
+
+def test_one_release_carries_a_patch_for_each_base():
+    """After a new full package (base C) the old players (base B) still need their cumulative patch: one GitHub
+    release holds both, so asset names must not collide, each entry carries only what changed since its own base,
+    and the builds differ (the installer keeps one patch.json per build in its cache)."""
+    import argparse
+    import json
+    m = _load_ra3cv()
+    with tempfile.TemporaryDirectory() as d:
+        eva = _fake_project(m, d)
+        big.write(eva, [('a', b'2'), ('b', b'1'), ('c', b'1')])          # the new full package C
+        json.dump({'build': 'C', 'games': {'g': m.dist_index('g')}}, open(os.path.join(m.RELEASE_INDEX, 'C.json'), 'w'))
+        big.write(os.path.join(d, 'dist', 'g', 'core', 'CNVoice_core_v.big'), [('audio.bin', b'x')])
+        big.write(eva, [('a', b'2'), ('b', b'3'), ('c', b'1')])          # the next fix
+        m.cmd_patch(argparse.Namespace(base=['C', 'B'], version='x', notes=''))
+        (p,) = os.listdir(m.PATCH_DIR)
+        src = os.path.join(m.PATCH_DIR, p)
+        entries = {e['base']: e for e in json.load(open(os.path.join(src, 'manifest.json'), encoding='utf-8'))['patches']}
+        assert sorted(entries) == ['B', 'C'] and entries['B']['build'] != entries['C']['build']
+        carried = {b: sorted(n for f in e['games']['g']['files'] for n, _, _ in big.read_index(os.path.join(src, f['path'])))
+                   for b, e in entries.items()}
+        assert carried == {'B': ['a', 'b'], 'C': ['b']}
+        paths = [f['path'] for e in entries.values() for f in e['games']['g']['files']]
+        assert len(set(paths)) == len(paths) and all(os.path.exists(os.path.join(src, q)) for q in paths)
+        assert {f['name'] for e in entries.values() for f in e['games']['g']['files']} == {'CNVoice_patch_eva.big'}
+        assert entries['B']['games']['g']['core'] == entries['C']['games']['g']['core']   # one shared asset
+        for e in entries.values():
+            m.verify_dist_matches_patch(e)
+        # the next patch on base B must redeliver what this one gave B players, found through the manifest
+        assert m.earlier_patch_entries('B', 'g') == {'CNVoice_eva.big': {'a', 'b'}}
+        assert m.earlier_patch_entries('C', 'g') == {'CNVoice_eva.big': {'b'}}
 
 
 def test_batched_eaxa_encoder_matches_the_reference():

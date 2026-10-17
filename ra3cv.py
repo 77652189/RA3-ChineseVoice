@@ -539,7 +539,7 @@ def verify_dist_matches_patch(patch):
     in dist with the same bytes, every other dist file is unchanged since the base (all components, also
     eva / mission / text / movie), and the cores match."""
     import hashlib
-    src = os.path.join(PATCH_DIR, patch['build'])
+    src, _ = find_patch(patch['build'])
     base = json.load(open(os.path.join(RELEASE_INDEX, patch['base'] + '.json'), encoding='utf-8'))
     for g, info in patch['games'].items():
         carried = {}
@@ -570,7 +570,7 @@ def cmd_release(args):
     # base, so later patches (always cumulative against the base release) apply to it as to a patched install
     patch = None
     if args.from_patch:
-        patch = json.load(open(os.path.join(PATCH_DIR, args.from_patch, 'patch.json'), encoding='utf-8'))
+        _, patch = find_patch(args.from_patch)
         verify_dist_matches_patch(patch)
         MOD_VERSION = patch['version']
         RELEASE_NAME = f'红警3中文配音MOD_v{MOD_VERSION}'
@@ -679,74 +679,99 @@ def dist_index(game):
     return out
 
 
+def patch_entries():
+    """[(folder, manifest entry)] of every patch built so far. One folder = one GitHub release; its manifest.json
+    may hold one entry per base release (file paths are relative to the folder)."""
+    out = []
+    for mj in sorted(glob.glob(os.path.join(PATCH_DIR, '*', 'manifest.json'))):
+        out += [(os.path.dirname(mj), e) for e in json.load(open(mj, encoding='utf-8'))['patches']]
+    return out
+
+
+def find_patch(build):
+    hits = [(src, e) for src, e in patch_entries() if e['build'] == build]
+    if not hits:
+        sys.exit(f'no patch with build {build} under {PATCH_DIR}')
+    return hits[0]
+
+
 def earlier_patch_entries(base_build, game):
     """{component archive name: set of entries} that any earlier patch on this base delivered for a game.
     Full packages made with release --from-patch carry those entries inside their component archives, so a new
     patch must deliver them again even where they went back to the base release's content."""
     out = {}
-    for pj in glob.glob(os.path.join(PATCH_DIR, '*', 'patch.json')):
-        patch = json.load(open(pj, encoding='utf-8'))
+    for src, patch in patch_entries():
         if patch.get('base') != base_build:
             continue
         for f in patch['games'].get(game, {}).get('files', []):
-            p = os.path.join(os.path.dirname(pj), f['path'])
+            p = os.path.join(src, f['path'])
             out.setdefault(COMP_BIG.format(f['component']), set()).update(n for n, _, _ in big.read_index(p))
     return out
 
 
 def cmd_patch(args):
-    """patches/<build>/: per game, one archive per changed component with the files that changed since the
-    base release (and every file an earlier patch on that base delivered), plus all cores; manifest entry
-    patches/<build>/patch.json (add it to the hosted manifest.json)."""
+    """patches/<build>/: for each base release players may have, per game one archive per changed component
+    with the files that changed since that base (and every file an earlier patch on that base delivered), plus
+    the cores (shared by all bases); manifest.json lists one entry per base and is the hosted manifest."""
     import datetime
     import hashlib
     require_full_build()
-    base = json.load(open(os.path.join(RELEASE_INDEX, args.base + '.json'), encoding='utf-8'))
-    # a patch can only add or replace files: anything the base or an earlier patch shipped must still exist
-    for g in GAMES:
-        new = dist_index(g)
-        shipped = {arc: set(names) for arc, names in base['games'].get(g, {}).items()}
-        for arc, names in earlier_patch_entries(args.base, g).items():
-            shipped.setdefault(arc, set()).update(names)
-        gone = [f'{arc}:{n}' for arc, names in shipped.items() for n in sorted(names - set(new.get(arc, {})))]
-        if gone:
-            sys.exit(f'{g}: {len(gone)} files shipped before are missing from dist (a patch cannot delete them), '
-                     f'e.g. {gone[:3]}; make a new full release instead')
-    build_id = datetime.datetime.now().strftime('%Y%m%d-%H%M')
-    out = os.path.join(PATCH_DIR, build_id)
+    bases = [args.base] if isinstance(args.base, str) else list(args.base)
+    index = {b: json.load(open(os.path.join(RELEASE_INDEX, b + '.json'), encoding='utf-8')) for b in bases}
+    new = {g: dist_index(g) for g in GAMES}
+    earlier = {(b, g): earlier_patch_entries(b, g) for b in bases for g in GAMES}
+    # a patch can only add or replace files: anything a base or an earlier patch shipped must still exist
+    for b in bases:
+        for g in GAMES:
+            shipped = {arc: set(names) for arc, names in index[b]['games'].get(g, {}).items()}
+            for arc, names in earlier[b, g].items():
+                shipped.setdefault(arc, set()).update(names)
+            gone = [f'{arc}:{n}' for arc, names in shipped.items() for n in sorted(names - set(new[g].get(arc, {})))]
+            if gone:
+                sys.exit(f'{g}: {len(gone)} files shipped before (base {b}) are missing from dist (a patch cannot '
+                         f'delete them), e.g. {gone[:3]}; make a new full release instead')
+    stamp = datetime.datetime.now().strftime('%Y%m%d-%H%M')
+    out = os.path.join(PATCH_DIR, stamp)
     shutil.rmtree(out, ignore_errors=True)
-    entry = {'build': build_id, 'version': args.version, 'base': args.base, 'notes': args.notes, 'games': {}}
+    os.makedirs(out)
 
     def describe(path):
         # flat names: GitHub release assets cannot live in folders
         return {'path': os.path.basename(path), 'size': os.path.getsize(path),
                 'sha256': hashlib.sha256(open(path, 'rb').read()).hexdigest()}
+    cores = {}
     for g in GAMES:
-        old = base['games'].get(g, {})
-        new = dist_index(g)
-        earlier = earlier_patch_entries(args.base, g)
-        os.makedirs(out, exist_ok=True)
-        files = []
-        for arc, names in new.items():
-            comp = arc[len('CNVoice_'):-len('.big')]
-            diff = [n for n, h in names.items() if old.get(arc, {}).get(n) != h or n in earlier.get(arc, ())]
-            if not diff:
-                continue
-            # one patch per component, so a player only ever adds patches for what they installed
-            # (a mission-line patch on top of a core without the mission lengths would cut those lines)
-            p = os.path.join(out, f'{g}_' + PATCH_NAME.format(comp))
-            big.write(p, list(big.read_files(os.path.join(ROOT, 'dist', g, arc), diff).items()))
-            files.append(dict(describe(p), name=PATCH_NAME.format(comp), component=comp, entries=len(diff)))
-        cores = {}
+        cores[g] = {}
         for p in glob.glob(os.path.join(ROOT, 'dist', g, 'core', '*.big')):
             q = os.path.join(out, f'{g}_' + os.path.basename(p))
             shutil.copyfile(p, q)
-            cores[os.path.basename(p)[len('CNVoice_core_'):-len('.big')]] = describe(q)
-        entry['games'][g] = {'files': files, 'core': cores}
-        print(f'{g}: ' + (', '.join(f"{f['component']} {f['entries']} files {f['size'] / 1e6:.1f} MB" for f in files) or 'no changes'))
-    json.dump(entry, open(os.path.join(out, 'patch.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    # the hosted manifest only needs the newest patch: patches are cumulative against their base release
-    json.dump({'patches': [entry], 'mirrors': UPDATE_MIRRORS}, open(os.path.join(out, 'manifest.json'), 'w', encoding='utf-8'),
+            cores[g][os.path.basename(p)[len('CNVoice_core_'):-len('.big')]] = describe(q)
+    entries = []
+    for i, b in enumerate(bases):
+        # each entry needs its own build: the installer caches downloads and patch.json under updates\<build>\
+        # (a player can have the two games on different bases). Any later stamp still sorts after both.
+        build_id = stamp if i == 0 else f'{stamp}.{b}'
+        entry = {'build': build_id, 'version': args.version, 'base': b, 'notes': args.notes, 'games': {}}
+        for g in GAMES:
+            old = index[b]['games'].get(g, {})
+            files = []
+            for arc, names in new[g].items():
+                comp = arc[len('CNVoice_'):-len('.big')]
+                diff = [n for n, h in names.items() if old.get(arc, {}).get(n) != h or n in earlier[b, g].get(arc, ())]
+                if not diff:
+                    continue
+                # one patch per component, so a player only ever adds patches for what they installed
+                # (a mission-line patch on top of a core without the mission lengths would cut those lines);
+                # the base in the asset name keeps the archives of different bases apart in one release
+                p = os.path.join(out, f'{g}_{b}_' + PATCH_NAME.format(comp))
+                big.write(p, list(big.read_files(os.path.join(ROOT, 'dist', g, arc), diff).items()))
+                files.append(dict(describe(p), name=PATCH_NAME.format(comp), component=comp, entries=len(diff)))
+            entry['games'][g] = {'files': files, 'core': cores[g]}
+            print(f'base {b} {g}: ' + (', '.join(f"{f['component']} {f['entries']} files {f['size'] / 1e6:.1f} MB"
+                                                  for f in files) or 'no changes'))
+        entries.append(entry)
+    # the hosted manifest needs only the newest patch per base: patches are cumulative against their base release
+    json.dump({'patches': entries, 'mirrors': UPDATE_MIRRORS}, open(os.path.join(out, 'manifest.json'), 'w', encoding='utf-8'),
               ensure_ascii=False, indent=1)
     print(f'patch -> {out}  (publish every file of this folder as one GitHub release, see HANDOFF.md)')
 
@@ -800,10 +825,11 @@ def main():
     p = sub.add_parser('preview'); p.add_argument('batches', nargs='*'); p.set_defaults(fn=cmd_preview)
     r = sub.add_parser('release')
     r.add_argument('--from-patch', metavar='BUILD',
-                   help='package = base release + patches/BUILD (keeps its build, version and base)')
+                   help='package = base release + the patch with this build (keeps its build, version and base)')
     r.set_defaults(fn=cmd_release)
     pa = sub.add_parser('patch', help='update patch against a release build (releases/<build>.json)')
-    pa.add_argument('--base', required=True, help='build id of the release players have, e.g. 20261013-1200')
+    pa.add_argument('--base', required=True, nargs='+',
+                    help='build ids of the full releases players may have (newest first), e.g. 20261017-0012 20261013-1101')
     pa.add_argument('--version', required=True, help='version shown to players, e.g. 1.0.1')
     pa.add_argument('--notes', default='', help='what changed (shown in the installer)')
     pa.set_defaults(fn=cmd_patch)
