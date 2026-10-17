@@ -1,0 +1,20 @@
+{
+ "_": "onset-cut reference holds another line / noise (tools/check_refs.py): cut these by subtitle time",
+ "assets": [
+  "R_afs01_08",
+  "R_afs03_05",
+  "R_afs03_16",
+  "R_afs10_11",
+  "R_jfs04_05",
+  "R_jfs07_08",
+  "R_jfs07_11",
+  "R_jfs07_14",
+  "R_jfs07_30",
+  "R_jfs07_34",
+  "R_sfs00_21",
+  "R_sfs00_24",
+  "R_sfs00_43",
+  "U_ch26ol02_01",
+  "U_chwinfs_20"
+ ]
+}

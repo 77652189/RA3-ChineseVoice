@@ -30,6 +30,7 @@
 /work/speakers/*
 !/work/speakers/ref_override.json
 !/work/speakers/fallback.json
+!/work/speakers/bad_onset_refs.json
 # game footage stays out of the repo
 /docs/article/img/fig1_cover.png
 

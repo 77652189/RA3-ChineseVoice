@@ -13,6 +13,7 @@ limited to this line: never earlier than the previous line's end, never later th
 then trimmed to where there is actual speech. Output: original/movie_clean/<asset>.wav
 """
 import csv
+import json
 import os
 import sys
 
@@ -41,6 +42,11 @@ def main(only):
             for q in csv.DictReader(f):
                 if q['onset'] and not q['rejected'] and (q['applied'] or abs(float(q['shift'])) < 0.35):
                     onset[q['asset']] = float(q['onset'])
+    # onsets whose slice turned out to hold another line or noise (tools/check_refs.py): back to subtitle time
+    bad = os.path.join(ROOT, 'work', 'speakers', 'bad_onset_refs.json')
+    if os.path.exists(bad):
+        for a in json.load(open(bad, encoding='utf-8'))['assets']:
+            onset.pop(a, None)
     made = 0
     for (game, mv), rs in sorted(by.items()):
         if only and mv not in only:

@@ -36,6 +36,7 @@
 - 副官补配 5 句（EA 拼错前缀，原来是英文）：Svea_UltraNagnticSatellteReady「终极磁力卫星准备完毕！」（界面名也由“超磁力卫星”改为“终极磁力卫星”）、Svea_MagnticSingularityReady、Svea_ / Ivea_RedAlertAct、Ieve_SecurityPointGranted。全量英文排查（tools/english_audit.py，work/english_audit/）只找到这些；其余是 Whisper 幻觉、惨叫、背景广播和 TEMP_ 占位。
 - 「弹」读音：work/terms/pronounce.json，配音时 弹→蛋（弹性/动弹除外），字幕不变；23 句高风险（中弹/装弹/补弹/一弹/弹舱…）已重配，单位里普通“炸弹/导弹”没重配。
 - 过场参考音改为从实测开口截取（clean_refs.py）；545 句（被前一人声音污染的 414 + speakers.py 新查出的）重配，keep_better 择优：395 句换新（86 句旧版音高明显不对）、150 句留旧。串人确认的 4 句（达莎、宾汉姆、切尔登科、库可夫）已修。
+- 复查（2026-10-16 晚）：tools/check_refs.py 用 Whisper 核对新参考音是否真是这句台词，15 段截错（电话铃、别的台词）→ 记入 work/speakers/bad_onset_refs.json（clean_refs 对它们改回按字幕截），其中已换新的 6 句退回旧版；换新后多了停顿/拖长且旧版音高正常的 5 句也退回。最终过场换新 389 句。jfs07_02「谢谢，父亲」原为女声，ref_override→R_jfs07_31 重配为男声。仍拿不准 4 句（work/voice_audit/doubtful.json）列在试听页最后，等用户听。新旧音色明亮度中位比 1.00、响度差 +0.1 dB，无系统偏移。
 - fx.py：P0 改为原样复制；voices/movie 已按 archive/voices_movie_0430 还原并同步 clean（之前 fix14 留下的不一致曾让 fx 回退已发布台词）。
 - 验证：重建后与 v1.0.2 比，原版 74 / 起义 21 个过场有变，正好是含换新句子的那些；语音包只重编码改动的句子。试听：work/review/index.html（tools/review_page.py）。
 - 发布前要定：这些改动的过场补丁仍约数百 MB（补丁累积 + 旧安装器不复用下载），建议和“安装器按校验值复用下载”一起出完整包。

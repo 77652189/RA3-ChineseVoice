@@ -83,6 +83,17 @@ def main():
         zh = mp3(f'{a}_zh.mp3', os.path.join(ROOT, 'voices', 'eva', a + '.wav'))
         page.append(f'<tr><td>{html.escape(ev[a]["zh"])}<div class=en>{html.escape(ev[a]["en"])}</div></td>{cell(en)}{cell(zh)}</tr>')
     page.append('</table>')
+    # 4. still doubtful: pitch and fingerprint both off the actor, and no same-actor reference found to fix them
+    doubt = os.path.join(ROOT, 'work', 'voice_audit', 'doubtful.json')
+    if os.path.exists(doubt):
+        page.append('<h2>还拿不准的几句（音高和声纹都不像演员，自动方法修不了）：请听一下配音是不是这个角色</h2>'
+                    '<table><tr><th>台词</th><th>演员原声</th><th>现在的配音</th></tr>')
+        for a in json.load(open(doubt, encoding='utf-8')):
+            ref = mp3(f'{a}_ref.mp3', os.path.join(ROOT, 'original', 'movie_clean', a + '.wav'))
+            cur = mp3(f'{a}_cur.mp3', os.path.join(ROOT, 'voices', 'movie', a + '.wav'))
+            page.append(f'<tr><td>{html.escape(mv[a]["zh"])}<div class=en>{html.escape(mv[a]["en"])} · {a}</div></td>'
+                        f'{cell(ref)}{cell(cur)}</tr>')
+        page.append('</table>')
     open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write('\n'.join(page))
     print('->', os.path.join(OUT, 'index.html'))
 
