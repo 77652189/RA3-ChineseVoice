@@ -38,6 +38,7 @@
 - 过场参考音改为从实测开口截取（clean_refs.py）；545 句（被前一人声音污染的 414 + speakers.py 新查出的）重配，keep_better 择优：395 句换新（86 句旧版音高明显不对）、150 句留旧。串人确认的 4 句（达莎、宾汉姆、切尔登科、库可夫）已修。
 - 复查（2026-10-16 晚）：tools/check_refs.py 用 Whisper 核对新参考音是否真是这句台词，15 段截错（电话铃、别的台词）→ 记入 work/speakers/bad_onset_refs.json（clean_refs 对它们改回按字幕截），其中已换新的 6 句退回旧版；换新后多了停顿/拖长且旧版音高正常的 5 句也退回。最终过场换新 389 句。jfs07_02「谢谢，父亲」原为女声，ref_override→R_jfs07_31 重配为男声。仍拿不准 4 句（work/voice_audit/doubtful.json）列在试听页最后，等用户听。新旧音色明亮度中位比 1.00、响度差 +0.1 dB，无系统偏移。
 - 全量过场声纹检测（2026-10-16 夜）：check_refs 核实全部 2782 段参考音（2723 段含本句台词，work/voice_audit/ref_text_all.csv）；voice_audit 只用核实过的参考比对，pYIN 复测音高后，训练关等大部分「男女颠倒」是音高测量误差（声纹相似 0.6–0.83）。fix_swaps.py 对 4 句借同一演员参考重配，均未更像本人，已全部退回（配置也撤回）。拿不准的 11 句列在试听页最后（work/voice_audit/doubtful.json），只能人耳判断。mission 批次已支持 ref_override（work/speakers/ref_override_mission.json，目前为空）。
+- 用户试听（2026-10-17）：11 句拿不准的里，U_chwinfs_23「(Ah, hell...)」原声无人声→不配音（voices 移到 archive/silent_lines，字幕保留）；U_ath02kj02_03、R_sfs00_26、U_ch12mv02_01 语气不对→ choose_takes.py 出三个候选，用户都选 A；其余 7 句没问题。与 v1.0.2 比：原版 73 / 起义 23 个过场有变，正好是含改动句子的那些。
 - fx.py：P0 改为原样复制；voices/movie 已按 archive/voices_movie_0430 还原并同步 clean（之前 fix14 留下的不一致曾让 fx 回退已发布台词）。
 - 验证：重建后与 v1.0.2 比，原版 74 / 起义 21 个过场有变，正好是含换新句子的那些；语音包只重编码改动的句子。试听：work/review/index.html（tools/review_page.py）。
 - 发布前要定：这些改动的过场补丁仍约数百 MB（补丁累积 + 旧安装器不复用下载），建议和“安装器按校验值复用下载”一起出完整包。
