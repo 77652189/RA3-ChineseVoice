@@ -25,9 +25,11 @@ sys.path.insert(0, HERE)
 import splice_assets as sa                     # noqa: E402
 from ra3voice import big, refpack              # noqa: E402
 
-SDK = r'C:\RA3ModSDK'
+SDK = os.environ.get('CNV_SDK', r'C:\RA3ModSDK3')         # Mod SDK v3.0, see make_campnew2
 SAGE = os.path.join(SDK, 'SageXML')
-INDEX = os.path.join(os.path.dirname(os.path.dirname(HERE)), 'work', 'sagexml_gameobjects.json')
+INDEX = os.path.join(os.path.dirname(os.path.dirname(HERE)), 'work',
+                     'sagexml_gameobjects.json' if SDK.rstrip('\\').endswith('RA3ModSDK') else
+                     f'sagexml_gameobjects_{os.path.basename(SDK.rstrip(chr(92)))}.json')
 GAME_ALL_TYPES_HASH = 1424942948
 
 

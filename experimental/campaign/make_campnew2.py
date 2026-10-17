@@ -21,7 +21,9 @@ sys.path.insert(0, HERE)
 import splice_assets                                     # noqa: E402
 from ra3voice import big                                  # noqa: E402
 
-SDK = r'C:\RA3ModSDK'
+# Mod SDK v3.0 (patch 1.12 layouts, AllTypesHash 1424942948 like the game). C:\RA3ModSDK is a 1.10-era SDK: its
+# GameObjects load but corrupt the heap once the unit is active (CampNew19 bisect, 2026-10-16) -- don't use it.
+SDK = os.environ.get('CNV_SDK', r'C:\RA3ModSDK3')
 NAME = 'CampNew2'
 SRC_DIR = os.path.join(SDK, 'Mods', NAME, 'data')
 BUILT = os.path.join(SDK, 'BuiltMods', 'mods', NAME.lower(), 'data')
@@ -77,7 +79,7 @@ def sources():
 
 def compile_mod():
     r = subprocess.run([os.path.join(SDK, 'tools', 'BinaryAssetBuilder.exe'), os.path.join(SRC_DIR, 'mod.xml'),
-                        r'/od:C:\RA3ModSDK\BuiltMods', r'/iod:C:\RA3ModSDK\BuiltMods', '/ls:true', '/gui:false',
+                        f'/od:{SDK}\\BuiltMods', f'/iod:{SDK}\\BuiltMods', '/ls:true', '/gui:false',
                         '/pc:true', '/vf:false', '/el:0'], cwd=SDK, capture_output=True, text=True, errors='replace')
     open(os.path.join(SDK, f'_build_{NAME}.log'), 'w', encoding='utf-8').write(r.stdout + r.stderr)
     if r.returncode or 'BinaryAssetBuilder complete' not in r.stdout:

@@ -27,6 +27,7 @@ c2.OUT = c4.OUT = os.path.join(os.path.expanduser('~'), 'Documents', 'Red Alert 
 c7.MAP_MOD = NAME + 'Map'
 UNIT, UNIT_NAME, LIKE = 'CNV_Saucer', 'UNIT - CNV Saucer', 'UNIT - Hydrofoil 01'
 MODEL = 'CNSaucer'
+SPIN = os.environ.get('CNV_SAUCER_SPIN') == '1'
 UNIT_FILE = os.path.join(c2.SDK, 'Mods', 'CNVUnits', 'Data', UNIT + '.xml')
 c7.EXTRA_TEMPLATES[UNIT] = {'file': 'DATA:CNVUnits/Data/' + UNIT + '.xml', 'EditorSorting': 'UNIT'}
 c4.c3.STRINGS['Name:' + UNIT] = 'CNV 飞碟'
@@ -69,6 +70,12 @@ def unit_xml():
     x = x.replace('Name="AUAntiAirShip_SKN"', f'Name="{MODEL.upper()}"')
     x = x.replace('>Name:AlliedAntiAirShip<', f'>Name:{UNIT}<')
     x = x.replace('<Includes>', f'<Includes>\n\t\t<Include type="all" source="ART:{MODEL}.w3x" />', 1)
+    if SPIN:        # CNV_SAUCER_SPIN=1: our spin animation in the default animation state (CampNew19 bisect)
+        x = x.replace('<Includes>', f'<Includes>\n\t\t<Include type="all" source="ART:{MODEL}_SPIN.w3x" />', 1)
+        x = x.replace('ParseCondStateType="PARSE_DEFAULT">\n\t\t\t\t\t<Script>',
+                      f'ParseCondStateType="PARSE_DEFAULT">\n\t\t\t\t\t<Animation AnimationName="{MODEL.upper()}_SPIN" '
+                      'AnimationMode="LOOP" />\n\t\t\t\t\t<Script>', 1)
+        assert f'{MODEL.upper()}_SPIN" AnimationMode' in x, 'default animation state'
     os.makedirs(os.path.dirname(UNIT_FILE), exist_ok=True)
     with open(UNIT_FILE, 'w', encoding='utf-8', newline='\r\n') as f:
         f.write(x.replace('\r\n', '\n'))
@@ -83,6 +90,8 @@ def edit(m):
     verts, normals, uvs, tris = w3x.lathe(PROFILE, segments=40)
     w3x.write_model(MODEL, w3x.model(MODEL, verts, normals, uvs, tris, MODEL, MODEL + '_NRM', MODEL + '_SPM'))
     print(f'model {MODEL}: {len(verts)} vertices, {len(tris)} triangles')
+    if SPIN:
+        w3x.write_model(MODEL + '_SPIN', w3x.spin_animation(MODEL + '_SPIN', MODEL, 1, frames=90))
     unit_xml()
     like = next(o for o in mapxml.objects(m) if o['props'].get('objectName') == LIKE)
     mapxml.place_object(m, LIKE, UNIT, like['x'] + 60, like['y'] - 60, name=UNIT_NAME)

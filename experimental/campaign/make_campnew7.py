@@ -44,7 +44,7 @@ def compile_map(m):
     log = os.path.join(c2.SDK, f'_build_{MAP_MOD}.log')
     with open(log, 'w') as f:
         subprocess.run([os.path.join(c2.SDK, 'tools', 'BinaryAssetBuilder.exe'), os.path.join(src, 'map.xml'),
-                        r'/od:C:\RA3ModSDK\BuiltMods', r'/iod:C:\RA3ModSDK\BuiltMods', '/ls:true', '/gui:false',
+                        f'/od:{c2.SDK}\\BuiltMods', f'/iod:{c2.SDK}\\BuiltMods', '/ls:true', '/gui:false',
                         '/pc:true', '/vf:false', '/el:0'], cwd=c2.SDK, stdout=f, stderr=subprocess.STDOUT, check=True)
     out = os.path.join(c2.SDK, 'BuiltMods', 'mods', MAP_MOD.lower(), rel)
     return lambda name: open(os.path.join(out, name), 'rb').read()
