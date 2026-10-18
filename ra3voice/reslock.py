@@ -10,9 +10,9 @@ holding both repositories, e.g. Documents\\RA3Modding; RA3_SHARED overrides the 
 Each file: {"owner": "<line / tool>", "pid": <process>, "since": "<iso time>", "until": "<iso time>" | null,
 "note": "..."}. A lock whose process is gone, or whose 'until' has passed, is stale: ignored and overwritable.
 
-  python -I -m ra3voice.reslock status
-  python -I -m ra3voice.reslock acquire <name> <owner> [minutes] [note...]     (exit 1 if held)
-  python -I -m ra3voice.reslock release <name>
+  python -I ra3voice/reslock.py status
+  python -I ra3voice/reslock.py acquire <name> <owner> [minutes] [note...]     (exit 1 if held)
+  python -I ra3voice/reslock.py release <name>
 """
 import atexit
 import datetime
