@@ -42,7 +42,7 @@
 
 ## 配音质量工程化（2026-10-17，进行中）
 - 抽检：`tools/qa_sample.py`（固定种子随机抽句、人标标签，英文改用按演员开口截的 movie_clean）。r1：过场 100 句，缺陷约 15%（语气不对 8、音色不像 4、停顿怪 3；"念错"多为抽检页英文片段截错，已排除）。标签 work/qa/r1/labels.csv。
-- 自动裁判检验（AUC，0.5=瞎猜）：现有 CER/停顿/时长 ≈0.5；`tools/qa_features.py`（对演员：时长、音高、起伏、响度起伏、亮度"用力程度"、声纹、尾音）最高为亮度 0.77；`tools/qa_emotion.py`（emotion2vec+，独立环境 third_party/emo-venv）≈0.5～0.63。
+- 自动裁判检验（AUC，0.5=瞎猜）：现有 CER/停顿/时长 ≈0.5；`tools/qa_features.py`（对演员：时长、音高、起伏、响度起伏、亮度"用力程度"、声纹、尾音）最高为亮度 0.77；`tools/qa_emotion.py`（emotion2vec+；无效，模型和独立环境 emo-venv 已删，重跑需 `uv venv --system-site-packages` + `pip install funasr`）≈0.5～0.63。
 - 力度试点 `tools/pilot_effort.py`：40 句"比演员亮 >5 dB"重生成并按接近演员挑选，盲听新 13 / 旧 21 / 平 6 → 力度/音高匹配≠语气对，方向放弃。配对结果 work/qa/pairs_effort.csv。
 - 短句试点 `tools/pilot_short.py`（sfs01）：拆块拼接不可用；口语短句整句生成更稳但感情偏平；发布版感情最好。只适合作为问题句的补救候选。
 - 念错检测（`tools/qa_audiollm.py`，Qwen2.5-Omni-3B，系统 Python）：A/B 二选一提问无效（总答 B）；不给文字、让它把听到的写成拼音（`free`）有效：测试集 `tools/misread_bench.py`（18 念错 / 68 念对）抓到 14/18，误报 12/68；只在听到的是该字另一正规读音时报警可降到约 11/18、2/68。用户决定不做全量扫描：配音视为成品，念错靠评论区；有人报某字念错时，用 `free` 把含该字的句子全查一遍。
