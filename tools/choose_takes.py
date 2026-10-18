@@ -44,6 +44,8 @@ def page(batch, assets):
     from transformers import pipeline
     import pick as base
     from pilot_emotion import prosody
+    from ra3voice import throttle
+    throttle.setup(torch)
     os.makedirs(OUT, exist_ok=True)
     rows = {r['asset']: r for r in csv.DictReader(open(os.path.join(ROOT, 'lines', batch + '.csv'), encoding='utf-8-sig'))}
     asr = pipeline('automatic-speech-recognition', model=base.MODEL, dtype=torch.float16, device='cuda:0')
@@ -54,7 +56,8 @@ def page(batch, assets):
         scored = []
         for p in sorted(glob.glob(os.path.join(ROOT, 'candidates', batch, a + '_*.wav'))):
             x = base.trim(audio_io.load_mono(p, 16000), 16000).astype(np.float32)
-            hyp = asr({'raw': x, 'sampling_rate': 16000}, generate_kwargs={'language': 'zh', 'task': 'transcribe'})['text']
+            with throttle.work():
+                hyp = asr({'raw': x, 'sampling_rate': 16000}, generate_kwargs={'language': 'zh', 'task': 'transcribe'})['text']
             e = base.cer(rows[a]['zh'], hyp)
             if e > 0.2:
                 continue

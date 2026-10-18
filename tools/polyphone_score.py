@@ -82,14 +82,21 @@ def released(batches):
 class Scorer:
     def __init__(self):
         from transformers import WhisperForConditionalGeneration, WhisperProcessor
+        from ra3voice import throttle
+        throttle.setup(torch)      # share the GPU (gpu_limit.json): a full-speed run starved a game test once
+        self.throttle = throttle
         self.proc = WhisperProcessor.from_pretrained(MODEL)
         self.model = WhisperForConditionalGeneration.from_pretrained(MODEL, torch_dtype=torch.float16).to('cuda').eval()
         tok = self.proc.tokenizer
         self.prefix = tok.convert_tokens_to_ids(['<|startoftranscript|>', '<|zh|>', '<|transcribe|>', '<|notimestamps|>'])
         self.eot = tok.eos_token_id
 
-    @torch.no_grad()
     def logp(self, wav, texts):
+        with self.throttle.work():
+            return self._logp(wav, texts)
+
+    @torch.no_grad()
+    def _logp(self, wav, texts):
         x = audio_io.load_mono(wav, 16000).astype(np.float32)[:16000 * 30]
         feats = self.proc(x, sampling_rate=16000, return_tensors='pt').input_features.to('cuda', torch.float16)
         enc = self.model.model.encoder(feats).last_hidden_state
