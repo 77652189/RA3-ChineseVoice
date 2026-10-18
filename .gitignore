@@ -14,7 +14,6 @@
 !/docs/
 !/lines/
 !/work/
-!/experimental/
 
 /lines/*
 !/lines/GLOSSARY.md
@@ -40,11 +39,6 @@ __pycache__/
 *.pyc
 .mineru/
 
-# build outputs of the experimental shims
-/experimental/**/*.dll
-/experimental/**/*.obj
-/experimental/**/*.lib
-/experimental/**/*.exp
 
 # release indexes: per-file hashes of each published base (future patches diff against them); test builds stay out
 !/releases/
