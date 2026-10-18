@@ -18,7 +18,7 @@
   - 1.13 是 Steam 官方补丁（`Data\RA3_1.13.game`），用 mod 启动时跑的就是它。
 - 画质（续，2026-10-14 晚）：
   - 后期增强（深度图做 SSAO + 锐化 + 调色）：引擎每帧有线性深度图 `WW3D.DepthTexture`，改 `PostFX_LookupTable.fx` 能读到；调色、锐化无瑕疵，SSAO 单 pass 有颗粒和斑块，没调完。测试 mod 在 `文档\Red Alert 3\Mods\CNVPic*`。mod 名（版本号前）最多 15 个字符、不能带下划线。
-  - RTX Remix：自写 d3d9 中间层（`experimental/rtx-remix/`，说明见其 README）已能让 Remix 光追单位和建筑，光影正确；地形、水面、贴错图（发青）、对局界面缺失、残影未解决。Remix 自带的地形烘焙还原不了红警3 在着色器里做的三层图集混合，要走得自己烘一张俯视图。游戏每轮测完都已恢复（原 d3d9.dll sha 646e70e3…）。
+  - RTX Remix：自写 d3d9 中间层（现在在 [RA3-CampaignLab](https://github.com/77652189/RA3-CampaignLab) 的 `experimental/rtx-remix/`，说明见其 README）已能让 Remix 光追单位和建筑，光影正确；地形、水面、贴错图（发青）、对局界面缺失、残影未解决。Remix 自带的地形烘焙还原不了红警3 在着色器里做的三层图集混合，要走得自己烘一张俯视图。游戏每轮测完都已恢复（原 d3d9.dll sha 646e70e3…）。
   - 讨论过的路线和结论：换引擎完整重写最贵（要重做模拟层）；只做战役能去掉联机但仍重；最划算的架构是"保留原版模拟、只换表现层"（中间层就是这条边界）。用户倾向 PVE 战役内容。
 - 明天待选（用户今天到此为止）：
   1. 战役扩展验证：用"整包顶替 static/资源流"的办法重测能否加新关卡或替换某关内容（CampProbe 的 mod.manifest 很可能没被读）。这是战役路线成立的前提。
