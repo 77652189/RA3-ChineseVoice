@@ -1,17 +1,22 @@
 """Share the GPU with whatever else the user is running (e.g. a game).
 
-gpu_limit.json in the project root, re-read before every work item so it can be changed live:
+gpu_limit.json, re-read before every work item so it can be changed live:
   {"duty": 0.4, "vram_gb": 7}
   duty     fraction of wall time spent on GPU work (1 = full speed); the rest is spent sleeping
   vram_gb  cap for PyTorch's allocator in this process (applied once at start-up)
-Missing file = full speed, no cap. The process also drops itself to below-normal priority.
+The one both RA3 lines share is <LAB>\\shared\\gpu_limit.json (see reslock); a project-root copy is the fallback.
+Missing file = full speed, no cap. The process also drops itself to below-normal priority and registers a GPU
+lease in shared\\locks\\ until it exits.
 """
 import json
 import os
 import time
 
+from . import reslock
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CFG = os.path.join(ROOT, 'gpu_limit.json')
+_SHARED_CFG = os.path.join(reslock.shared_dir(), 'gpu_limit.json')
+CFG = _SHARED_CFG if os.path.exists(_SHARED_CFG) else os.path.join(ROOT, 'gpu_limit.json')
 
 
 def config():
@@ -22,8 +27,12 @@ def config():
         return {}
 
 
-def setup(torch=None):
-    """Lower process priority and apply the VRAM cap. Call before loading models."""
+def setup(torch=None, owner='RA3-ChineseVoice'):
+    """Lower process priority, apply the VRAM cap and register a GPU lease. Call before loading models."""
+    try:
+        reslock.gpu_lease(owner, note=f"duty {config().get('duty', 1.0)}")
+    except OSError:
+        pass
     try:
         import ctypes
         BELOW_NORMAL = 0x4000
