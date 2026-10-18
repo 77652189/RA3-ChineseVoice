@@ -38,7 +38,11 @@ def page(rnd, batch, n, seed):
     body = []
     for i, r in enumerate(sample, 1):
         a = r['asset']
-        en = choose_takes.mp3(f'{a}_en.mp3', os.path.join(ROOT, 'original', batch, a + '.wav'))
+        # movies: the actor's own line (cut at the measured onset, separated vocals); the plain slice follows the
+        # subtitle times, which lead the actor, and catches the neighbouring lines
+        clean = os.path.join(ROOT, 'original', 'movie_clean', a + '.wav')
+        en = choose_takes.mp3(f'{a}_en.mp3', clean if batch == 'movie' and os.path.exists(clean)
+                              else os.path.join(ROOT, 'original', batch, a + '.wav'))
         zh = choose_takes.mp3(f'{a}_zh.mp3', os.path.join(ROOT, 'voices', batch, a + '.wav'))
         tags = ''.join(f'<label><input type=checkbox value="{t}"> {t}</label>' for t in TAGS)
         body.append(f'<tr data-a="{a}"><td class=n>{i}</td><td><div class=zh>{html.escape(r["zh"])}</div>'
