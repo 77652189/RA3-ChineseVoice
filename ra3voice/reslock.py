@@ -8,7 +8,9 @@ holding both repositories, e.g. Documents\\RA3Modding; RA3_SHARED overrides the 
                     (ra3voice.throttle writes and removes its lease by itself)
 
 Each file: {"owner": "<line / tool>", "pid": <process>, "since": "<iso time>", "until": "<iso time>" | null,
-"note": "..."}. A lock whose process is gone, or whose 'until' has passed, is stale: ignored and overwritable.
+"note": "..."}. A lock with an 'until' holds until that time, whether its process lives or not (the CLI's acquire
+records a process that exits at once); a lock without one holds while its process lives. Otherwise it is stale:
+ignored and overwritable.
 
   python -I ra3voice/reslock.py status
   python -I ra3voice/reslock.py acquire <name> <owner> [minutes] [note...]     (exit 1 if held)
@@ -54,8 +56,8 @@ def read(name):
     except (OSError, ValueError):
         return None
     until = info.get('until')
-    if until and datetime.datetime.fromisoformat(until) < datetime.datetime.now():
-        return None
+    if until:       # a timed lock holds until it expires: a CLI acquire's process is gone right after it
+        return info if datetime.datetime.fromisoformat(until) >= datetime.datetime.now() else None
     return info if _pid_alive(info.get('pid', 0)) else None
 
 

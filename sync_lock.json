@@ -1,0 +1,1045 @@
+{
+ "ra3": [
+  "Aeva_BonusObjectiveComplete",
+  "Aeva_ObjectiveComp",
+  "MA01_AlliedIntel28",
+  "MA01_AlliedIntel30",
+  "MA01_AlliedIntel31",
+  "MA01_AlliedIntel32",
+  "MA01_AlliedIntel36",
+  "MA01_AlliedIntel39",
+  "MA01_AlliedIntel40",
+  "MA01_AlliedSoldier01",
+  "MA01_SovietSoldier01",
+  "MA02_Tanya05",
+  "MA02_Tanya06",
+  "MA02_Tanya07",
+  "MA03_AlliedIntel12",
+  "MA03_AlliedIntel13",
+  "MA03_AlliedIntel14",
+  "MA03_AlliedIntel15",
+  "MA03_AlliedIntel16",
+  "MA03_Tanya01",
+  "MA03_Tanya02",
+  "MA04_Natasha01",
+  "MA04_Natasha04",
+  "MA04_Tanya02",
+  "MA04_Tanya05",
+  "MA04_Tanya06",
+  "MA05_AlliedIntel09",
+  "MA05_AlliedIntel10",
+  "MA05_AlliedIntel15",
+  "MA05_AlliedIntel27",
+  "MA05_AlliedIntel29",
+  "MA05_Tanay01",
+  "MA06_AlliedIntel10",
+  "MA06_AlliedIntel11",
+  "MA06_AlliedIntel13",
+  "MA06_AlliedIntel14",
+  "MA06_AlliedIntel16",
+  "MA06_AlliedIntel24",
+  "MA06_AlliedIntel33",
+  "MA06_AlliedIntel35",
+  "MA06_AlliedIntel36",
+  "MA07_AlliedIntel20",
+  "MA08_AlliedIntel05",
+  "MA08_AlliedIntel06",
+  "MA08_AlliedIntel07",
+  "MA08_AlliedIntel08",
+  "MA08_AlliedIntel09",
+  "MA09_AlliedIntel11",
+  "MA09_AlliedIntel16",
+  "MA09_AlliedIntel17",
+  "MA09_AlliedIntel18",
+  "MA09_AlliedIntel19",
+  "ME02_CoKenj01",
+  "ME02_CoKenj07",
+  "ME02_CoKenj08",
+  "ME02_CoKenj09",
+  "ME02_CoKenj10",
+  "ME03_CoKenj01",
+  "ME03_CoKenj02",
+  "ME03_CoKenj03",
+  "ME07_CoShin01",
+  "ME07_CoShin03",
+  "ME07_CoShin04",
+  "ME07_CoShin05",
+  "ME07_CoShin06",
+  "ME08_CoKenj01",
+  "ME08_CoKenj02",
+  "ME08_CoKenj03",
+  "ME08_CoKenj05",
+  "MI01_ImperialIntel06",
+  "MI01_ImperialIntel07",
+  "MI01_ImperialIntel08",
+  "MI01_ImperialIntel27",
+  "MI01_ImperialIntel29",
+  "MI01_ImperialIntel34",
+  "MI02_ImperialIntel09",
+  "MI02_ImperialIntel10",
+  "MI02_ImperialIntel11",
+  "MI02_ImperialIntel12",
+  "MI02_ImperialIntel13",
+  "MI02_ImperialIntel19",
+  "MI02_ImperialIntel20",
+  "MI02_ImperialIntel21",
+  "MI02_ImperialIntel22",
+  "MI02_ImperialIntel34",
+  "MI02_ImperialIntel36",
+  "MI02_ImperialIntel37",
+  "MI02_ImperialIntel38",
+  "MI02_ImperialIntel39",
+  "MI02_ImperialIntel40",
+  "MI02_ImperialIntel41",
+  "MI02_ImperialIntel42",
+  "MI02_ImperialIntel43",
+  "MI02_ImperialIntel44",
+  "MI02_ImperialIntel45",
+  "MI02_ImperialIntel46",
+  "MI02_ImperialIntel47",
+  "MI02_ImperialIntel48",
+  "MI03_ImperialIntel08",
+  "MI03_ImperialIntel10",
+  "MI03_ImperialIntel16",
+  "MI03_ImperialIntel17",
+  "MI03_ImperialIntel18",
+  "MI03_ImperialIntel19",
+  "MI03_ImperialIntel20",
+  "MI03_ImperialIntel21",
+  "MI03_ImperialIntel22",
+  "MI03_ImperialIntel23",
+  "MI03_ImperialIntel24",
+  "MI03_ImperialIntel25",
+  "MI03_ImperialIntel26",
+  "MI03_ImperialIntel27",
+  "MI03_ImperialIntel28",
+  "MI03_ImperialIntel29",
+  "MI03_ImperialIntel30",
+  "MI03_ImperialIntel31",
+  "MI03_ImperialIntel32",
+  "MI03_ImperialIntel33",
+  "MI06_ImperialIntel09",
+  "MI06_ImperialIntel10",
+  "MI06_ImperialIntel13",
+  "MI06_ImperialIntel14",
+  "MI06_ImperialIntel15",
+  "MI06_ImperialIntel17",
+  "MI06_ImperialIntel18",
+  "MI06_ImperialIntel20",
+  "MI07_ImperialIntel05",
+  "MI07_ImperialIntel06",
+  "MI07_ImperialIntel07",
+  "MI07_ImperialIntel08",
+  "MI07_ImperialIntel09",
+  "MI07_ImperialIntel10",
+  "MI07_ImperialIntel11",
+  "MI07_ImperialIntel12",
+  "MI07_ImperialIntel13",
+  "MI07_ImperialIntel14",
+  "MI07_ImperialIntel15",
+  "MI07_ImperialIntel16",
+  "MI07_ImperialIntel17",
+  "MI07_ImperialIntel18",
+  "MI07_ImperialIntel19",
+  "MI07_ImperialIntel29",
+  "MI07_ImperialIntel30",
+  "MI07_ImperialIntel31",
+  "MI07_ImperialIntel32",
+  "MI07_ImperialIntel33",
+  "MI07_ImperialIntel34",
+  "MI07_ImperialIntel35",
+  "MI07_ImperialIntel36",
+  "MI07_ImperialIntel37",
+  "MI07_ImperialIntel38",
+  "MI07_ImperialIntel39",
+  "MI07_ImperialIntel40",
+  "MI07_ImperialIntel41",
+  "MI07_ImperialIntel42",
+  "MI08_ImperialIntel06",
+  "MI08_ImperialIntel07",
+  "MI08_ImperialIntel08",
+  "MI08_ImperialIntel09",
+  "MI08_ImperialIntel10",
+  "MI08_ImperialIntel11",
+  "MI08_ImperialIntel12",
+  "MI08_ImperialIntel13",
+  "MI08_ImperialIntel14",
+  "MI08_ImperialIntel15",
+  "MI08_ImperialIntel16",
+  "MI08_ImperialIntel17",
+  "MI08_ImperialIntel18",
+  "MI08_ImperialIntel19",
+  "MI08_ImperialIntel20",
+  "MI08_ImperialIntel21",
+  "MI08_ImperialIntel22",
+  "MI08_ImperialIntel23",
+  "MI08_ImperialIntel24",
+  "MI08_ImperialIntel25",
+  "MS01_ImperialSoldier02",
+  "MS01_SovietIntel20",
+  "MS01_SovietSoldier01",
+  "MS02_Natasha02",
+  "MS05_SovietIntel07",
+  "MS05_SovietIntel10",
+  "MS05_SovietIntel13",
+  "MS05_SovietIntel14",
+  "MS05_SovietIntel15",
+  "MS05_SovietIntel16",
+  "MS05_SovietIntel17",
+  "MS05_SovietIntel18",
+  "MS07_ImperialSoldier08",
+  "MS07_SovietIntel10",
+  "MS07_SovietSoldier02",
+  "MS08_AlliedSoldier01",
+  "MS08_CoZhan01",
+  "MS08_CoZhan02",
+  "MS08_CoZhan03",
+  "MS08_CoZhan04",
+  "MS08_CoZhan05",
+  "MS08_CoZhan06",
+  "MS08_CoZhan07",
+  "MS08_SovietIntel11",
+  "MS08_SovietIntel12",
+  "MS08_SovietIntel13",
+  "MS08_SovietIntel14",
+  "MS08_SovietIntel15",
+  "MS08_SovietIntel27",
+  "MS08_SovietIntel28",
+  "MS08_SovietIntel29",
+  "MS08_SovietIntel30",
+  "MS08_SovietIntel31",
+  "MS08_SovietIntel32",
+  "MS08_SovietIntel33",
+  "MS08_SovietIntel34",
+  "MS08_SovietIntel35",
+  "MS08_SovietIntel36",
+  "MS08_SovietIntel37",
+  "MS08_SovietIntel38",
+  "MS08_SovietSoldier01",
+  "MS09_SovietIntel19",
+  "MS09_Tanya01",
+  "MXlevel1_Apoc01",
+  "MXlevel1_MajorGiles03",
+  "MXlevel1_MajorGiles17",
+  "MXlevel1_MajorGiles29",
+  "MXlevel1_MajorGiles30",
+  "MXlevel1_MajorGiles34",
+  "MXlevel1_MajorGiles40",
+  "MXlevel1_MajorGiles56",
+  "MXlevel1_MajorGiles57",
+  "MXlevel1_MajorGiles_PU1_02",
+  "MXlevel1_MajorGiles_PU1_03",
+  "MXlevel1_MajorGiles_PU1_04",
+  "MXlevel1_MajorGiles_PU1_06",
+  "MXlevel1_MajorGiles_PU1_08",
+  "MXlevel1_MajorGiles_PU1_10",
+  "MXlevel1_MajorGiles_PU1_13",
+  "MXlevel1_MajorGiles_PU1_14",
+  "MXlevel1_MajorGiles_PU1_16",
+  "MXlevel1_MajorGiles_PU1_18",
+  "MXlevel1_MajorGiles_PU1_20",
+  "MXlevel1_MajorGiles_PU1_21",
+  "MXlevel1_MajorGiles_PU1_23",
+  "MXlevel1_MajorGiles_PU1_25",
+  "MXlevel1_MajorGiles_PU1_28",
+  "MXlevel1_MajorGiles_PU1_30",
+  "MXlevel1_MajorGiles_PU1_31",
+  "MXlevel1_MajorGiles_PU1_34",
+  "MXlevel1_MajorGiles_PU1_36",
+  "MXlevel1_MajorGiles_PU1_37",
+  "MXlevel1_MajorGiles_PU1_38",
+  "MXlevel1_MajorGiles_PU1_39",
+  "MXlevel1_MajorGiles_PU1_49",
+  "MXlevel1_MajorGiles_PU1_51",
+  "MXlevel1_Tesla02",
+  "Seva_BattleExpande",
+  "Seva_BonusObjectiveComplete",
+  "Seva_BonusObjectiveRec",
+  "Seva_NewConOptons",
+  "Seva_ObjectiveComp"
+ ],
+ "maps": {
+  "Aeva_BonusObjectiveComplete": [
+   "camp_a04_gibraltar_hayes"
+  ],
+  "Aeva_ObjectiveComp": [
+   "camp_a04_gibraltar_hayes"
+  ],
+  "MA01_AlliedIntel28": [
+   "camp_a01_brightonbeach_smith"
+  ],
+  "MA01_AlliedIntel30": [
+   "camp_a01_brightonbeach_smith"
+  ],
+  "MA01_AlliedIntel31": [
+   "camp_a01_brightonbeach_smith"
+  ],
+  "MA01_AlliedIntel32": [
+   "camp_a01_brightonbeach_smith"
+  ],
+  "MA01_AlliedIntel36": [
+   "camp_a01_brightonbeach_smith"
+  ],
+  "MA01_AlliedIntel39": [
+   "camp_a01_brightonbeach_smith"
+  ],
+  "MA01_AlliedIntel40": [
+   "camp_a01_brightonbeach_smith"
+  ],
+  "MA01_AlliedSoldier01": [
+   "camp_a01_brightonbeach_smith"
+  ],
+  "MA01_SovietSoldier01": [
+   "camp_a01_brightonbeach_smith"
+  ],
+  "MA02_Tanya05": [
+   "camp_a02_cannes_smith"
+  ],
+  "MA02_Tanya06": [
+   "camp_a02_cannes_smith"
+  ],
+  "MA02_Tanya07": [
+   "camp_a02_cannes_smith"
+  ],
+  "MA03_AlliedIntel12": [
+   "camp_a03_heidelberg_smith"
+  ],
+  "MA03_AlliedIntel13": [
+   "camp_a03_heidelberg_smith"
+  ],
+  "MA03_AlliedIntel14": [
+   "camp_a03_heidelberg_smith"
+  ],
+  "MA03_AlliedIntel15": [
+   "camp_a03_heidelberg_smith"
+  ],
+  "MA03_AlliedIntel16": [
+   "camp_a03_heidelberg_smith"
+  ],
+  "MA03_Tanya01": [
+   "camp_a03_heidelberg_smith"
+  ],
+  "MA03_Tanya02": [
+   "camp_a03_heidelberg_smith"
+  ],
+  "MA04_Natasha01": [
+   "camp_a04_gibraltar_hayes"
+  ],
+  "MA04_Natasha04": [
+   "camp_a04_gibraltar_hayes"
+  ],
+  "MA04_Tanya02": [
+   "camp_a04_gibraltar_hayes"
+  ],
+  "MA04_Tanya05": [
+   "camp_a04_gibraltar_hayes"
+  ],
+  "MA04_Tanya06": [
+   "camp_a04_gibraltar_hayes"
+  ],
+  "MA05_AlliedIntel09": [
+   "camp_a05_northsea_white"
+  ],
+  "MA05_AlliedIntel10": [
+   "camp_a05_northsea_white"
+  ],
+  "MA05_AlliedIntel15": [
+   "camp_a05_northsea_white"
+  ],
+  "MA05_AlliedIntel27": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA05_AlliedIntel29": [
+   "camp_a05_northsea_white"
+  ],
+  "MA05_Tanay01": [
+   "camp_a05_northsea_white"
+  ],
+  "MA06_AlliedIntel10": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA06_AlliedIntel11": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA06_AlliedIntel13": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA06_AlliedIntel14": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA06_AlliedIntel16": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA06_AlliedIntel24": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA06_AlliedIntel33": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA06_AlliedIntel35": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA06_AlliedIntel36": [
+   "camp_a06_mountrushmore_white"
+  ],
+  "MA07_AlliedIntel20": [
+   "camp_a07_tokyoharbor_davis"
+  ],
+  "MA08_AlliedIntel05": [
+   "camp_a08_havana_rao"
+  ],
+  "MA08_AlliedIntel06": [
+   "camp_a08_havana_rao"
+  ],
+  "MA08_AlliedIntel07": [
+   "camp_a08_havana_rao"
+  ],
+  "MA08_AlliedIntel08": [
+   "camp_a08_havana_rao"
+  ],
+  "MA08_AlliedIntel09": [
+   "camp_a08_havana_rao"
+  ],
+  "MA09_AlliedIntel11": [
+   "camp_a09_leningrad_rao"
+  ],
+  "MA09_AlliedIntel16": [
+   "camp_a09_leningrad_rao"
+  ],
+  "MA09_AlliedIntel17": [
+   "camp_a09_leningrad_rao"
+  ],
+  "MA09_AlliedIntel18": [
+   "camp_a09_leningrad_rao"
+  ],
+  "MA09_AlliedIntel19": [
+   "camp_a09_leningrad_rao"
+  ],
+  "ME02_CoKenj01": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "ME02_CoKenj07": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "ME02_CoKenj08": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "ME02_CoKenj09": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "ME02_CoKenj10": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "ME03_CoKenj01": [
+   "camp_j03_odessa_stewart"
+  ],
+  "ME03_CoKenj02": [
+   "camp_j03_odessa_stewart"
+  ],
+  "ME03_CoKenj03": [
+   "camp_j03_odessa_stewart"
+  ],
+  "ME07_CoShin01": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "ME07_CoShin03": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "ME07_CoShin04": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "ME07_CoShin05": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "ME07_CoShin06": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "ME08_CoKenj01": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "ME08_CoKenj02": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "ME08_CoKenj03": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "ME08_CoKenj05": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI01_ImperialIntel06": [
+   "camp_j01_russianvillage_white"
+  ],
+  "MI01_ImperialIntel07": [
+   "camp_j01_russianvillage_white"
+  ],
+  "MI01_ImperialIntel08": [
+   "camp_j01_russianvillage_white"
+  ],
+  "MI01_ImperialIntel27": [
+   "camp_j01_russianvillage_white"
+  ],
+  "MI01_ImperialIntel29": [
+   "camp_j01_russianvillage_white"
+  ],
+  "MI01_ImperialIntel34": [
+   "camp_j01_russianvillage_white"
+  ],
+  "MI02_ImperialIntel09": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel10": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel11": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel12": [
+   "camp_j02_stalingrad_stewart",
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI02_ImperialIntel13": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel19": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel20": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel21": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel22": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel34": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel36": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel37": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel38": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel39": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel40": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel41": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel42": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel43": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel44": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel45": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel46": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel47": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI02_ImperialIntel48": [
+   "camp_j02_stalingrad_stewart"
+  ],
+  "MI03_ImperialIntel08": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel10": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel16": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel17": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel18": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel19": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel20": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel21": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel22": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel23": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel24": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel25": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel26": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel27": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel28": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel29": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel30": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel31": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel32": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI03_ImperialIntel33": [
+   "camp_j03_odessa_stewart"
+  ],
+  "MI06_ImperialIntel09": [
+   "camp_j06_losangeles_white"
+  ],
+  "MI06_ImperialIntel10": [
+   "camp_j06_losangeles_white"
+  ],
+  "MI06_ImperialIntel13": [
+   "camp_j06_losangeles_white"
+  ],
+  "MI06_ImperialIntel14": [
+   "camp_j06_losangeles_white"
+  ],
+  "MI06_ImperialIntel15": [
+   "camp_j06_losangeles_white"
+  ],
+  "MI06_ImperialIntel17": [
+   "camp_j06_losangeles_white"
+  ],
+  "MI06_ImperialIntel18": [
+   "camp_j06_losangeles_white"
+  ],
+  "MI06_ImperialIntel20": [
+   "camp_j06_losangeles_white"
+  ],
+  "MI07_ImperialIntel05": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel06": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel07": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel08": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel09": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel10": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel11": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel12": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel13": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel14": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel15": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel16": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel17": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel18": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel19": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel29": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel30": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel31": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel32": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel33": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel34": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel35": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel36": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel37": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel38": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel39": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel40": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel41": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI07_ImperialIntel42": [
+   "camp_j07_yokohama_stewart"
+  ],
+  "MI08_ImperialIntel06": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel07": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel08": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel09": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel10": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel11": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel12": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel13": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel14": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel15": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel16": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel17": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel18": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel19": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel20": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel21": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel22": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel23": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel24": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MI08_ImperialIntel25": [
+   "camp_j08_kremlin_stewart"
+  ],
+  "MS01_ImperialSoldier02": [
+   "camp_s02_krasna45_rao"
+  ],
+  "MS01_SovietIntel20": [
+   "camp_s01_leningradcanals_rao"
+  ],
+  "MS01_SovietSoldier01": [
+   "camp_s01_leningradcanals_rao"
+  ],
+  "MS02_Natasha02": [
+   "camp_s01_leningradcanals_rao"
+  ],
+  "MS05_SovietIntel07": [
+   "camp_s05_mykonos_smith"
+  ],
+  "MS05_SovietIntel10": [
+   "camp_s05_mykonos_smith"
+  ],
+  "MS05_SovietIntel13": [
+   "camp_s05_mykonos_smith"
+  ],
+  "MS05_SovietIntel14": [
+   "camp_s05_mykonos_smith"
+  ],
+  "MS05_SovietIntel15": [
+   "camp_s05_mykonos_smith"
+  ],
+  "MS05_SovietIntel16": [
+   "camp_s05_mykonos_smith"
+  ],
+  "MS05_SovietIntel17": [
+   "camp_s05_mykonos_smith"
+  ],
+  "MS05_SovietIntel18": [
+   "camp_s05_mykonos_smith"
+  ],
+  "MS07_ImperialSoldier08": [
+   "camp_s07_mountfuji_white"
+  ],
+  "MS07_SovietIntel10": [
+   "camp_s07_mountfuji_white"
+  ],
+  "MS07_SovietSoldier02": [
+   "camp_s07_mountfuji_white"
+  ],
+  "MS08_AlliedSoldier01": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_CoZhan01": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_CoZhan02": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_CoZhan03": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_CoZhan04": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_CoZhan05": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_CoZhan06": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_CoZhan07": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel11": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel12": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel13": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel14": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel15": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel27": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel28": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel29": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel30": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel31": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel32": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel33": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel34": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel35": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel36": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel37": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietIntel38": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS08_SovietSoldier01": [
+   "camp_s08_easterisland_stewart"
+  ],
+  "MS09_SovietIntel19": [
+   "camp_s09_newyork_rao"
+  ],
+  "MS09_Tanya01": [
+   "camp_s09_newyork_rao"
+  ],
+  "MXlevel1_Apoc01": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles03": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles17": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles29": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles30": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles34": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles40": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles56": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles57": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_02": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_03": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_04": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_06": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_08": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_10": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_13": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_14": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_16": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_18": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_20": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_21": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_23": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_25": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_28": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_30": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_31": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_34": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_36": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_37": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_38": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_39": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_49": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_MajorGiles_PU1_51": [
+   "camp_a08_havana_rao"
+  ],
+  "MXlevel1_Tesla02": [
+   "camp_a08_havana_rao"
+  ],
+  "Seva_BattleExpande": [
+   "camp_s01_leningradcanals_rao"
+  ],
+  "Seva_BonusObjectiveComplete": [
+   "camp_s01_leningradcanals_rao",
+   "camp_s02_krasna45_rao"
+  ],
+  "Seva_BonusObjectiveRec": [
+   "camp_s01_leningradcanals_rao"
+  ],
+  "Seva_NewConOptons": [
+   "camp_s01_leningradcanals_rao"
+  ],
+  "Seva_ObjectiveComp": [
+   "camp_s02_krasna45_rao",
+   "camp_s09_newyork_rao"
+  ]
+ },
+ "not_audio_files": [
+  "Geva_BonusObjectiveRec",
+  "Geva_IncomingTrans",
+  "Geva_NewObjectReci",
+  "Geva_ObjectiveComp",
+  "SOV_Bear_VoiceAttack",
+  "TEMP_RA2_EVA_MissionAccomplished"
+ ]
+}

@@ -419,6 +419,27 @@ def test_batched_eaxa_encoder_matches_the_reference():
     assert eaxa.encode_channel_areas(pieces) == [eaxa.encode_channel_area(p) for p in pieces]
 
 
+def test_fitlen_keeps_the_original_length():
+    """sync-locked lines must come out exactly as long as the original: pad short ones, trim then speed up long ones."""
+    from ra3voice import fitlen
+    sr = 48000
+    rng = np.random.default_rng(5)
+    speech = lambda s: rng.normal(0, 0.2, int(s * sr))
+    quiet = lambda s: np.zeros(int(s * sr))
+    # shorter: untouched, silence appended
+    x = speech(1.0)
+    y, rate = fitlen.fit(x, int(1.5 * sr), sr)
+    assert len(y) == int(1.5 * sr) and rate == 1 and np.allclose(y[:len(x)], x) and not y[len(x):].any()
+    # longer only by its quiet head and tail: trimmed, not sped up
+    x = np.concatenate([quiet(0.5), speech(1.0), quiet(0.5)])
+    y, rate = fitlen.fit(x, int(1.2 * sr), sr)
+    assert len(y) == int(1.2 * sr) and rate == 1
+    # longer speech: sped up to fit
+    y, rate = fitlen.fit(speech(2.0), int(1.6 * sr), sr)
+    assert len(y) == int(1.6 * sr) and 1.2 < rate < 1.3
+    assert fitlen.fit(np.zeros(100), 50, sr)[0].shape == (50,)
+
+
 if __name__ == '__main__':
     for k, f in list(globals().items()):
         if k.startswith('test_'):

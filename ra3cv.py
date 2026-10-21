@@ -22,7 +22,7 @@ import zipfile
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
-from ra3voice import audio_io, big, snr, textpack                     # noqa: E402
+from ra3voice import audio_io, big, fitlen, snr, textpack             # noqa: E402
 from ra3voice.game import AudioStream, chain_for_game          # noqa: E402
 
 GAMES = {
@@ -268,12 +268,15 @@ VOICE_CACHE = os.path.join(ROOT, 'work', 'voice_cache')
 _worker_stream = {}
 
 
-def _voice_clip(stream, asset, wav, original, no_level):
-    """One voice line: level-match our wav to the original clip, encode it like the asset. -> (cdata blob, samples)."""
+def _voice_clip(stream, asset, wav, original, no_level, lock=False):
+    """One voice line: level-match our wav to the original clip, encode it like the asset. -> (cdata blob, samples).
+    lock: a line map scripts wait for (sync_lock.json) keeps the original length, see ra3voice/fitlen.py."""
     ref, sr = stream.decode(asset, original)
     x = audio_io.load_mono(wav, sr)
     if not no_level:
         x = audio_io.match_level(x, ref)
+    if lock:
+        x = fitlen.fit(x, len(ref), sr)[0]
     pcm = audio_io.to_int16(x)
     (_, blob), = stream.cdata_files({asset.short_name: pcm})
     return blob, len(pcm)
@@ -284,9 +287,9 @@ def _voice_worker_init(game):
 
 
 def _voice_worker(task):
-    game, name, wav, original, no_level = task
+    game, name, wav, original, no_level, lock = task
     stream = _worker_stream[game]
-    return name, _voice_clip(stream, stream.get(name), wav, original, no_level)
+    return name, _voice_clip(stream, stream.get(name), wav, original, no_level, lock)
 
 
 def _voice_code():
@@ -299,9 +302,15 @@ def _voice_code():
               game_mod.AudioStream._layout, game_mod.AudioStream.header_in_bin):
         h.update(inspect.getsource(f).encode('utf-8'))
     h.update(repr(game_mod.STREAM_BLOCK_SAMPLES).encode())
-    for f in ('snr.py', 'refpack.py', 'vgm.py', 'audio_io.py'):
+    for f in ('snr.py', 'refpack.py', 'vgm.py', 'audio_io.py', 'fitlen.py', 'stretch.py'):
         h.update(open(os.path.join(ROOT, 'ra3voice', f), 'rb').read())
     return h.hexdigest()
+
+
+def sync_locked(game):
+    """Lines whose length the game's map scripts depend on (tools/sync_lock.py); only RA3 has online co-op."""
+    path = os.path.join(ROOT, 'sync_lock.json')
+    return set(json.load(open(path, encoding='utf-8')).get(game, [])) if os.path.exists(path) else set()
 
 
 def voice_clips(game, stream, jobs, no_level):
@@ -316,10 +325,12 @@ def voice_clips(game, stream, jobs, no_level):
     index_path = os.path.join(cache, 'index.json')
     index = json.load(open(index_path, encoding='utf-8')) if os.path.exists(index_path) else {}
     code = _voice_code()
+    locked = sync_locked(game)
     originals = stream.read_cdata([a for a, _ in jobs])
     clips, todo, keys = {}, [], {}
     for a, wav in jobs:
-        layout = (a.cdata_path, *stream._layout(a), stream.header_in_bin(a) is None, bool(no_level))
+        lock = a.short_name in locked
+        layout = (a.cdata_path, *stream._layout(a), stream.header_in_bin(a) is None, bool(no_level), lock)
         k = hashlib.sha256('|'.join([code, repr(layout), hashlib.sha1(originals[a.short_name]).hexdigest(),
                                      hashlib.sha1(open(wav, 'rb').read()).hexdigest()]).encode()).hexdigest()
         keys[a.short_name] = k
@@ -328,7 +339,7 @@ def voice_clips(game, stream, jobs, no_level):
         if hit and hit['key'] == k and os.path.exists(blob_path):
             clips[a.short_name] = (open(blob_path, 'rb').read(), hit['n'])
         else:
-            todo.append((game, a.short_name, wav, originals[a.short_name], no_level))
+            todo.append((game, a.short_name, wav, originals[a.short_name], no_level, lock))
     if todo:
         with ProcessPoolExecutor(max(1, (os.cpu_count() or 2) - 2), initializer=_voice_worker_init,
                                  initargs=(game,)) as ex:
